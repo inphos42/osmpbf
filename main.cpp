@@ -10,6 +10,7 @@ int main(int argc, char* argv[]) {
 	osmpbf foo(argv[1]);
 	
 	foo.open();
+	while (foo.readBlob()) ;
 	foo.close();
 	
 	return 0;

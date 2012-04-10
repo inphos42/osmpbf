@@ -27,16 +27,6 @@ void osmpbf::open() {
 	std::cout << "opening File " << m_FileName << " ...";
 	m_Stream = new std::fstream(m_FileName.data(), std::ios::in | std::ios::binary);
 	std::cout << "done" << std::endl;
-	
-	while (!m_Stream->eof() && readBlob()) ;
-	
-// 	std::cout << "parsing header block ...";
-// 	header.ParseFromIstream(m_Stream);
-// 	std::cout << "done" << std::endl;
-	
-// 	for (int i = 0; i < header.required_features_size(); i++ ) {
-// 		std::cout << header.required_features().Get(i) << std::endl;
-// 	}
 }
 
 void osmpbf::close() {
@@ -48,8 +38,6 @@ void osmpbf::close() {
 	}
 }
 
-#define CHUNK 16384
-#define _GO_ON result
 
 bool inflateData(const char * source, uint32_t sourceSize, char * dest, uint32_t destSize) {
 	cout << "decompressing data ... ";
@@ -106,23 +94,62 @@ bool osmpbf::readBlob() {
 	bufferLength = ntohl(bufferLength);
 	cout << "header length : " << bufferLength << " B" << endl;
 	
-	bool result = false;
+	if (!bufferLength) {
+		delete[] buffer;
+		return false;
+	}
 	
-	if (bufferLength) {
-		cout << "parsing blob header ..." << endl;
+	cout << "parsing blob header ..." << endl;
+	
+	buffer = new char[bufferLength];
+	m_Stream->read(buffer, bufferLength);
+	
+	{
+		BlobHeader * blobHeader = new BlobHeader();
+		
+		if (!blobHeader->ParseFromArray((void *)buffer, bufferLength)) {
+			cerr << "ERROR: invalid blob header structure" << endl;
+			
+			if (!blobHeader->has_type())
+				cerr << "> no \"type\" field found" << endl;
+			
+			if (!blobHeader->has_datasize())
+				cerr << "> no \"datasize\" field found" << endl;
+			
+			if (buffer)
+				delete[] buffer;
+			
+			delete blobHeader;
+			
+			return false;
+		}
+		
+		if (buffer)
+			delete[] buffer;
+		
+		cout << "type : " << blobHeader->type() << endl;
+		cout << "datasize : " << blobHeader->datasize() << " B ( " << blobHeader->datasize() / 1024.f << " KiB )" << endl;
+		
+		if (blobHeader->type() == "OSMHeader")
+			blobDataType = BLOB_OSMHeader;
+		else if (blobHeader->type() == "OSMData")
+			blobDataType = BLOB_OSMData;
+		
+		bufferLength = blobHeader->datasize();
+		delete blobHeader;
+	}
+	
+	bool result = false;
+	if (blobDataType && bufferLength) {
+		cout << "parsing blob ..." << endl;
 		
 		buffer = new char[bufferLength];
 		m_Stream->read(buffer, bufferLength);
-	
-		BlobHeader blobHeader;
-		if (!blobHeader.ParseFromArray((void *)buffer, bufferLength)) {
-			cerr << "ERROR: invalid blob header structure" << endl;
-			
-			if (!blobHeader.has_type())
-				cerr << "> no \"type\" field found" << endl;
-			
-			if (!blobHeader.has_datasize())
-				cerr << "> no \"datasize\" field found" << endl;
+		
+		Blob * blob = new Blob();
+		
+		if (!blob->ParseFromArray((void *)buffer, bufferLength)) {
+			cerr << "error: invalid blob structure" << endl;
 			
 			if (buffer)
 				delete[] buffer;
@@ -130,99 +157,62 @@ bool osmpbf::readBlob() {
 			return false;
 		}
 		
-		cout << "type : " << blobHeader.type() << endl;
-		cout << "datasize : " << blobHeader.datasize() << " B ( " << blobHeader.datasize() / 1024.f << " KiB )" << endl;
-		
-		if (blobHeader.type() == "OSMHeader")
-			blobDataType = BLOB_OSMHeader;
-		else if (blobHeader.type() == "OSMData")
-			blobDataType = BLOB_OSMData;
-		
-		bufferLength = blobHeader.datasize();
-		
-		if (blobDataType && bufferLength) {
-			cout << "parsing blob ..." << endl;
+		if (blob->has_raw_size()) {
+			cout << "found compressed blob data" << endl;
+			cout << "uncompressed size : " << blob->raw_size() << "B ( " << blob->raw_size() / 1024.f << " KiB )" << endl;
 			
-// 			cout << "expecting blob type : ";
-// 			switch (blobDataType) {
-// 				case BLOB_OSMHeader: cout << "OSM Header"; break;
-// 				case BLOB_OSMData: cout << "OSM Data"; break;
-// 				default: cout << "invalid";
-// 			}
-// 			cout << endl;
+			bufferLength = blob->raw_size();
+			string * compressedData = blob->release_zlib_data();
+			
+			delete blob;
 			delete[] buffer;
+			
 			buffer = new char[bufferLength];
-			m_Stream->read(buffer, bufferLength);
 			
-			Blob * blob = new Blob();
+			inflateData(compressedData->data(), compressedData->length(), buffer, bufferLength);
+			delete compressedData;
 			
-			if (!blob->ParseFromArray((void *)buffer, bufferLength)) {
-				cerr << "error: invalid blob structure" << endl;
-				
-				if (buffer)
-					delete[] buffer;
-				
-				return false;
+			
+			switch (blobDataType) {
+				case BLOB_OSMHeader: result = readOSMHeader(buffer, bufferLength); break;
+				case BLOB_OSMData: result = readOSMData(buffer, bufferLength); break;
+				default: break;
 			}
+			delete[] buffer;
 			
-			
-			if (blob->has_raw_size()) {
-				cout << "found compressed blob data" << endl;
-				cout << "uncompressed size : " << blob->raw_size() << "B ( " << blob->raw_size() / 1024.f << " KiB )" << endl;
-				
-				bufferLength = blob->raw_size();
-				string * compressedData = blob->release_zlib_data();
-				
-				delete blob;
-				delete[] buffer;
-				
-				buffer = new char[bufferLength];
-				
-				inflateData(compressedData->data(), compressedData->length(), buffer, bufferLength);
-				delete compressedData;
-				
-				
-				switch (blobDataType) {
-					case BLOB_OSMHeader: result = readOSMHeader(buffer, bufferLength); break;
-					case BLOB_OSMData: result = readOSMData(buffer, bufferLength); break;
-					default: break;
-				}
-				delete[] buffer;
-				
-			}
-			else {
-				cout << "found uncompressed blob data" << endl;
-				
-				string * uncompressedData = blob->release_raw();
-				delete blob;
-				delete[] buffer;
-				
-				switch (blobDataType) {
-					case BLOB_OSMHeader: readOSMHeader(uncompressedData->data(), uncompressedData->length()); break;
-					case BLOB_OSMData: readOSMData(uncompressedData->data(), uncompressedData->length()); break;
-					default: break;
-				}
-				delete uncompressedData;
-			}
-			
-			buffer = NULL;
 		}
 		else {
-			cerr << "ERROR: ";
-			if (!blobDataType)
-				cerr << "invalid blob type";
-			if (!bufferLength)
-				cerr << "invalid blob size";
-			cerr << endl;
+			cout << "found uncompressed blob data" << endl;
 			
-			result = false;
+			string * uncompressedData = blob->release_raw();
+			delete blob;
+			delete[] buffer;
+			
+			switch (blobDataType) {
+				case BLOB_OSMHeader: result = readOSMHeader(uncompressedData->data(), uncompressedData->length()); break;
+				case BLOB_OSMData: result = readOSMData(uncompressedData->data(), uncompressedData->length()); break;
+				default: break;
+			}
+			delete uncompressedData;
 		}
+		
+		buffer = NULL;
+	}
+	else {
+		cerr << "ERROR: ";
+		if (!blobDataType)
+			cerr << "invalid blob type";
+		if (!bufferLength)
+			cerr << "invalid blob size";
+		cerr << endl;
+		
+		result = false;
 	}
 	
 	if (buffer)
 		delete[] buffer;
 	
-	return _GO_ON;
+	return result;
 }
 
 bool osmpbf::readOSMHeader(const char * rawdata, uint32_t size) {
