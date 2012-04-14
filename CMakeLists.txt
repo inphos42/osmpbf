@@ -29,6 +29,7 @@ include_directories(
 
 set(SOURCES_CPP
 	osmpbf.cpp
+	osmblobfile.cpp
 	main.cpp
 )
 

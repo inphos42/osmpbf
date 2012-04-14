@@ -3,23 +3,23 @@
 
 #include <string>
 
-class osmpbf {
+class OSMpbf {
 public:
-	osmpbf(std::string fileName);
-	virtual ~osmpbf();
+	OSMpbf(std::string fileName);
+	virtual ~OSMpbf();
 	
 	void open();
 	void close();
 	
 	bool readBlob();
+	
+	static bool readOSMHeader(const char * rawdata, uint32_t size);
+	static bool readOSMData(const char * rawdata, uint32_t size);
 private:
 	enum BlobDataType {BLOB_Invalid = 0, BLOB_OSMHeader = 1, BLOB_OSMData = 2};
 	
 	std::string m_FileName;
 	std::fstream * m_Stream;
-	
-	bool readOSMHeader(const char * rawdata, uint32_t size);
-	bool readOSMData(const char * rawdata, uint32_t size);
 };
 
 #endif // osmpbf_H

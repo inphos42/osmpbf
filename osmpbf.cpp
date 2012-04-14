@@ -11,25 +11,23 @@
 
 using namespace std;
 
-osmpbf::osmpbf(std::string fileName) : m_FileName(fileName), m_Stream(NULL) {
+OSMpbf::OSMpbf(std::string fileName) : m_FileName(fileName), m_Stream(NULL) {
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 }
 
-osmpbf::~osmpbf() {
+OSMpbf::~OSMpbf() {
 	close();
 }
 
-void osmpbf::open() {
+void OSMpbf::open() {
 	close();
-	
-	HeaderBlock header;
 	
 	std::cout << "opening File " << m_FileName << " ...";
 	m_Stream = new std::fstream(m_FileName.data(), std::ios::in | std::ios::binary);
 	std::cout << "done" << std::endl;
 }
 
-void osmpbf::close() {
+void OSMpbf::close() {
 	if (m_Stream) {
 		std::cout << "closing file ...";
 		delete m_Stream;
@@ -82,7 +80,7 @@ bool inflateData(const char * source, uint32_t sourceSize, char * dest, uint32_t
 	return true;
 }
 
-bool osmpbf::readBlob() {
+bool OSMpbf::readBlob() {
 	char * buffer = NULL;
 	uint32_t bufferLength = 0;
 	cout << "== blob ==" << endl;
@@ -215,7 +213,7 @@ bool osmpbf::readBlob() {
 	return result;
 }
 
-bool osmpbf::readOSMHeader(const char * rawdata, uint32_t size) {
+bool OSMpbf::readOSMHeader(const char * rawdata, uint32_t size) {
 	cout << "--- OSM header ---" << endl;
 	
 	HeaderBlock headerBlock;
@@ -248,7 +246,7 @@ bool osmpbf::readOSMHeader(const char * rawdata, uint32_t size) {
 	return true;
 }
 
-bool osmpbf::readOSMData(const char * rawdata, uint32_t size) {
+bool OSMpbf::readOSMData(const char * rawdata, uint32_t size) {
 	cout << "--- OSM data ---" << endl;
 	
 	PrimitiveBlock primitiveBlock;
@@ -266,6 +264,7 @@ bool osmpbf::readOSMData(const char * rawdata, uint32_t size) {
 		}
 		cout << it->ways_size() << " ways" << endl;
 		cout << it->relations_size() << " relations" << endl;
+		cout << it->changesets_size() << " changesets" << endl;
 	}
 	
 	cout << "--- OSM data ---" << endl;
