@@ -30,6 +30,7 @@ include_directories(
 set(SOURCES_CPP
 	osmpbf.cpp
 	osmblobfile.cpp
+	osmdatacontroller.cpp
 	main.cpp
 )
 

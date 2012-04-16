@@ -1,4 +1,5 @@
 #include "osmblobfile.h"
+#include "osmdatacontroller.h"
 #include "osmpbf.h"
 #include <iostream>
 #include <cstdint>
@@ -11,8 +12,8 @@ int main(int argc, char* argv[]) {
 	
 	osmpbf::OSMBlobFile foo(argv[1]);
 	
-	char * buffer;
-	uint32_t bufferLength;
+	char * buffer = NULL;
+	uint32_t bufferLength = 0;
 	
 	osmpbf::OSMBlobFile::BlobDataType blobType = osmpbf::OSMBlobFile::BLOB_Invalid;
 	
@@ -24,14 +25,29 @@ int main(int argc, char* argv[]) {
 			OSMpbf::readOSMHeader(buffer, bufferLength);
 			break;
 		case osmpbf::OSMBlobFile::BLOB_OSMData:
-			OSMpbf::readOSMData(buffer, bufferLength);
+			{
+				osmpbf::OSMPrimitiveBlockController pbc(buffer, bufferLength);
+				if (pbc.isNull()) {
+					std::cerr << "created OSMPrimitiveBlockController is null" << std::endl;
+					break;
+				}
+				
+				std::cout << "nodesSize = " << pbc.nodesSize() << std::endl;
+				std::cout << "waysSize = " << pbc.waysSize() << std::endl;
+			}
 			break;
 		default: break;
 		}
+		
+		if (buffer) delete[] buffer;
+		buffer = NULL;
+		bufferLength = 0;
 	}
 	while (blobType);
 	
 	foo.close();
+	
+	
 	
 	return 0;
 }
