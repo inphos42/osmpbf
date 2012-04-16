@@ -14,10 +14,10 @@ namespace osmpbf {
 	public:
 		AbstractOSMPrimitive()
 			: RefCountObject(), m_Controller(NULL), m_Group(NULL), m_Position(-1) {}
-		AbstractOSMPrimitive(OSMPrimitiveBlockController * controller, int groupIndex, int position)
-			: RefCountObject(), m_Controller(controller), m_GroupIndex(groupIndex), m_Position(position) {}
+		AbstractOSMPrimitive(OSMPrimitiveBlockController * controller, const PrimitiveGroup * group, int position)
+			: RefCountObject(), m_Controller(controller), m_Group(group), m_Position(position) {}
 		
-		inline bool isNull() const { return !m_Controller || (m_Position == -1); };
+		inline bool isNull() const { return !m_Controller || !m_Group || (m_Position < 0); };
 		
 		virtual int64_t id() const = 0;
 		
@@ -25,15 +25,16 @@ namespace osmpbf {
 		virtual std::string value(int index) = 0;
 	protected:
 		OSMPrimitiveBlockController * m_Controller;
-		PrimitiveGroup * m_Group;
+		const PrimitiveGroup * m_Group;
 		int m_Position;
 	};
 	
 	class AbstractOSMNode : public AbstractOSMPrimitive {
 	public:
-// 		AbstractOSMNode() : AbstractOSMPrimitive() {}
-// 		AbstractOSMNode(OSMPrimitiveBlockController * controller, int groupIndex, int position)
-// 			: AbstractOSMPrimitive(controller, groupIndex, position) {}
+		AbstractOSMNode()
+			: AbstractOSMPrimitive() {}
+		AbstractOSMNode(OSMPrimitiveBlockController * controller, const PrimitiveGroup * group, int position)
+			: AbstractOSMPrimitive(controller, group, position) {}
 		
 		virtual int64_t lat() const = 0;
 		virtual int64_t lon() const = 0;
@@ -43,14 +44,24 @@ namespace osmpbf {
 	
 	class AbstractOSMWay : public AbstractOSMPrimitive {
 	public:
+		AbstractOSMWay()
+			: AbstractOSMPrimitive() {}
+		AbstractOSMWay(OSMPrimitiveBlockController * controller, const PrimitiveGroup * group, int position)
+			: AbstractOSMPrimitive(controller, group, position) {}
+		
 		virtual int64_t ref(int index) const = 0;
-		virtual int refCount() const = 0;
+		virtual int refsSize() const = 0;
 		
 		virtual std::string value(std::string key) = 0;
 	};
 	
 	class AbstractOSMRelation : public AbstractOSMPrimitive {
 	public:
+		AbstractOSMRelation()
+			: AbstractOSMPrimitive() {}
+		AbstractOSMRelation(OSMPrimitiveBlockController * controller, const PrimitiveGroup * group, int position)
+			: AbstractOSMPrimitive(controller, group, position) {}
+		
 		enum MemberType {NODE = 0, WAY = 1, RELATION = 2};
 		
 		virtual int32_t roles_sid(int index) const = 0;
