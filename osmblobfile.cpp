@@ -55,6 +55,7 @@ namespace osmpbf {
 		}
 		cout << "done" << endl;
 		
+		inflateEnd(&stream);
 		return true;
 	}
 
