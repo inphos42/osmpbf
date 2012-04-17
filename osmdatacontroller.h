@@ -17,6 +17,7 @@ class Way;
 class Relation;
 
 namespace osmpbf {
+	class OSMPrimitiveBlockController;
 
 // 	class AbstractOSMDataIndex;
 // 	class OSMBlobFile;
@@ -58,7 +59,7 @@ namespace osmpbf {
 
 		bool operator==(const OSMNode & other) { return m_Private == other.m_Private; }
 
-		bool isNull() const { return !m_Private || m_Private->isNull(); }
+		inline bool isNull() const { return !m_Private || m_Private->isNull(); }
 
 		inline int64_t id() const { return m_Private->id(); }
 
@@ -79,7 +80,7 @@ namespace osmpbf {
 		OSMWay(AbstractOSMWay * data) : m_Private(data) { if (m_Private) m_Private->refInc(); }
 		virtual ~OSMWay() { if (m_Private) m_Private->refDec(); }
 
-		bool isNull() const { return !m_Private || m_Private->isNull(); }
+		inline bool isNull() const { return !m_Private || m_Private->isNull(); }
 
 		inline int64_t id() const { return m_Private->id(); }
 
@@ -95,7 +96,6 @@ namespace osmpbf {
 	};
 
 	class OSMPrimitiveBlockController {
-		friend class AbstractOSMPrimitive;
 	public:
 		OSMPrimitiveBlockController(char * rawData, uint32_t length, bool unpackDense = false);
 		virtual ~OSMPrimitiveBlockController();
