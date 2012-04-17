@@ -97,7 +97,7 @@ namespace osmpbf {
 	class OSMPrimitiveBlockController {
 		friend class AbstractOSMPrimitive;
 	public:
-		OSMPrimitiveBlockController(char * rawData, uint32_t length);
+		OSMPrimitiveBlockController(char * rawData, uint32_t length, bool unpackDense = false);
 		virtual ~OSMPrimitiveBlockController();
 
 		inline std::string queryStringTable(int id) const;
@@ -120,6 +120,8 @@ namespace osmpbf {
 
 		inline int64_t latOffset() const;
 		inline int64_t lonOffset() const;
+
+		void unpackDenseNodes();
 	private:
 		friend class OSMProtoBufWay;
 		friend class OSMProtoBufNode;
@@ -127,11 +129,12 @@ namespace osmpbf {
 
 		PrimitiveBlock * m_PBFPrimitiveBlock;
 
-		const PrimitiveGroup * m_NodesGroup;
-		const PrimitiveGroup * m_DenseNodesGroup;
-		const PrimitiveGroup * m_WaysGroup;
-		const PrimitiveGroup * m_RelationsGroup;
+		PrimitiveGroup * m_NodesGroup;
+		PrimitiveGroup * m_DenseNodesGroup;
+		PrimitiveGroup * m_WaysGroup;
+		PrimitiveGroup * m_RelationsGroup;
 
+		bool m_DenseNodesUnpacked;
 		int * m_DenseNodeKeyValIndex;
 
 		void buildDenseNodeKeyValIndex();
@@ -140,7 +143,7 @@ namespace osmpbf {
 		public:
 			OSMProtoBufNode()
 				: AbstractOSMNode() {}
-			OSMProtoBufNode(OSMPrimitiveBlockController * controller, const PrimitiveGroup * group, int position)
+			OSMProtoBufNode(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position)
 				: AbstractOSMNode(controller, group, position) {}
 
 			virtual int64_t id();
@@ -160,7 +163,7 @@ namespace osmpbf {
 		public:
 			OSMProtoBufDenseNode()
 				: AbstractOSMNode(), m_HasCachedId(false), m_HasCachedLat(false), m_HasCachedLon(false) {}
-			OSMProtoBufDenseNode(OSMPrimitiveBlockController * controller, const PrimitiveGroup * group, int position)
+			OSMProtoBufDenseNode(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position)
 				: AbstractOSMNode(controller, group, position), m_HasCachedId(false), m_HasCachedLat(false), m_HasCachedLon(false) {}
 
 			virtual int64_t id();
@@ -188,7 +191,7 @@ namespace osmpbf {
 		public:
 			OSMProtoBufWay()
 				: AbstractOSMWay() {}
-			OSMProtoBufWay(OSMPrimitiveBlockController * controller, const PrimitiveGroup * group, int position)
+			OSMProtoBufWay(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position)
 				: AbstractOSMWay(controller, group, position) {}
 
 			virtual int64_t id();

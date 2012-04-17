@@ -9,11 +9,12 @@ namespace osmpbf {
 
 // OSMPrimitiveBlockController
 
-	OSMPrimitiveBlockController::OSMPrimitiveBlockController(char * rawData, uint32_t length) :
+	OSMPrimitiveBlockController::OSMPrimitiveBlockController(char * rawData, uint32_t length, bool unpackDense) :
 		m_NodesGroup(NULL),
 		m_DenseNodesGroup(NULL),
 		m_WaysGroup(NULL),
 		m_RelationsGroup(NULL),
+		m_DenseNodesUnpacked(false),
 		m_DenseNodeKeyValIndex(NULL)
 	{
 		GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -23,7 +24,7 @@ namespace osmpbf {
 		if (m_PBFPrimitiveBlock->ParseFromArray((void*)rawData, length)) {
 			// we assume each primitive block has one primitive group for each primitive type
 			// populate group refs
-			const PrimitiveGroup * const * primGroups = m_PBFPrimitiveBlock->primitivegroup().data();
+			PrimitiveGroup ** primGroups = m_PBFPrimitiveBlock->mutable_primitivegroup()->mutable_data();
 
 			for (int i = 0; i < m_PBFPrimitiveBlock->primitivegroup_size(); ++i) {
 				if (primGroups[i]->nodes_size()) {
@@ -33,6 +34,9 @@ namespace osmpbf {
 
 				if (primGroups[i]->has_dense()) {
 					m_DenseNodesGroup = primGroups[i];
+
+					if (unpackDense) unpackDenseNodes();
+
 					break;
 				}
 
@@ -110,6 +114,27 @@ namespace osmpbf {
 		return m_PBFPrimitiveBlock->lon_offset();
 	}
 
+	void OSMPrimitiveBlockController::unpackDenseNodes(){
+		if (!m_DenseNodesGroup)
+			return;
+
+		m_DenseNodesUnpacked = true;
+
+		int64_t id = m_DenseNodesGroup->dense().id(0);
+		int64_t lat = m_DenseNodesGroup->dense().lat(0);
+		int64_t lon = m_DenseNodesGroup->dense().lon(0);
+
+		for (int i = 1; i < m_DenseNodesGroup->dense().id_size(); i++) {
+			id += m_DenseNodesGroup->dense().id(i);
+			lat += m_DenseNodesGroup->dense().lat(i);
+			lon += m_DenseNodesGroup->dense().lon(i);
+
+			m_DenseNodesGroup->mutable_dense()->mutable_id()->Set(i, id);
+			m_DenseNodesGroup->mutable_dense()->mutable_lat()->Set(i, lat);
+			m_DenseNodesGroup->mutable_dense()->mutable_lon()->Set(i, lon);
+		}
+	}
+
 	void OSMPrimitiveBlockController::buildDenseNodeKeyValIndex() {
 		int keys_vals_size = m_DenseNodesGroup->dense().keys_vals_size();
 
@@ -178,6 +203,9 @@ namespace osmpbf {
 // OSMProtoBufDenseNode
 
 	int64_t OSMPrimitiveBlockController::OSMProtoBufDenseNode::id() {
+		if (m_Controller->m_DenseNodesUnpacked)
+			return m_Group->dense().id(m_Position);
+
 		if (!m_HasCachedId) {
 			m_CachedId = m_Group->dense().id(0);
 			for (int i = 0; i < m_Position; i++)
@@ -188,6 +216,9 @@ namespace osmpbf {
 	}
 
 	int64_t OSMPrimitiveBlockController::OSMProtoBufDenseNode::lat() {
+		if (m_Controller->m_DenseNodesUnpacked)
+			return m_Group->dense().lat(m_Position);
+
 		if (!m_HasCachedLat) {
 			m_CachedLat = m_Group->dense().lat(0);
 			for (int i = 0; i < m_Position; i++)
@@ -198,6 +229,9 @@ namespace osmpbf {
 	}
 
 	int64_t OSMPrimitiveBlockController::OSMProtoBufDenseNode::lon() {
+		if (m_Controller->m_DenseNodesUnpacked)
+			return m_Group->dense().lon(m_Position);
+
 		if (!m_HasCachedLon) {
 			m_CachedLon = m_Group->dense().lon(0);
 			for (int i = 0; i < m_Position; i++)
