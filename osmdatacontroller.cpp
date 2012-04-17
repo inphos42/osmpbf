@@ -252,29 +252,23 @@ namespace osmpbf {
 	}
 
 	std::string OSMPrimitiveBlockController::OSMProtoBufDenseNode::key(int index) {
-		if (!m_Group->dense().keys_vals_size())
+		if (!m_Group->dense().keys_vals_size() || index < 0 || index >= keysSize())
 			return std::string();
 
 		if (!m_Controller->m_DenseNodeKeyValIndex)
 			m_Controller->buildDenseNodeKeyValIndex();
 
-		if (index > m_Controller->m_DenseNodeKeyValIndex[m_Position * 2])
-			return std::string();
-
-		return m_Controller->queryStringTable(m_Controller->m_DenseNodeKeyValIndex[m_Position * 2] + index * 2);
+		return m_Controller->queryStringTable(m_Group->dense().keys_vals(m_Controller->m_DenseNodeKeyValIndex[m_Position * 2] + index * 2));
 	}
 
 	std::string OSMPrimitiveBlockController::OSMProtoBufDenseNode::value(int index) {
-		if (!m_Group->dense().keys_vals_size() || index < 0)
+		if (!m_Group->dense().keys_vals_size() || index < 0 || index >= keysSize())
 			return std::string();
 
 		if (!m_Controller->m_DenseNodeKeyValIndex)
-			m_Controller->buildDenseNodeKeyValIndex();
+			m_Controller->buildDenseNodeKeyValIndex();;
 
-		if (index > m_Controller->m_DenseNodeKeyValIndex[m_Position * 2])
-			return std::string();
-
-		return m_Controller->queryStringTable(m_Controller->m_DenseNodeKeyValIndex[m_Position * 2] + index * 2 + 1);
+		return m_Controller->queryStringTable(m_Group->dense().keys_vals(m_Controller->m_DenseNodeKeyValIndex[m_Position * 2] + index * 2 + 1));
 	}
 
 	// TODO
