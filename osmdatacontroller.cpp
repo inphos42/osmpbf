@@ -73,9 +73,9 @@ namespace osmpbf {
 			return OSMNode();
 
 		if (m_DenseNodesGroup && (!m_NodesGroup || (position > m_NodesGroup->nodes_size())))
-			return OSMNode(new OSMProtoBufDenseNode(const_cast<OSMPrimitiveBlockController *>(this), m_DenseNodesGroup, position));
+			return OSMNode(new OSMNode::OSMDenseNodeAdaptor(const_cast<OSMPrimitiveBlockController *>(this), m_DenseNodesGroup, position));
 		else
-			return OSMNode(new OSMProtoBufNode(const_cast<OSMPrimitiveBlockController *>(this), m_NodesGroup, position));
+			return OSMNode(new OSMNode::OSMPlainNodeAdaptor(const_cast<OSMPrimitiveBlockController *>(this), m_NodesGroup, position));
 
 	}
 
@@ -92,7 +92,7 @@ namespace osmpbf {
 	}
 
 	OSMWay OSMPrimitiveBlockController::getWayAt(int position) const {
-		return OSMWay(new OSMProtoBufWay(const_cast<OSMPrimitiveBlockController *>(this), m_WaysGroup, position));
+		return OSMWay(new OSMWay::OSMWayAdaptor(const_cast<OSMPrimitiveBlockController *>(this), m_WaysGroup, position));
 	}
 
 	int OSMPrimitiveBlockController::waysSize() const {
@@ -167,147 +167,106 @@ namespace osmpbf {
 		return m_PBFPrimitiveBlock->stringtable().s(id);
 	}
 
-// OSMProtoBufNode
-
-	int64_t OSMPrimitiveBlockController::OSMProtoBufNode::id() {
-		return m_Group->nodes(m_Position).id();
+	OSMNodeStream OSMPrimitiveBlockController::getNodeStream() {
+		return OSMNodeStream(this);
 	}
 
-	int64_t OSMPrimitiveBlockController::OSMProtoBufNode::lat() {
-		return m_Group->nodes(m_Position).lat();
-	}
+// OSMNodeStream
 
-	int64_t OSMPrimitiveBlockController::OSMProtoBufNode::lon() {
-		return m_Group->nodes(m_Position).lon();
-	}
+	OSMNodeStream::OSMNodeStream(OSMPrimitiveBlockController * controller) :
+		m_Controller(controller),
+		m_Position(-1),
+		m_NodesSize(controller->m_NodesGroup ? controller->m_NodesGroup->nodes_size() : 0),
+		m_DenseNodesSize(controller->m_DenseNodesGroup ? controller->m_DenseNodesGroup->dense().id_size() : 0),
+		m_Id(0),
+		m_Lat(0),
+		m_Lon(0)
+	{}
 
-	int OSMPrimitiveBlockController::OSMProtoBufNode::keysSize() {
-		return m_Group->nodes(m_Position).keys_size();
-	}
+	OSMNodeStream::OSMNodeStream(const OSMNodeStream & other) :
+		m_Controller(other.m_Controller),
+		m_Position(other.m_Position),
+		m_NodesSize(other.m_NodesSize),
+		m_DenseNodesSize(other.m_DenseNodesSize),
+		m_Id(other.m_Id),
+		m_Lat(other.m_Lat),
+		m_Lon(other.m_Lon)
+	{}
 
-	std::string OSMPrimitiveBlockController::OSMProtoBufNode::key(int index) {
-		return m_Controller->queryStringTable(
-			m_Group->nodes(m_Position).keys(index));
-	}
+	void OSMNodeStream::next() {
+		if (m_Position >= m_NodesSize + m_DenseNodesSize)
+			return;
 
-	std::string OSMPrimitiveBlockController::OSMProtoBufNode::value(int index) {
-		return m_Controller->queryStringTable(
-			m_Group->nodes(m_Position).vals(index));
-	}
+		m_Position++;
+		m_DensePosition = m_Position - m_NodesSize;
 
-	// TODO
-	std::string OSMPrimitiveBlockController::OSMProtoBufNode::value(std::string key) {
-		return std::string();
-	}
-
-// OSMProtoBufDenseNode
-
-	int64_t OSMPrimitiveBlockController::OSMProtoBufDenseNode::id() {
-		if (m_Controller->m_DenseNodesUnpacked)
-			return m_Group->dense().id(m_Position);
-
-		if (!m_HasCachedId) {
-			m_CachedId = m_Group->dense().id(0);
-			for (int i = 0; i < m_Position; i++)
-				m_CachedId += m_Group->dense().id(i);
+		if (m_DensePosition < 0) {
+			m_Id = m_Controller->m_NodesGroup->nodes(m_Position).id();
+			m_Lat = m_Controller->m_NodesGroup->nodes(m_Position).lat();
+			m_Lon = m_Controller->m_NodesGroup->nodes(m_Position).lon();
 		}
-
-		return m_CachedId;
-	}
-
-	int64_t OSMPrimitiveBlockController::OSMProtoBufDenseNode::lat() {
-		if (m_Controller->m_DenseNodesUnpacked)
-			return m_Group->dense().lat(m_Position);
-
-		if (!m_HasCachedLat) {
-			m_CachedLat = m_Group->dense().lat(0);
-			for (int i = 0; i < m_Position; i++)
-				m_CachedLat += m_Group->dense().lat(i);
+		else if (m_DensePosition > 0) {
+			m_Id += m_Controller->m_DenseNodesGroup->dense().id(m_DensePosition);
+			m_Lat += m_Controller->m_DenseNodesGroup->dense().lat(m_DensePosition);
+			m_Lon += m_Controller->m_DenseNodesGroup->dense().lon(m_DensePosition);
 		}
-
-		return m_CachedLat;
-	}
-
-	int64_t OSMPrimitiveBlockController::OSMProtoBufDenseNode::lon() {
-		if (m_Controller->m_DenseNodesUnpacked)
-			return m_Group->dense().lon(m_Position);
-
-		if (!m_HasCachedLon) {
-			m_CachedLon = m_Group->dense().lon(0);
-			for (int i = 0; i < m_Position; i++)
-				m_CachedLon += m_Group->dense().lon(i);
+		else {
+			m_Id = m_Controller->m_DenseNodesGroup->dense().id(0);
+			m_Lat = m_Controller->m_DenseNodesGroup->dense().lat(0);
+			m_Lon = m_Controller->m_DenseNodesGroup->dense().lon(0);
 		}
-
-		return m_CachedLon;
 	}
 
-	int OSMPrimitiveBlockController::OSMProtoBufDenseNode::keysSize() {
-		if (!m_Group->dense().keys_vals_size())
-			return 0;
+	void OSMNodeStream::previous() {
+		if (m_Position < 1)
+			return;
 
-		if (!m_Controller->m_DenseNodeKeyValIndex)
-			m_Controller->buildDenseNodeKeyValIndex();
+		m_Position--;
 
-		return m_Controller->m_DenseNodeKeyValIndex[m_Position * 2 + 1];
+		m_DensePosition = m_Position - m_NodesSize;
+		if (m_DensePosition < 0) {
+			m_Id = m_Controller->m_NodesGroup->nodes(m_Position).id();
+			m_Lat = m_Controller->m_NodesGroup->nodes(m_Position).lat();
+			m_Lon = m_Controller->m_NodesGroup->nodes(m_Position).lon();
+		}
+		else if (m_DensePosition > 0) {
+			m_Id -= m_Controller->m_DenseNodesGroup->dense().id(m_DensePosition + 1);
+			m_Lat -= m_Controller->m_DenseNodesGroup->dense().lat(m_DensePosition + 1);
+			m_Lon -= m_Controller->m_DenseNodesGroup->dense().lon(m_DensePosition + 1);
+		}
+		else {
+			m_Id = m_Controller->m_DenseNodesGroup->dense().id(0);
+			m_Lat = m_Controller->m_DenseNodesGroup->dense().lat(0);
+			m_Lon = m_Controller->m_DenseNodesGroup->dense().lon(0);
+		}
 	}
 
-	std::string OSMPrimitiveBlockController::OSMProtoBufDenseNode::key(int index) {
-		if (!m_Group->dense().keys_vals_size() || index < 0 || index >= keysSize())
+	int OSMNodeStream::keysSize() const {
+		if (m_DensePosition < 0)
+			return m_Controller->m_NodesGroup->nodes(m_Position).keys_size();
+		else
+			return m_Controller->m_DenseNodeKeyValIndex[m_DensePosition * 2 + 1];
+	}
+
+	std::string OSMNodeStream::key(int index) const {
+		if (index < 0 || index > keysSize())
 			return std::string();
 
-		if (!m_Controller->m_DenseNodeKeyValIndex)
-			m_Controller->buildDenseNodeKeyValIndex();
+		int resultId = (m_DensePosition < 0) ?
+			m_Controller->m_NodesGroup->nodes(m_Position).keys(index) :
+			m_Controller->m_DenseNodesGroup->dense().keys_vals(m_Controller->m_DenseNodeKeyValIndex[m_DensePosition * 2] + index * 2);
 
-		return m_Controller->queryStringTable(m_Group->dense().keys_vals(m_Controller->m_DenseNodeKeyValIndex[m_Position * 2] + index * 2));
+		return m_Controller->queryStringTable(resultId);
 	}
 
-	std::string OSMPrimitiveBlockController::OSMProtoBufDenseNode::value(int index) {
-		if (!m_Group->dense().keys_vals_size() || index < 0 || index >= keysSize())
+	std::string OSMNodeStream::value(int index) const {
+		if (index < 0 || index > keysSize())
 			return std::string();
 
-		if (!m_Controller->m_DenseNodeKeyValIndex)
-			m_Controller->buildDenseNodeKeyValIndex();;
+		int resultId = (m_DensePosition < 0) ?
+			m_Controller->m_NodesGroup->nodes(m_Position).vals(index) :
+			m_Controller->m_DenseNodesGroup->dense().keys_vals(m_Controller->m_DenseNodeKeyValIndex[m_DensePosition * 2] + index * 2 + 1);
 
-		return m_Controller->queryStringTable(m_Group->dense().keys_vals(m_Controller->m_DenseNodeKeyValIndex[m_Position * 2] + index * 2 + 1));
-	}
-
-	// TODO
-	std::string OSMPrimitiveBlockController::OSMProtoBufDenseNode::value(std::string key) {
-		return std::string();
-	}
-
-// OSMProtoBufWay
-
-	int64_t OSMPrimitiveBlockController::OSMProtoBufWay::id() {
-		return m_Group->ways(m_Position).id();
-	}
-
-	int64_t OSMPrimitiveBlockController::OSMProtoBufWay::ref(int index) {
-		int64_t result = m_Group->ways(m_Position).refs(0);
-		for (int i = 0; i < index; i++)
-			result += m_Group->ways(m_Position).refs(i);
-
-		return result;
-	}
-
-	int OSMPrimitiveBlockController::OSMProtoBufWay::refsSize() const {
-		return m_Group->ways(m_Position).refs_size();
-	}
-
-	int OSMPrimitiveBlockController::OSMProtoBufWay::keysSize() {
-		return m_Group->ways(m_Position).keys_size();
-	}
-
-	std::string OSMPrimitiveBlockController::OSMProtoBufWay::key(int index) {
-		return m_Controller->queryStringTable(m_Group->ways(m_Position).keys(index));
-	}
-
-	std::string OSMPrimitiveBlockController::OSMProtoBufWay::value(int index) {
-		return m_Controller->queryStringTable(m_Group->ways(m_Position).vals(index));
-	}
-
-	// TODO
-	std::string OSMPrimitiveBlockController::OSMProtoBufWay::value(std::string key) {
-		return std::string();
+		return m_Controller->queryStringTable(resultId);
 	}
 }

@@ -31,6 +31,8 @@ set(SOURCES_CPP
 	osmpbf.cpp
 	osmblobfile.cpp
 	osmdatacontroller.cpp
+	osmway.cpp
+	osmnode.cpp
 	main.cpp
 )
 
