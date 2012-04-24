@@ -163,7 +163,7 @@ namespace osmpbf {
 		}
 	}
 
-	inline std::string OSMPrimitiveBlockController::queryStringTable(int id) const {
+	std::string OSMPrimitiveBlockController::queryStringTable(int id) const {
 		return m_PBFPrimitiveBlock->stringtable().s(id);
 	}
 

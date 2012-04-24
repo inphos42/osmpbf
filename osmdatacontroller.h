@@ -53,7 +53,7 @@ namespace osmpbf {
 		OSMPrimitiveBlockController(char * rawData, uint32_t length, bool unpackDense = false);
 		virtual ~OSMPrimitiveBlockController();
 
-		inline std::string queryStringTable(int id) const;
+		std::string queryStringTable(int id) const;
 
 		OSMNode getNodeAt(int position) const;
 		int nodesSize() const;
