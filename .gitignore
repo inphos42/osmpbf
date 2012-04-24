@@ -4,6 +4,6 @@ Doxyfile
 *.kdevelop.pcs
 *.kdevses
 *~
-build
+build*
 *.pro.user
 *.kdev4
