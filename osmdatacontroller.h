@@ -63,7 +63,7 @@ namespace osmpbf {
 
 		OSMNodeStream getNodeStream();
 
-		inline bool isNull() const {
+		bool isNull() const {
 			return !(m_PBFPrimitiveBlock && (
 				m_NodesGroup ||
 				m_WaysGroup ||
@@ -71,10 +71,10 @@ namespace osmpbf {
 				m_RelationsGroup));
 		}
 
-		inline int32_t granularity() const;
+		int32_t granularity() const;
 
-		inline int64_t latOffset() const;
-		inline int64_t lonOffset() const;
+		int64_t latOffset() const;
+		int64_t lonOffset() const;
 
 		void unpackDenseNodes();
 	private:

@@ -102,15 +102,15 @@ namespace osmpbf {
 			return 0;
 	}
 
-	inline int32_t OSMPrimitiveBlockController::granularity() const {
+	int32_t OSMPrimitiveBlockController::granularity() const {
 		return m_PBFPrimitiveBlock->granularity();
 	}
 
-	inline int64_t OSMPrimitiveBlockController::latOffset() const {
+	int64_t OSMPrimitiveBlockController::latOffset() const {
 		return m_PBFPrimitiveBlock->lat_offset();
 	}
 
-	inline int64_t OSMPrimitiveBlockController::lonOffset() const {
+	int64_t OSMPrimitiveBlockController::lonOffset() const {
 		return m_PBFPrimitiveBlock->lon_offset();
 	}
 
