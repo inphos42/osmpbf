@@ -117,7 +117,7 @@ namespace osmpbf {
 		open();
 	}
 
-	OSMBlobFile::BlobDataType OSMBlobFile::nextBlobData(char * & buffer, uint32_t & bufferLength) {
+	OSMBlobFile::BlobDataType OSMBlobFile::readBlobData(char * & buffer, uint32_t & bufferLength) {
 		if (m_FilePos > m_FileSize - 1)
 			return BLOB_Invalid;
 

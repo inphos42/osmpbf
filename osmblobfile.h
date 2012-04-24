@@ -16,7 +16,8 @@ namespace osmpbf {
 		void close();
 		void reset();
 
-		BlobDataType nextBlobData(char * & buffer, uint32_t & bufferSize);
+		BlobDataType readBlobData(char * & buffer, uint32_t & bufferSize);
+		bool writeBlobData(BlobDataType type, char * buffer, uint32_t bufferSize);
 	private:
 		std::string m_FileName;
 
