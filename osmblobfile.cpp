@@ -222,7 +222,7 @@ namespace osmpbf {
 	}
 
 	bool BlobFileOut::open() {
-		m_FileDescriptor = ::open(m_FileName.c_str(), O_WRONLY | O_CREAT);
+		m_FileDescriptor = ::open(m_FileName.c_str(), O_WRONLY | O_CREAT, 0666);
 		return m_FileDescriptor > -1;
 	}
 
@@ -254,11 +254,24 @@ namespace osmpbf {
 			delete[] zlibBuffer;
 		}
 		else {
-			blob->set_raw(buffer);
+			blob->set_raw((void *)buffer, bufferSize);
+		}
+
+		if (!blob->IsInitialized()) {
+			std::cerr << "blob not initialized" << std::endl;
+			return false;
 		}
 
 		std::string serializedBlobBuffer = blob->SerializeAsString();
 		delete blob;
+
+// 		std::cout << "datasize: " << serializedBlobBuffer.length() << std::endl;
+// 		return false;
+
+		if (!serializedBlobBuffer.length()) {
+			std::cerr << "serializedBlobBuffer failed" << std::endl;
+			return false;
+		}
 
 		BlobHeader * blobHeader = new BlobHeader();
 		blobHeader->set_datasize(serializedBlobBuffer.length());
@@ -271,15 +284,30 @@ namespace osmpbf {
 			break;
 		}
 
-		uint32_t headerSize = ::lseek(m_FileDescriptor, 0, SEEK_CUR);
+		if (!blobHeader->IsInitialized()) {
+			std::cerr << "blobHeader not initialized" << std::endl;
+			delete blobHeader;
+			return false;
+		}
+
 		::lseek(m_FileDescriptor, sizeof(uint32_t), SEEK_CUR); // skip file size
 
-		blobHeader->SerializeToFileDescriptor(m_FileDescriptor); // write header blob
+		uint32_t headerPosition = ::lseek(m_FileDescriptor, 0, SEEK_CUR);
+		if (!blobHeader->SerializeToFileDescriptor(m_FileDescriptor)) { // write header blob
+			std::cerr << "error writing blobHeader" << std::endl;
+			delete blobHeader;
+			return false;
+		}
 		delete blobHeader;
 
-		headerSize = ::lseek(m_FileDescriptor, headerSize, SEEK_SET);
-		::write(m_FileDescriptor, &headerSize, sizeof(uint32_t)); // write file size
+		uint32_t blobPosition = ::lseek(m_FileDescriptor, 0, SEEK_CUR);
+		uint32_t headerSize = blobPosition - headerPosition;
 
+		headerSize = htonl(headerSize);
+
+		::lseek(m_FileDescriptor, headerPosition - sizeof(uint32_t), SEEK_SET);
+		::write(m_FileDescriptor, &headerSize, sizeof(uint32_t)); // write file size
+		::lseek(m_FileDescriptor, blobPosition, SEEK_SET);
 		::write(m_FileDescriptor, (void *) serializedBlobBuffer.data(), serializedBlobBuffer.length());
 
 		return true;
