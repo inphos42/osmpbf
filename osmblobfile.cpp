@@ -10,13 +10,10 @@
 
 #include "osmblob.pb.h"
 
-using namespace std;
-
 namespace osmpbf {
 	bool inflateData(const char * source, uint32_t sourceSize, char * dest, uint32_t destSize) {
-		cout << "decompressing data ... ";
+		std::cout << "decompressing data ... ";
 		int ret;
-		unsigned int have;
 		z_stream stream;
 
 		stream.zalloc = Z_NULL;
@@ -37,35 +34,35 @@ namespace osmpbf {
 
 		switch (ret) {
 		case Z_NEED_DICT:
-			cerr << "ERROR: zlib - Z_NEED_DICT" << endl;
+			std::cerr << "ERROR: zlib - Z_NEED_DICT" << std::endl;
 			inflateEnd(&stream);
 			return false;
 		case Z_DATA_ERROR:
-			cerr << "ERROR: zlib - Z_DATA_ERROR" << endl;
+			std::cerr << "ERROR: zlib - Z_DATA_ERROR" << std::endl;
 			inflateEnd(&stream);
 			return false;
 		case Z_MEM_ERROR:
-			cerr << "ERROR: zlib - Z_MEM_ERROR" << endl;
+			std::cerr << "ERROR: zlib - Z_MEM_ERROR" << std::endl;
 			inflateEnd(&stream);
 			return false;
 		default:
 			break;
 		}
-		cout << "done" << endl;
+		std::cout << "done" << std::endl;
 
 		inflateEnd(&stream);
 		return true;
 	}
 
-	OSMBlobFile::OSMBlobFile(std::string fileName) : m_FileName(fileName), m_FileDescriptor(-1), m_FileData(NULL) {
+	bool deflateData(const char * source, uint32_t sourceSize, char * dest, uint32_t destSize) {
+		return false;
+	}
+
+	AbstractBlobFile::AbstractBlobFile(std::string fileName) : m_FileName(fileName), m_FileDescriptor(-1) {
 		GOOGLE_PROTOBUF_VERIFY_VERSION;
 	}
 
-	OSMBlobFile::~OSMBlobFile() {
-		close();
-	}
-
-	bool OSMBlobFile::open() {
+	bool BlobFileIn::open() {
 		close();
 
 		std::cout << "opening File " << m_FileName << " ...";
@@ -80,7 +77,7 @@ namespace osmpbf {
 		struct stat stFileInfo;
 		if (fstat(m_FileDescriptor, &stFileInfo) == 0) {
 			if (stFileInfo.st_size > INT32_MAX) {
-				cerr << "ERROR: input file is larger than 4GB" << endl;
+				std::cerr << "ERROR: input file is larger than 4GB" << std::endl;
 				::close(m_FileDescriptor);
 				m_FileDescriptor = -1;
 				return false;
@@ -92,7 +89,7 @@ namespace osmpbf {
 		m_FileData = (char *) mmap(0, m_FileSize, PROT_READ, MAP_SHARED, m_FileDescriptor, 0);
 
 		if ((void *) m_FileData == MAP_FAILED) {
-			cerr << "ERROR: could not mmap file" << endl;
+			std::cerr << "ERROR: could not mmap file" << std::endl;
 			::close(m_FileDescriptor);
 			m_FileDescriptor = -1;
 			m_FileData = NULL;
@@ -100,9 +97,10 @@ namespace osmpbf {
 		}
 
 		std::cout << "done" << std::endl;
+		return true;
 	}
 
-	void OSMBlobFile::close() {
+	void BlobFileIn::close() {
 		if (m_FileData) {
 			std::cout << "closing file ...";
 			munmap(m_FileData, m_FileSize);
@@ -113,44 +111,40 @@ namespace osmpbf {
 		}
 	}
 
-	void OSMBlobFile::reset() {
-		open();
-	}
-
-	OSMBlobFile::BlobDataType OSMBlobFile::readBlobData(char * & buffer, uint32_t & bufferLength) {
+	BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferLength) {
 		if (m_FilePos > m_FileSize - 1)
 			return BLOB_Invalid;
 
 		buffer = NULL;
 		bufferLength = 0;
 
-		cout << "== blob ==" << endl;
+		std::cout << "== blob ==" << std::endl;
 		BlobDataType blobDataType = BLOB_Invalid;
 
-		cout << "checking blob header ..." << endl;
+		std::cout << "checking blob header ..." << std::endl;
 
 		uint32_t blobLength;
 		uint32_t headerLength = ntohl(* (uint32_t *) fileData());
 
-		cout << "header length : " << headerLength << " B" << endl;
+		std::cout << "header length : " << headerLength << " B" << std::endl;
 
 		if (!headerLength)
 			return BLOB_Invalid;
 
 		m_FilePos += 4;
 
-		cout << "parsing blob header ..." << endl;
+		std::cout << "parsing blob header ..." << std::endl;
 		{
 			BlobHeader * blobHeader = new BlobHeader();
 
 			if (!blobHeader->ParseFromArray(fileData(), headerLength)) {
-				cerr << "ERROR: invalid blob header structure" << endl;
+				std::cerr << "ERROR: invalid blob header structure" << std::endl;
 
 				if (!blobHeader->has_type())
-					cerr << "> no \"type\" field found" << endl;
+					std::cerr << "> no \"type\" field found" << std::endl;
 
 				if (!blobHeader->has_datasize())
-					cerr << "> no \"datasize\" field found" << endl;
+					std::cerr << "> no \"datasize\" field found" << std::endl;
 
 				delete blobHeader;
 
@@ -159,8 +153,8 @@ namespace osmpbf {
 
 			m_FilePos += headerLength;
 
-			cout << "type : " << blobHeader->type() << endl;
-			cout << "datasize : " << blobHeader->datasize() << " B ( " << blobHeader->datasize() / 1024.f << " KiB )" << endl;
+			std::cout << "type : " << blobHeader->type() << std::endl;
+			std::cout << "datasize : " << blobHeader->datasize() << " B ( " << blobHeader->datasize() / 1024.f << " KiB )" << std::endl;
 
 			if (blobHeader->type() == "OSMHeader")
 				blobDataType = BLOB_OSMHeader;
@@ -172,12 +166,12 @@ namespace osmpbf {
 		}
 
 		if (blobDataType && blobLength) {
-			cout << "parsing blob ..." << endl;
+			std::cout << "parsing blob ..." << std::endl;
 
 			Blob * blob = new Blob();
 
 			if (!blob->ParseFromArray(fileData(), blobLength)) {
-				cerr << "error: invalid blob structure" << endl;
+				std::cerr << "error: invalid blob structure" << std::endl;
 
 				delete blob;
 
@@ -187,10 +181,10 @@ namespace osmpbf {
 			m_FilePos += blobLength;
 
 			if (blob->has_raw_size()) {
-				cout << "found compressed blob data" << endl;
-				cout << "uncompressed size : " << blob->raw_size() << "B ( " << blob->raw_size() / 1024.f << " KiB )" << endl;
+				std::cout << "found compressed blob data" << std::endl;
+				std::cout << "uncompressed size : " << blob->raw_size() << "B ( " << blob->raw_size() / 1024.f << " KiB )" << std::endl;
 
-				string * compressedData = blob->release_zlib_data();
+				std::string * compressedData = blob->release_zlib_data();
 				bufferLength = blob->raw_size();
 
 				delete blob;
@@ -201,9 +195,9 @@ namespace osmpbf {
 				delete compressedData;
 			}
 			else {
-				cout << "found uncompressed blob data" << endl;
+				std::cout << "found uncompressed blob data" << std::endl;
 
-				string * uncompressedData = blob->release_raw();
+				std::string * uncompressedData = blob->release_raw();
 				bufferLength = uncompressedData->length();
 
 				delete blob;
@@ -217,13 +211,77 @@ namespace osmpbf {
 			return blobDataType;
 		}
 
-		cerr << "ERROR: ";
+		std::cerr << "ERROR: ";
 		if (!blobDataType)
-			cerr << "invalid blob type";
+			std::cerr << "invalid blob type";
 		if (!bufferLength)
-			cerr << "invalid blob size";
-		cerr << endl;
+			std::cerr << "invalid blob size";
+		std::cerr << std::endl;
 
 		return BLOB_Invalid;
+	}
+
+	bool BlobFileOut::open() {
+		m_FileDescriptor = ::open(m_FileName.c_str(), O_WRONLY | O_CREAT);
+		return m_FileDescriptor > -1;
+	}
+
+	void BlobFileOut::close() {
+		if (m_FileDescriptor > -1)
+			::close(m_FileDescriptor);
+	}
+
+	void BlobFileOut::seek(uint32_t position) {
+		::lseek(m_FileDescriptor, position, SEEK_SET);
+	}
+
+	uint32_t BlobFileOut::position() const {
+		return ::lseek(m_FileDescriptor, 0, SEEK_CUR);
+	}
+
+	bool BlobFileOut::writeBlob(BlobDataType type, char * buffer, uint32_t bufferSize, bool compress) {
+		if (type == BLOB_Invalid)
+			return false;
+
+		Blob * blob = new Blob();
+
+		if (compress) {
+			char * zlibBuffer = new char[bufferSize];
+			uint32_t zlibBufferSize = bufferSize;
+			deflateData(buffer, bufferSize, zlibBuffer, zlibBufferSize);
+			blob->set_raw_size(bufferSize);
+			blob->set_zlib_data((void *)zlibBuffer, zlibBufferSize);
+			delete[] zlibBuffer;
+		}
+		else {
+			blob->set_raw(buffer);
+		}
+
+		std::string serializedBlobBuffer = blob->SerializeAsString();
+		delete blob;
+
+		BlobHeader * blobHeader = new BlobHeader();
+		blobHeader->set_datasize(serializedBlobBuffer.length());
+		switch (type) {
+		case BLOB_OSMData:
+			blobHeader->set_type("OSMData"); break;
+		case BLOB_OSMHeader:
+			blobHeader->set_type("OSMHeader"); break;
+		default:
+			break;
+		}
+
+		uint32_t headerSize = ::lseek(m_FileDescriptor, 0, SEEK_CUR);
+		::lseek(m_FileDescriptor, sizeof(uint32_t), SEEK_CUR); // skip file size
+
+		blobHeader->SerializeToFileDescriptor(m_FileDescriptor); // write header blob
+		delete blobHeader;
+
+		headerSize = ::lseek(m_FileDescriptor, headerSize, SEEK_SET);
+		::write(m_FileDescriptor, &headerSize, sizeof(uint32_t)); // write file size
+
+		::write(m_FileDescriptor, (void *) serializedBlobBuffer.data(), serializedBlobBuffer.length());
+
+		return true;
 	}
 }
