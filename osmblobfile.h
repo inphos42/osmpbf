@@ -9,7 +9,7 @@ namespace osmpbf {
 
 	class AbstractBlobFile {
 	public:
-		AbstractBlobFile() : m_FileDescriptor(-1) {}
+		AbstractBlobFile() : m_FileDescriptor(-1), m_VerboseOutput(false) {}
 		AbstractBlobFile(std::string fileName);
 		virtual ~AbstractBlobFile() {}
 
@@ -18,9 +18,12 @@ namespace osmpbf {
 
 		virtual void seek(uint32_t position) = 0;
 		virtual uint32_t position() const = 0;
+
+		inline void setVerboseOutput(bool value) { m_VerboseOutput = value; }
 	protected:
 		std::string m_FileName;
 		int m_FileDescriptor;
+		bool m_VerboseOutput;
 	};
 
 	class BlobFileIn : public AbstractBlobFile {

@@ -12,7 +12,6 @@
 
 namespace osmpbf {
 	bool inflateData(const char * source, uint32_t sourceSize, char * dest, uint32_t destSize) {
-		std::cout << "decompressing data ... ";
 		int ret;
 		z_stream stream;
 
@@ -28,7 +27,7 @@ namespace osmpbf {
 		if (ret != Z_OK)
 			return false;
 
-		ret = inflate(&stream, Z_NO_FLUSH);
+		ret = inflate(&stream, Z_FINISH);
 
 		assert(ret != Z_STREAM_ERROR);
 
@@ -48,14 +47,49 @@ namespace osmpbf {
 		default:
 			break;
 		}
-		std::cout << "done" << std::endl;
 
 		inflateEnd(&stream);
 		return true;
 	}
 
-	bool deflateData(const char * source, uint32_t sourceSize, char * dest, uint32_t destSize) {
-		return false;
+	uint32_t deflateData(const char * source, uint32_t sourceSize, char * dest, uint32_t destSize) {
+		int ret;
+		z_stream stream;
+
+		stream.zalloc = Z_NULL;
+		stream.zfree = Z_NULL;
+		stream.opaque = Z_NULL;
+		stream.avail_in = sourceSize;
+		stream.next_in = (Bytef *)source;
+		stream.avail_out = destSize;
+		stream.next_out = (Bytef *)dest;
+
+		ret = deflateInit(&stream, Z_BEST_COMPRESSION);
+		assert(ret != Z_STREAM_ERROR);
+
+		ret = deflate(&stream, Z_FINISH);
+
+		assert(ret != Z_STREAM_ERROR);
+
+		switch (ret) {
+		case Z_NEED_DICT:
+			std::cerr << "ERROR: zlib - Z_NEED_DICT" << std::endl;
+			deflateEnd(&stream);
+			return 0;
+		case Z_DATA_ERROR:
+			std::cerr << "ERROR: zlib - Z_DATA_ERROR" << std::endl;
+			deflateEnd(&stream);
+			return 0;
+		case Z_MEM_ERROR:
+			std::cerr << "ERROR: zlib - Z_MEM_ERROR" << std::endl;
+			deflateEnd(&stream);
+			return 0;
+		default:
+			break;
+		}
+
+		deflateEnd(&stream);
+		return stream.total_out;
 	}
 
 	AbstractBlobFile::AbstractBlobFile(std::string fileName) : m_FileName(fileName), m_FileDescriptor(-1) {
@@ -65,7 +99,7 @@ namespace osmpbf {
 	bool BlobFileIn::open() {
 		close();
 
-		std::cout << "opening File " << m_FileName << " ...";
+		if (m_VerboseOutput) std::cout << "opening File " << m_FileName << " ...";
 
 		m_FileData = NULL;
 		m_FileSize = 0;
@@ -96,16 +130,16 @@ namespace osmpbf {
 			return false;
 		}
 
-		std::cout << "done" << std::endl;
+		if (m_VerboseOutput) std::cout << "done" << std::endl;
 		return true;
 	}
 
 	void BlobFileIn::close() {
 		if (m_FileData) {
-			std::cout << "closing file ...";
+			if (m_VerboseOutput) std::cout << "closing file ...";
 			munmap(m_FileData, m_FileSize);
 			::close(m_FileDescriptor);
-			std::cout << "done" << std::endl;
+			if (m_VerboseOutput) std::cout << "done" << std::endl;
 
 			m_FileData = NULL;
 		}
@@ -118,22 +152,22 @@ namespace osmpbf {
 		buffer = NULL;
 		bufferLength = 0;
 
-		std::cout << "== blob ==" << std::endl;
+		if (m_VerboseOutput) std::cout << "== blob ==" << std::endl;
 		BlobDataType blobDataType = BLOB_Invalid;
 
-		std::cout << "checking blob header ..." << std::endl;
+		if (m_VerboseOutput) std::cout << "checking blob header ..." << std::endl;
 
 		uint32_t blobLength;
 		uint32_t headerLength = ntohl(* (uint32_t *) fileData());
 
-		std::cout << "header length : " << headerLength << " B" << std::endl;
+		if (m_VerboseOutput) std::cout << "header length : " << headerLength << " B" << std::endl;
 
 		if (!headerLength)
 			return BLOB_Invalid;
 
 		m_FilePos += 4;
 
-		std::cout << "parsing blob header ..." << std::endl;
+		if (m_VerboseOutput) std::cout << "parsing blob header ..." << std::endl;
 		{
 			BlobHeader * blobHeader = new BlobHeader();
 
@@ -153,8 +187,8 @@ namespace osmpbf {
 
 			m_FilePos += headerLength;
 
-			std::cout << "type : " << blobHeader->type() << std::endl;
-			std::cout << "datasize : " << blobHeader->datasize() << " B ( " << blobHeader->datasize() / 1024.f << " KiB )" << std::endl;
+			if (m_VerboseOutput) std::cout << "type : " << blobHeader->type() << std::endl;
+			if (m_VerboseOutput) std::cout << "datasize : " << blobHeader->datasize() << " B ( " << blobHeader->datasize() / 1024.f << " KiB )" << std::endl;
 
 			if (blobHeader->type() == "OSMHeader")
 				blobDataType = BLOB_OSMHeader;
@@ -166,7 +200,7 @@ namespace osmpbf {
 		}
 
 		if (blobDataType && blobLength) {
-			std::cout << "parsing blob ..." << std::endl;
+			if (m_VerboseOutput) std::cout << "parsing blob ..." << std::endl;
 
 			Blob * blob = new Blob();
 
@@ -181,8 +215,8 @@ namespace osmpbf {
 			m_FilePos += blobLength;
 
 			if (blob->has_raw_size()) {
-				std::cout << "found compressed blob data" << std::endl;
-				std::cout << "uncompressed size : " << blob->raw_size() << "B ( " << blob->raw_size() / 1024.f << " KiB )" << std::endl;
+				if (m_VerboseOutput) std::cout << "found compressed blob data" << std::endl;
+				if (m_VerboseOutput) std::cout << "uncompressed size : " << blob->raw_size() << "B ( " << blob->raw_size() / 1024.f << " KiB )" << std::endl;
 
 				std::string * compressedData = blob->release_zlib_data();
 				bufferLength = blob->raw_size();
@@ -191,11 +225,16 @@ namespace osmpbf {
 
 				buffer = new char[bufferLength];
 
+				if (m_VerboseOutput) std::cout << "decompressing data ... ";
+
 				inflateData(compressedData->data(), compressedData->length(), buffer, bufferLength);
+
+				if (m_VerboseOutput) std::cout << "done" << std::endl;
+
 				delete compressedData;
 			}
 			else {
-				std::cout << "found uncompressed blob data" << std::endl;
+				if (m_VerboseOutput) std::cout << "found uncompressed blob data" << std::endl;
 
 				std::string * uncompressedData = blob->release_raw();
 				bufferLength = uncompressedData->length();
@@ -222,13 +261,21 @@ namespace osmpbf {
 	}
 
 	bool BlobFileOut::open() {
-		m_FileDescriptor = ::open(m_FileName.c_str(), O_WRONLY | O_CREAT, 0666);
+		if (m_VerboseOutput) std::cout << "opening/creating File " << m_FileName << " ...";
+
+		m_FileDescriptor = ::open(m_FileName.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+
+		if (m_VerboseOutput) std::cout << "done" << std::endl;
+
 		return m_FileDescriptor > -1;
 	}
 
 	void BlobFileOut::close() {
-		if (m_FileDescriptor > -1)
+		if (m_FileDescriptor > -1) {
+			if (m_VerboseOutput) std::cout << "closing File " << m_FileName << " ...";
 			::close(m_FileDescriptor);
+			if (m_VerboseOutput) std::cout << "done" << std::endl;
+		}
 	}
 
 	void BlobFileOut::seek(uint32_t position) {
@@ -243,17 +290,23 @@ namespace osmpbf {
 		if (type == BLOB_Invalid)
 			return false;
 
+		if (m_VerboseOutput) std::cout << "preparing blob data:" << std::endl;
 		Blob * blob = new Blob();
 
 		if (compress) {
 			char * zlibBuffer = new char[bufferSize];
 			uint32_t zlibBufferSize = bufferSize;
-			deflateData(buffer, bufferSize, zlibBuffer, zlibBufferSize);
+
+			if (m_VerboseOutput) std::cout << "compressing data ... ";
+			zlibBufferSize = deflateData(buffer, bufferSize, zlibBuffer, zlibBufferSize);
+			if (m_VerboseOutput) std::cout << "done" << std::endl;
+
 			blob->set_raw_size(bufferSize);
 			blob->set_zlib_data((void *)zlibBuffer, zlibBufferSize);
 			delete[] zlibBuffer;
 		}
 		else {
+			if (m_VerboseOutput) std::cout << " <no compression requested>:" << std::endl;
 			blob->set_raw((void *)buffer, bufferSize);
 		}
 
@@ -264,9 +317,6 @@ namespace osmpbf {
 
 		std::string serializedBlobBuffer = blob->SerializeAsString();
 		delete blob;
-
-// 		std::cout << "datasize: " << serializedBlobBuffer.length() << std::endl;
-// 		return false;
 
 		if (!serializedBlobBuffer.length()) {
 			std::cerr << "serializedBlobBuffer failed" << std::endl;
@@ -290,6 +340,8 @@ namespace osmpbf {
 			return false;
 		}
 
+		if (m_VerboseOutput) std::cout << "writing blob...";
+
 		::lseek(m_FileDescriptor, sizeof(uint32_t), SEEK_CUR); // skip file size
 
 		uint32_t headerPosition = ::lseek(m_FileDescriptor, 0, SEEK_CUR);
@@ -309,6 +361,7 @@ namespace osmpbf {
 		::write(m_FileDescriptor, &headerSize, sizeof(uint32_t)); // write file size
 		::lseek(m_FileDescriptor, blobPosition, SEEK_SET);
 		::write(m_FileDescriptor, (void *) serializedBlobBuffer.data(), serializedBlobBuffer.length());
+		if (m_VerboseOutput) std::cout << "done" << std::endl;
 
 		return true;
 	}
