@@ -194,7 +194,7 @@ namespace osmpbf {
 	{}
 
 	void OSMNodeStream::next() {
-		if (m_Position >= m_NodesSize + m_DenseNodesSize)
+		if (isNull())
 			return;
 
 		m_Position++;
@@ -215,10 +215,13 @@ namespace osmpbf {
 			m_Lat = m_Controller->m_DenseNodesGroup->dense().lat(0);
 			m_Lon = m_Controller->m_DenseNodesGroup->dense().lon(0);
 		}
+
+		m_WGS84Lat = m_Lat * m_Controller->granularity() + m_Controller->latOffset();
+		m_WGS84Lon = m_Lon * m_Controller->granularity() + m_Controller->lonOffset();
 	}
 
 	void OSMNodeStream::previous() {
-		if (m_Position < 1)
+		if (isNull())
 			return;
 
 		m_Position--;
@@ -239,6 +242,9 @@ namespace osmpbf {
 			m_Lat = m_Controller->m_DenseNodesGroup->dense().lat(0);
 			m_Lon = m_Controller->m_DenseNodesGroup->dense().lon(0);
 		}
+
+		m_WGS84Lat = m_Lat * m_Controller->granularity() + m_Controller->latOffset();
+		m_WGS84Lon = m_Lon * m_Controller->granularity() + m_Controller->lonOffset();
 	}
 
 	int OSMNodeStream::keysSize() const {
