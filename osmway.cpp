@@ -4,7 +4,9 @@
 #include "osmformat.pb.h"
 
 namespace osmpbf {
+
 // OSMWayAdaptor
+
 	OSMWay::OSMWayAdaptor::OSMWayAdaptor() : AbstractOSMPrimitiveAdaptor() {}
 	OSMWay::OSMWayAdaptor::OSMWayAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position)
 		: AbstractOSMPrimitiveAdaptor(controller, group, position) {}

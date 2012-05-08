@@ -78,5 +78,34 @@ namespace osmpbf {
 
 		OSMWayAdaptor * m_Private;
 	};
+
+	class OSMWayStream {
+	public:
+		OSMWayStream(OSMPrimitiveBlockController * controller);
+		OSMWayStream(const OSMWayStream & other);
+
+		void next();
+		void previous();
+
+		inline bool isNull() const { return m_Position < 0 || m_Position > m_WaysSize - 1 || !m_Controller; }
+
+		int64_t id() const;
+
+		DeltaFieldConstForwardIterator<int64_t> refBegin() const;
+		DeltaFieldConstForwardIterator<int64_t> refEnd() const;
+
+		int keysSize() const;
+
+		int keyId(int index) const;
+		int valueId(int index) const;
+
+		std::string key(int index) const;
+		std::string value(int index) const;
+	private:
+		OSMPrimitiveBlockController * m_Controller;
+
+		int m_Position; // [-1, 0 .. ways_size]
+		const int m_WaysSize;
+	};
 }
 #endif // OSMPBF_OSMWAY_H
