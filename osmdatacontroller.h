@@ -39,6 +39,10 @@ namespace osmpbf {
 		inline double wgs84Lond() const { return m_WGS84Lon * .000000001; }
 
 		int keysSize() const;
+
+		int keyId(int index) const;
+		int valueId(int index) const;
+
 		std::string key(int index) const;
 		std::string value(int index) const;
 	private:
@@ -64,6 +68,7 @@ namespace osmpbf {
 		virtual ~OSMPrimitiveBlockController();
 
 		std::string queryStringTable(int id) const;
+		int stringTableSize() const;
 
 		OSMNode getNodeAt(int position) const;
 		int nodesSize() const;
@@ -111,6 +116,11 @@ namespace osmpbf {
 
 		bool m_DenseNodesUnpacked;
 		int * m_DenseNodeKeyValIndex;
+
+		inline int queryDenseNodeKeyValIndex(int index) {
+			if (!m_DenseNodeKeyValIndex) buildDenseNodeKeyValIndex();
+			return m_DenseNodeKeyValIndex[index];
+		}
 
 		void buildDenseNodeKeyValIndex();
 	};

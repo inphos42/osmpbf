@@ -167,6 +167,11 @@ namespace osmpbf {
 		return m_PBFPrimitiveBlock->stringtable().s(id);
 	}
 
+	int OSMPrimitiveBlockController::stringTableSize() const {
+		return m_PBFPrimitiveBlock->stringtable().s_size();
+	}
+
+
 	OSMNodeStream OSMPrimitiveBlockController::getNodeStream() {
 		return OSMNodeStream(this);
 	}
@@ -248,31 +253,36 @@ namespace osmpbf {
 	}
 
 	int OSMNodeStream::keysSize() const {
-		if (m_DensePosition < 0)
-			return m_Controller->m_NodesGroup->nodes(m_Position).keys_size();
-		else
-			return m_Controller->m_DenseNodeKeyValIndex[m_DensePosition * 2 + 1];
+		return (m_DensePosition < 0) ?
+			m_Controller->m_NodesGroup->nodes(m_Position).keys_size() :
+			m_Controller->queryDenseNodeKeyValIndex(m_DensePosition * 2 + 1);
+	}
+
+	int OSMNodeStream::keyId(int index) const {
+		if (index < 0 || index > keysSize())
+			return -1;
+
+		return (m_DensePosition < 0) ?
+			m_Controller->m_NodesGroup->nodes(m_Position).keys(index) :
+			m_Controller->m_DenseNodesGroup->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DensePosition * 2) + index * 2);
+	}
+
+	int OSMNodeStream::valueId(int index) const {
+		if (index < 0 || index > keysSize())
+			return -1;
+
+		return (m_DensePosition < 0) ?
+			m_Controller->m_NodesGroup->nodes(m_Position).vals(index) :
+			m_Controller->m_DenseNodesGroup->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DensePosition * 2) + index * 2 + 1);
 	}
 
 	std::string OSMNodeStream::key(int index) const {
-		if (index < 0 || index > keysSize())
-			return std::string();
-
-		int resultId = (m_DensePosition < 0) ?
-			m_Controller->m_NodesGroup->nodes(m_Position).keys(index) :
-			m_Controller->m_DenseNodesGroup->dense().keys_vals(m_Controller->m_DenseNodeKeyValIndex[m_DensePosition * 2] + index * 2);
-
-		return m_Controller->queryStringTable(resultId);
+		int id = keyId(index);
+		return (id < 0) ? std::string() : m_Controller->queryStringTable(id);
 	}
 
 	std::string OSMNodeStream::value(int index) const {
-		if (index < 0 || index > keysSize())
-			return std::string();
-
-		int resultId = (m_DensePosition < 0) ?
-			m_Controller->m_NodesGroup->nodes(m_Position).vals(index) :
-			m_Controller->m_DenseNodesGroup->dense().keys_vals(m_Controller->m_DenseNodeKeyValIndex[m_DensePosition * 2] + index * 2 + 1);
-
-		return m_Controller->queryStringTable(resultId);
+		int id = valueId(index);
+		return (id < 0) ? std::string() : m_Controller->queryStringTable(id);
 	}
 }

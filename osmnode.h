@@ -34,9 +34,12 @@ namespace osmpbf {
 		inline int64_t lon() const { return m_Private->lon(); }
 
 		inline int keysSize() const { return m_Private->keysSize(); }
+
+		inline int keyId(int index) const { return m_Private->keyId(index); }
+		inline int valueId(int index) const { return m_Private->valueId(index); }
+
 		inline std::string key(int index) const { return m_Private->key(index); }
 		inline std::string value(int index) const { return m_Private->value(index); }
-// 		inline std::string value(std::string key) const { return m_Private->value(key); }
 	private:
 		friend class OSMPrimitiveBlockController;
 
@@ -60,12 +63,13 @@ namespace osmpbf {
 			virtual int64_t lat();
 			virtual int64_t lon();
 
-			virtual int keysSize();
+			virtual int keysSize() const;
 
-			virtual std::string key(int index);
-			virtual std::string value(int index);
+			virtual int keyId(int index) const;
+			virtual int valueId(int index) const;
 
-// 			virtual std::string value(std::string key);
+			virtual std::string key(int index) const;
+			virtual std::string value(int index) const;
 		};
 
 		class OSMDenseNodeAdaptor : public AbstractOSMNodeAdaptor {
@@ -78,12 +82,13 @@ namespace osmpbf {
 			virtual int64_t lat();
 			virtual int64_t lon();
 
-			virtual int keysSize();
+			virtual int keysSize() const;
 
-			virtual std::string key(int index);
-			virtual std::string value(int index);
+			virtual int keyId(int index) const;
+			virtual int valueId(int index) const;
 
-// 			virtual std::string value(std::string key);
+			virtual std::string key(int index) const;
+			virtual std::string value(int index) const;
 		private:
 			bool m_HasCachedId;
 			bool m_HasCachedLat;

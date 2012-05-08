@@ -21,10 +21,13 @@ namespace osmpbf {
 
 		virtual int64_t id() = 0;
 
-		virtual int keysSize() = 0;
+		virtual int keysSize() const = 0;
 
-		virtual std::string key(int index) = 0;
-		virtual std::string value(int index) = 0;
+		virtual int keyId(int index) const = 0;
+		virtual int valueId(int index) const = 0;
+
+		virtual std::string key(int index) const = 0;
+		virtual std::string value(int index) const = 0;
 	protected:
 		OSMPrimitiveBlockController * m_Controller;
 		PrimitiveGroup * m_Group;

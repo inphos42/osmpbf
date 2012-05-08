@@ -21,24 +21,24 @@ namespace osmpbf {
 		return m_Group->nodes(m_Position).lon();
 	}
 
-	int OSMNode::OSMPlainNodeAdaptor::keysSize() {
+	int OSMNode::OSMPlainNodeAdaptor::keysSize() const {
 		return m_Group->nodes(m_Position).keys_size();
 	}
 
-	std::string OSMNode::OSMPlainNodeAdaptor::key(int index) {
-		return m_Controller->queryStringTable(
-			m_Group->nodes(m_Position).keys(index));
+	int OSMNode::OSMPlainNodeAdaptor::keyId(int index) const {
+		return m_Group->nodes(m_Position).keys(index);
 	}
 
-	std::string OSMNode::OSMPlainNodeAdaptor::value(int index) {
-		return m_Controller->queryStringTable(
-			m_Group->nodes(m_Position).vals(index));
+	int OSMNode::OSMPlainNodeAdaptor::valueId(int index) const {
+		return m_Group->nodes(m_Position).vals(index);
+	}
+	std::string OSMNode::OSMPlainNodeAdaptor::key(int index) const {
+		return m_Controller->queryStringTable(m_Group->nodes(m_Position).keys(index));
 	}
 
-// 	// TODO
-// 	std::string OSMNode::OSMPlainNodeAdaptor::value(std::string key) {
-// 		return std::string();
-// 	}
+	std::string OSMNode::OSMPlainNodeAdaptor::value(int index) const {
+		return m_Controller->queryStringTable(m_Group->nodes(m_Position).vals(index));
+	}
 
 // OSMDenseNodeAdaptor
 
@@ -85,38 +85,25 @@ namespace osmpbf {
 		return m_CachedLon;
 	}
 
-	int OSMNode::OSMDenseNodeAdaptor::keysSize() {
-		if (!m_Group->dense().keys_vals_size())
-			return 0;
-
-		if (!m_Controller->m_DenseNodeKeyValIndex)
-			m_Controller->buildDenseNodeKeyValIndex();
-
-		return m_Controller->m_DenseNodeKeyValIndex[m_Position * 2 + 1];
+	int OSMNode::OSMDenseNodeAdaptor::keysSize() const {
+		return (!m_Group->dense().keys_vals_size()) ? 0 : m_Controller->queryDenseNodeKeyValIndex(m_Position * 2 + 1);
 	}
 
-	std::string OSMNode::OSMDenseNodeAdaptor::key(int index) {
-		if (!m_Group->dense().keys_vals_size() || index < 0 || index >= keysSize())
-			return std::string();
-
-		if (!m_Controller->m_DenseNodeKeyValIndex)
-			m_Controller->buildDenseNodeKeyValIndex();
-
-		return m_Controller->queryStringTable(m_Group->dense().keys_vals(m_Controller->m_DenseNodeKeyValIndex[m_Position * 2] + index * 2));
+	int OSMNode::OSMDenseNodeAdaptor::keyId(int index) const {
+		return (index < 0 || index >= keysSize()) ? -1 : m_Group->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Position * 2) + index * 2);
 	}
 
-	std::string OSMNode::OSMDenseNodeAdaptor::value(int index) {
-		if (!m_Group->dense().keys_vals_size() || index < 0 || index >= keysSize())
-			return std::string();
-
-		if (!m_Controller->m_DenseNodeKeyValIndex)
-			m_Controller->buildDenseNodeKeyValIndex();;
-
-		return m_Controller->queryStringTable(m_Group->dense().keys_vals(m_Controller->m_DenseNodeKeyValIndex[m_Position * 2] + index * 2 + 1));
+	int OSMNode::OSMDenseNodeAdaptor::valueId(int index) const {
+		return (index < 0 || index >= keysSize()) ? -1 : m_Group->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Position * 2) + index * 2 + 1);
 	}
 
-// 	// TODO
-// 	std::string OSMNode::OSMDenseNodeAdaptor::value(std::string key) {
-// 		return std::string();
-// 	}
+	std::string OSMNode::OSMDenseNodeAdaptor::key(int index) const {
+		int id = keyId(index);
+		return (id < 0) ? std::string() : m_Controller->queryStringTable(id);
+	}
+
+	std::string OSMNode::OSMDenseNodeAdaptor::value(int index) const {
+		int id = valueId(index);
+		return (id < 0) ? std::string() : m_Controller->queryStringTable(id);
+	}
 }

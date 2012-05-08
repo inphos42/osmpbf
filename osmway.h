@@ -34,14 +34,17 @@ namespace osmpbf {
 		inline int64_t ref(int index) const { return m_Private->ref(index); }
 		inline int64_t rawRef(int index) const { return m_Private->rawRef(index); }
 		inline int refsSize() const { return m_Private->refsSize(); }
+
 		inline DeltaFieldConstForwardIterator<int64_t> refBegin() const { return m_Private->refBegin(); }
 		inline DeltaFieldConstForwardIterator<int64_t> refEnd() const { return m_Private->refEnd(); }
 
 		inline int keysSize() const { return m_Private->keysSize(); }
+
+		inline int keyId(int index) const { return m_Private->keyId(index); }
+		inline int valueId(int index) const { return m_Private->valueId(index); }
+
 		inline std::string key(int index) const { return m_Private->key(index); }
 		inline std::string value(int index) const { return m_Private->value(index); }
-// 		inline std::string value(std::string key) const { return m_Private->value(key); }
-
 	private:
 		friend class OSMPrimitiveBlockController;
 
@@ -52,18 +55,23 @@ namespace osmpbf {
 
 			virtual int64_t id();
 
-			virtual int keysSize();
-
-			virtual int64_t ref(int index);
-			virtual int64_t rawRef(int index);
 			virtual int refsSize() const;
+			virtual int64_t rawRef(int index) const;
 
-			virtual std::string key(int index);
-			virtual std::string value(int index);
-// 			virtual std::string value(std::string key);
+			// warning: This methods complexity is O(n). It's here for convenience. You shouldn't
+			//          call this method very often or with a high index parameter.
+			virtual int64_t ref(int index) const;
 
 			DeltaFieldConstForwardIterator<int64_t> refBegin() const;
 			DeltaFieldConstForwardIterator<int64_t> refEnd() const;
+
+			virtual int keysSize() const;
+
+			virtual int keyId(int index) const;
+			virtual int valueId(int index) const;
+
+			virtual std::string key(int index) const;
+			virtual std::string value(int index) const;
 		};
 
 		OSMWay(OSMWayAdaptor * data) : m_Private(data) { if (m_Private) m_Private->refInc(); }
