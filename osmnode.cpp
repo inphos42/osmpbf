@@ -4,7 +4,119 @@
 #include "osmformat.pb.h"
 
 namespace osmpbf {
+
+// OSMNodeStream
+
+	OSMNodeStream::OSMNodeStream(OSMPrimitiveBlockController * controller) :
+		m_Controller(controller),
+		m_Position(-1),
+		m_NodesSize(controller->m_NodesGroup ? controller->m_NodesGroup->nodes_size() : 0),
+		m_DenseNodesSize(controller->m_DenseNodesGroup ? controller->m_DenseNodesGroup->dense().id_size() : 0),
+		m_Id(0),
+		m_Lat(0),
+		m_Lon(0)
+	{}
+
+	OSMNodeStream::OSMNodeStream(const OSMNodeStream & other) :
+		m_Controller(other.m_Controller),
+		m_Position(other.m_Position),
+		m_NodesSize(other.m_NodesSize),
+		m_DenseNodesSize(other.m_DenseNodesSize),
+		m_Id(other.m_Id),
+		m_Lat(other.m_Lat),
+		m_Lon(other.m_Lon)
+	{}
+
+	void OSMNodeStream::next() {
+		if (isNull())
+			return;
+
+		m_Position++;
+		m_DensePosition = m_Position - m_NodesSize;
+
+		if (m_DensePosition < 0) {
+			m_Id = m_Controller->m_NodesGroup->nodes(m_Position).id();
+			m_Lat = m_Controller->m_NodesGroup->nodes(m_Position).lat();
+			m_Lon = m_Controller->m_NodesGroup->nodes(m_Position).lon();
+		}
+		else if (m_DensePosition > 0) {
+			m_Id += m_Controller->m_DenseNodesGroup->dense().id(m_DensePosition);
+			m_Lat += m_Controller->m_DenseNodesGroup->dense().lat(m_DensePosition);
+			m_Lon += m_Controller->m_DenseNodesGroup->dense().lon(m_DensePosition);
+		}
+		else {
+			m_Id = m_Controller->m_DenseNodesGroup->dense().id(0);
+			m_Lat = m_Controller->m_DenseNodesGroup->dense().lat(0);
+			m_Lon = m_Controller->m_DenseNodesGroup->dense().lon(0);
+		}
+
+		m_WGS84Lat = m_Lat * m_Controller->granularity() + m_Controller->latOffset();
+		m_WGS84Lon = m_Lon * m_Controller->granularity() + m_Controller->lonOffset();
+	}
+
+	void OSMNodeStream::previous() {
+		if (isNull())
+			return;
+
+		m_Position--;
+
+		m_DensePosition = m_Position - m_NodesSize;
+		if (m_DensePosition < 0) {
+			m_Id = m_Controller->m_NodesGroup->nodes(m_Position).id();
+			m_Lat = m_Controller->m_NodesGroup->nodes(m_Position).lat();
+			m_Lon = m_Controller->m_NodesGroup->nodes(m_Position).lon();
+		}
+		else if (m_DensePosition > 0) {
+			m_Id -= m_Controller->m_DenseNodesGroup->dense().id(m_DensePosition + 1);
+			m_Lat -= m_Controller->m_DenseNodesGroup->dense().lat(m_DensePosition + 1);
+			m_Lon -= m_Controller->m_DenseNodesGroup->dense().lon(m_DensePosition + 1);
+		}
+		else {
+			m_Id = m_Controller->m_DenseNodesGroup->dense().id(0);
+			m_Lat = m_Controller->m_DenseNodesGroup->dense().lat(0);
+			m_Lon = m_Controller->m_DenseNodesGroup->dense().lon(0);
+		}
+
+		m_WGS84Lat = m_Lat * m_Controller->granularity() + m_Controller->latOffset();
+		m_WGS84Lon = m_Lon * m_Controller->granularity() + m_Controller->lonOffset();
+	}
+
+	int OSMNodeStream::keysSize() const {
+		return (m_DensePosition < 0) ?
+			m_Controller->m_NodesGroup->nodes(m_Position).keys_size() :
+			m_Controller->queryDenseNodeKeyValIndex(m_DensePosition * 2 + 1);
+	}
+
+	int OSMNodeStream::keyId(int index) const {
+		if (index < 0 || index > keysSize())
+			return -1;
+
+		return (m_DensePosition < 0) ?
+			m_Controller->m_NodesGroup->nodes(m_Position).keys(index) :
+			m_Controller->m_DenseNodesGroup->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DensePosition * 2) + index * 2);
+	}
+
+	int OSMNodeStream::valueId(int index) const {
+		if (index < 0 || index > keysSize())
+			return -1;
+
+		return (m_DensePosition < 0) ?
+			m_Controller->m_NodesGroup->nodes(m_Position).vals(index) :
+			m_Controller->m_DenseNodesGroup->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DensePosition * 2) + index * 2 + 1);
+	}
+
+	std::string OSMNodeStream::key(int index) const {
+		int id = keyId(index);
+		return (id < 0) ? std::string() : m_Controller->queryStringTable(id);
+	}
+
+	std::string OSMNodeStream::value(int index) const {
+		int id = valueId(index);
+		return (id < 0) ? std::string() : m_Controller->queryStringTable(id);
+	}
+
 // OSMPlainNodeAdaptor
+
 	OSMNode::OSMPlainNodeAdaptor::OSMPlainNodeAdaptor() : AbstractOSMNodeAdaptor() {}
 	OSMNode::OSMPlainNodeAdaptor::OSMPlainNodeAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position) :
 		AbstractOSMNodeAdaptor(controller, group, position) {}

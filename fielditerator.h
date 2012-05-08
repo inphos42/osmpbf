@@ -6,7 +6,6 @@ namespace osmpbf {
 	class DeltaFieldConstForwardIterator {
 	public:
 		DeltaFieldConstForwardIterator() : m_Data(NULL), m_Previous(0) {}
-// 		DeltaFieldConstForwardIterator(Element * data) : m_Data(data), m_Previous(0) {}
 		DeltaFieldConstForwardIterator(const Element * data) : m_Data(const_cast<Element *>(data)), m_Previous(0) {}
 		DeltaFieldConstForwardIterator(const DeltaFieldConstForwardIterator<Element> & other) :
 			m_Data(other.m_Data), m_Previous(other.m_Previous) {}
