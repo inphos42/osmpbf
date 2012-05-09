@@ -5,216 +5,259 @@
 
 namespace osmpbf {
 
-// OSMNodeStream
+// OSMNode
 
-	OSMNodeStream::OSMNodeStream(OSMPrimitiveBlockController * controller) :
-		m_Controller(controller),
-		m_Position(-1),
-		m_NodesSize(controller->m_NodesGroup ? controller->m_NodesGroup->nodes_size() : 0),
-		m_DenseNodesSize(controller->m_DenseNodesGroup ? controller->m_DenseNodesGroup->dense().id_size() : 0),
+	OSMNode::OSMNode() : m_Private(NULL) {}
+	OSMNode::OSMNode(const OSMNode & other) : m_Private(other.m_Private) {
+		if (m_Private) m_Private->refInc();
+	}
+
+	OSMNode::OSMNode(AbstractOSMNodeAdaptor * data) : m_Private(data) {
+		if (m_Private) m_Private->refInc();
+	}
+
+	OSMNode::~OSMNode() {
+		if (m_Private) m_Private->refDec();
+	}
+
+	OSMNode & OSMNode::operator=(const OSMNode & other) {
+		if (m_Private)
+			m_Private->refDec();
+		m_Private = other.m_Private;
+		if (m_Private)
+			m_Private->refInc();
+		return *this;
+	}
+
+// OSMStreamNode
+
+	OSMStreamNode::OSMStreamNode(OSMPrimitiveBlockController * controller) : OSMNode(new OSMStreamNodeAdaptor(controller)) {}
+	OSMStreamNode::OSMStreamNode(const OSMStreamNode & other): OSMNode(other) {}
+
+// OSMStreamNodeAdaptor
+
+	OSMStreamNodeAdaptor::OSMStreamNodeAdaptor(OSMPrimitiveBlockController * controller) :
+		AbstractOSMNodeAdaptor(controller, controller->m_NodesGroup, 0),
+		m_DenseGroup(controller->m_DenseNodesGroup),
+		m_NodesSize(m_Group ? m_Group->nodes_size() : 0),
+		m_DenseNodesSize(m_DenseGroup ? m_DenseGroup->dense().id_size() : 0),
 		m_Id(0),
-		m_Lat(0),
-		m_Lon(0)
+		m_Lat(0), m_Lon(0),
+		m_WGS84Lat(0), m_WGS84Lon(0)
 	{}
 
-	OSMNodeStream::OSMNodeStream(const OSMNodeStream & other) :
-		m_Controller(other.m_Controller),
-		m_Position(other.m_Position),
-		m_NodesSize(other.m_NodesSize),
-		m_DenseNodesSize(other.m_DenseNodesSize),
-		m_Id(other.m_Id),
-		m_Lat(other.m_Lat),
-		m_Lon(other.m_Lon)
-	{}
-
-	void OSMNodeStream::next() {
+	void OSMStreamNodeAdaptor::next() {
 		if (isNull())
 			return;
 
-		m_Position++;
-		m_DensePosition = m_Position - m_NodesSize;
+		m_Index++;
+		m_DenseIndex = m_Index - m_NodesSize;
 
-		if (m_DensePosition < 0) {
-			m_Id = m_Controller->m_NodesGroup->nodes(m_Position).id();
-			m_Lat = m_Controller->m_NodesGroup->nodes(m_Position).lat();
-			m_Lon = m_Controller->m_NodesGroup->nodes(m_Position).lon();
+		if (m_DenseIndex < 0) {
+			m_Id = m_Group->nodes(m_Index).id();
+			m_Lat = m_Group->nodes(m_Index).lat();
+			m_Lon = m_Group->nodes(m_Index).lon();
 		}
-		else if (m_DensePosition > 0) {
-			m_Id += m_Controller->m_DenseNodesGroup->dense().id(m_DensePosition);
-			m_Lat += m_Controller->m_DenseNodesGroup->dense().lat(m_DensePosition);
-			m_Lon += m_Controller->m_DenseNodesGroup->dense().lon(m_DensePosition);
+		else if (m_DenseIndex > 0) {
+			if (m_Controller->denseNodesUnpacked()) {
+				m_Id = m_DenseGroup->dense().id(m_DenseIndex);
+				m_Lat = m_DenseGroup->dense().lat(m_DenseIndex);
+				m_Lon = m_DenseGroup->dense().lon(m_DenseIndex);
+			}
+			else {
+				m_Id += m_DenseGroup->dense().id(m_DenseIndex);
+				m_Lat += m_DenseGroup->dense().lat(m_DenseIndex);
+				m_Lon += m_DenseGroup->dense().lon(m_DenseIndex);
+			}
 		}
 		else {
-			m_Id = m_Controller->m_DenseNodesGroup->dense().id(0);
-			m_Lat = m_Controller->m_DenseNodesGroup->dense().lat(0);
-			m_Lon = m_Controller->m_DenseNodesGroup->dense().lon(0);
+			m_Id = m_DenseGroup->dense().id(0);
+			m_Lat = m_DenseGroup->dense().lat(0);
+			m_Lon = m_DenseGroup->dense().lon(0);
 		}
 
-		m_WGS84Lat = m_Lat * m_Controller->granularity() + m_Controller->latOffset();
-		m_WGS84Lon = m_Lon * m_Controller->granularity() + m_Controller->lonOffset();
+		m_WGS84Lat = m_Controller->toWGS84Lat(m_Lat);
+		m_WGS84Lon = m_Controller->toWGS84Lon(m_Lon);
 	}
 
-	void OSMNodeStream::previous() {
+	void OSMStreamNodeAdaptor::previous() {
 		if (isNull())
 			return;
 
-		m_Position--;
+		m_Index--;
 
-		m_DensePosition = m_Position - m_NodesSize;
-		if (m_DensePosition < 0) {
-			m_Id = m_Controller->m_NodesGroup->nodes(m_Position).id();
-			m_Lat = m_Controller->m_NodesGroup->nodes(m_Position).lat();
-			m_Lon = m_Controller->m_NodesGroup->nodes(m_Position).lon();
+		m_DenseIndex = m_Index - m_NodesSize;
+		if (m_DenseIndex < 0) {
+			m_Id = m_Group->nodes(m_Index).id();
+			m_Lat = m_Group->nodes(m_Index).lat();
+			m_Lon = m_Group->nodes(m_Index).lon();
 		}
-		else if (m_DensePosition > 0) {
-			m_Id -= m_Controller->m_DenseNodesGroup->dense().id(m_DensePosition + 1);
-			m_Lat -= m_Controller->m_DenseNodesGroup->dense().lat(m_DensePosition + 1);
-			m_Lon -= m_Controller->m_DenseNodesGroup->dense().lon(m_DensePosition + 1);
+		else if (m_DenseIndex > 0) {
+			if (m_Controller->denseNodesUnpacked()) {
+				m_Id = m_DenseGroup->dense().id(m_DenseIndex);
+				m_Lat = m_DenseGroup->dense().lat(m_DenseIndex);
+				m_Lon = m_DenseGroup->dense().lon(m_DenseIndex);
+			}
+			else {
+				m_Id -= m_DenseGroup->dense().id(m_DenseIndex + 1);
+				m_Lat -= m_DenseGroup->dense().lat(m_DenseIndex + 1);
+				m_Lon -= m_DenseGroup->dense().lon(m_DenseIndex + 1);
+			}
 		}
 		else {
-			m_Id = m_Controller->m_DenseNodesGroup->dense().id(0);
-			m_Lat = m_Controller->m_DenseNodesGroup->dense().lat(0);
-			m_Lon = m_Controller->m_DenseNodesGroup->dense().lon(0);
+			m_Id = m_DenseGroup->dense().id(0);
+			m_Lat = m_DenseGroup->dense().lat(0);
+			m_Lon = m_DenseGroup->dense().lon(0);
 		}
 
-		m_WGS84Lat = m_Lat * m_Controller->granularity() + m_Controller->latOffset();
-		m_WGS84Lon = m_Lon * m_Controller->granularity() + m_Controller->lonOffset();
+		m_WGS84Lat = m_Controller->toWGS84Lat(m_Lat);
+		m_WGS84Lon = m_Controller->toWGS84Lon(m_Lon);
 	}
 
-	int OSMNodeStream::keysSize() const {
-		return (m_DensePosition < 0) ?
-			m_Controller->m_NodesGroup->nodes(m_Position).keys_size() :
-			m_Controller->queryDenseNodeKeyValIndex(m_DensePosition * 2 + 1);
+	int OSMStreamNodeAdaptor::keysSize() const {
+		return (m_DenseIndex < 0) ?
+			m_Group->nodes(m_Index).keys_size() :
+			m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2 + 1);
 	}
 
-	int OSMNodeStream::keyId(int index) const {
+	int OSMStreamNodeAdaptor::keyId(int index) const {
 		if (index < 0 || index > keysSize())
 			return -1;
 
-		return (m_DensePosition < 0) ?
-			m_Controller->m_NodesGroup->nodes(m_Position).keys(index) :
-			m_Controller->m_DenseNodesGroup->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DensePosition * 2) + index * 2);
+		return (m_DenseIndex < 0) ?
+			m_Group->nodes(m_Index).keys(index) :
+			m_DenseGroup->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2) + index * 2);
 	}
 
-	int OSMNodeStream::valueId(int index) const {
+	int OSMStreamNodeAdaptor::valueId(int index) const {
 		if (index < 0 || index > keysSize())
 			return -1;
 
-		return (m_DensePosition < 0) ?
-			m_Controller->m_NodesGroup->nodes(m_Position).vals(index) :
-			m_Controller->m_DenseNodesGroup->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DensePosition * 2) + index * 2 + 1);
+		return (m_DenseIndex < 0) ?
+			m_Group->nodes(m_Index).vals(index) :
+			m_DenseGroup->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2) + index * 2 + 1);
 	}
 
-	std::string OSMNodeStream::key(int index) const {
+	std::string OSMStreamNodeAdaptor::key(int index) const {
 		int id = keyId(index);
 		return (id < 0) ? std::string() : m_Controller->queryStringTable(id);
 	}
 
-	std::string OSMNodeStream::value(int index) const {
+	std::string OSMStreamNodeAdaptor::value(int index) const {
 		int id = valueId(index);
 		return (id < 0) ? std::string() : m_Controller->queryStringTable(id);
 	}
 
 // OSMPlainNodeAdaptor
 
-	OSMNode::OSMPlainNodeAdaptor::OSMPlainNodeAdaptor() : AbstractOSMNodeAdaptor() {}
-	OSMNode::OSMPlainNodeAdaptor::OSMPlainNodeAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position) :
+	OSMPlainNodeAdaptor::OSMPlainNodeAdaptor() : AbstractOSMNodeAdaptor() {}
+	OSMPlainNodeAdaptor::OSMPlainNodeAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position) :
 		AbstractOSMNodeAdaptor(controller, group, position) {}
 
-	int64_t OSMNode::OSMPlainNodeAdaptor::id() {
-		return m_Group->nodes(m_Position).id();
+	int64_t OSMPlainNodeAdaptor::id() {
+		return m_Group->nodes(m_Index).id();
 	}
 
-	int64_t OSMNode::OSMPlainNodeAdaptor::lat() {
-		return m_Group->nodes(m_Position).lat();
+	int64_t OSMPlainNodeAdaptor::lat() {
+		return m_Controller->toWGS84Lat(m_Group->nodes(m_Index).lat());
 	}
 
-	int64_t OSMNode::OSMPlainNodeAdaptor::lon() {
-		return m_Group->nodes(m_Position).lon();
+	int64_t OSMPlainNodeAdaptor::lon() {
+		return m_Controller->toWGS84Lon(m_Group->nodes(m_Index).lon());
 	}
 
-	int OSMNode::OSMPlainNodeAdaptor::keysSize() const {
-		return m_Group->nodes(m_Position).keys_size();
+	int64_t OSMPlainNodeAdaptor::rawLat() const {
+		return m_Group->nodes(m_Index).lat();
 	}
 
-	int OSMNode::OSMPlainNodeAdaptor::keyId(int index) const {
-		return m_Group->nodes(m_Position).keys(index);
+	int64_t OSMPlainNodeAdaptor::rawLon() const {
+		return m_Group->nodes(m_Index).lon();
 	}
 
-	int OSMNode::OSMPlainNodeAdaptor::valueId(int index) const {
-		return m_Group->nodes(m_Position).vals(index);
-	}
-	std::string OSMNode::OSMPlainNodeAdaptor::key(int index) const {
-		return m_Controller->queryStringTable(m_Group->nodes(m_Position).keys(index));
+	int OSMPlainNodeAdaptor::keysSize() const {
+		return m_Group->nodes(m_Index).keys_size();
 	}
 
-	std::string OSMNode::OSMPlainNodeAdaptor::value(int index) const {
-		return m_Controller->queryStringTable(m_Group->nodes(m_Position).vals(index));
+	int OSMPlainNodeAdaptor::keyId(int index) const {
+		return m_Group->nodes(m_Index).keys(index);
+	}
+
+	int OSMPlainNodeAdaptor::valueId(int index) const {
+		return m_Group->nodes(m_Index).vals(index);
+	}
+	std::string OSMPlainNodeAdaptor::key(int index) const {
+		return m_Controller->queryStringTable(m_Group->nodes(m_Index).keys(index));
+	}
+
+	std::string OSMPlainNodeAdaptor::value(int index) const {
+		return m_Controller->queryStringTable(m_Group->nodes(m_Index).vals(index));
 	}
 
 // OSMDenseNodeAdaptor
 
-	OSMNode::OSMDenseNodeAdaptor::OSMDenseNodeAdaptor() : AbstractOSMNodeAdaptor() {}
-	OSMNode::OSMDenseNodeAdaptor::OSMDenseNodeAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position) :
+	OSMDenseNodeAdaptor::OSMDenseNodeAdaptor() : AbstractOSMNodeAdaptor() {}
+	OSMDenseNodeAdaptor::OSMDenseNodeAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position) :
 		AbstractOSMNodeAdaptor(controller, group, position) {}
 
-	int64_t OSMNode::OSMDenseNodeAdaptor::id() {
-		if (m_Controller->m_DenseNodesUnpacked)
-			return m_Group->dense().id(m_Position);
-
+	int64_t OSMDenseNodeAdaptor::id() {
 		if (!m_HasCachedId) {
 			m_CachedId = m_Group->dense().id(0);
-			for (int i = 0; i < m_Position; i++)
+			for (int i = 0; i < m_Index; i++)
 				m_CachedId += m_Group->dense().id(i);
 		}
 
 		return m_CachedId;
 	}
 
-	int64_t OSMNode::OSMDenseNodeAdaptor::lat() {
-		if (m_Controller->m_DenseNodesUnpacked)
-			return m_Group->dense().lat(m_Position);
+	int64_t OSMDenseNodeAdaptor::lat() {
+		if (m_Controller->denseNodesUnpacked())
+			m_Controller->toWGS84Lat(m_Group->dense().lat(m_Index));
 
 		if (!m_HasCachedLat) {
 			m_CachedLat = m_Group->dense().lat(0);
-			for (int i = 0; i < m_Position; i++)
+			for (int i = 0; i < m_Index; i++)
 				m_CachedLat += m_Group->dense().lat(i);
 		}
 
-		return m_CachedLat;
+		return m_Controller->toWGS84Lat(m_CachedLat);
 	}
 
-	int64_t OSMNode::OSMDenseNodeAdaptor::lon() {
-		if (m_Controller->m_DenseNodesUnpacked)
-			return m_Group->dense().lon(m_Position);
-
+	int64_t OSMDenseNodeAdaptor::lon() {
 		if (!m_HasCachedLon) {
 			m_CachedLon = m_Group->dense().lon(0);
-			for (int i = 0; i < m_Position; i++)
+			for (int i = 0; i < m_Index; i++)
 				m_CachedLon += m_Group->dense().lon(i);
 		}
 
-		return m_CachedLon;
+		return m_Controller->toWGS84Lon(m_CachedLon);
 	}
 
-	int OSMNode::OSMDenseNodeAdaptor::keysSize() const {
-		return (!m_Group->dense().keys_vals_size()) ? 0 : m_Controller->queryDenseNodeKeyValIndex(m_Position * 2 + 1);
+	int64_t OSMDenseNodeAdaptor::rawLat() const {
+		return m_Group->dense().lat(m_Index);
 	}
 
-	int OSMNode::OSMDenseNodeAdaptor::keyId(int index) const {
-		return (index < 0 || index >= keysSize()) ? -1 : m_Group->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Position * 2) + index * 2);
+	int64_t OSMDenseNodeAdaptor::rawLon() const {
+		return m_Group->dense().lon(m_Index);
 	}
 
-	int OSMNode::OSMDenseNodeAdaptor::valueId(int index) const {
-		return (index < 0 || index >= keysSize()) ? -1 : m_Group->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Position * 2) + index * 2 + 1);
+	int OSMDenseNodeAdaptor::keysSize() const {
+		return (!m_Group->dense().keys_vals_size()) ? 0 : m_Controller->queryDenseNodeKeyValIndex(m_Index * 2 + 1);
 	}
 
-	std::string OSMNode::OSMDenseNodeAdaptor::key(int index) const {
+	int OSMDenseNodeAdaptor::keyId(int index) const {
+		return (index < 0 || index >= keysSize()) ? -1 : m_Group->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Index * 2) + index * 2);
+	}
+
+	int OSMDenseNodeAdaptor::valueId(int index) const {
+		return (index < 0 || index >= keysSize()) ? -1 : m_Group->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Index * 2) + index * 2 + 1);
+	}
+
+	std::string OSMDenseNodeAdaptor::key(int index) const {
 		int id = keyId(index);
 		return (id < 0) ? std::string() : m_Controller->queryStringTable(id);
 	}
 
-	std::string OSMNode::OSMDenseNodeAdaptor::value(int index) const {
+	std::string OSMDenseNodeAdaptor::value(int index) const {
 		int id = valueId(index);
 		return (id < 0) ? std::string() : m_Controller->queryStringTable(id);
 	}

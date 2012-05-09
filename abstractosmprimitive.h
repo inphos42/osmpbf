@@ -13,11 +13,11 @@ namespace osmpbf {
 	class AbstractOSMPrimitiveAdaptor : public RefCountObject {
 	public:
 		AbstractOSMPrimitiveAdaptor()
-			: RefCountObject(), m_Controller(NULL), m_Group(NULL), m_Position(-1) {}
-		AbstractOSMPrimitiveAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position)
-			: RefCountObject(), m_Controller(controller), m_Group(group), m_Position(position) {}
+			: RefCountObject(), m_Controller(NULL), m_Group(NULL), m_Index(-1) {}
+		AbstractOSMPrimitiveAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int index)
+			: RefCountObject(), m_Controller(controller), m_Group(group), m_Index(index) {}
 
-		inline bool isNull() const { return !m_Controller || !m_Group || (m_Position < 0); };
+		virtual bool isNull() const { return !m_Controller || !m_Group || (m_Index < 0); }
 
 		virtual int64_t id() = 0;
 
@@ -28,10 +28,11 @@ namespace osmpbf {
 
 		virtual std::string key(int index) const = 0;
 		virtual std::string value(int index) const = 0;
+
 	protected:
 		OSMPrimitiveBlockController * m_Controller;
 		PrimitiveGroup * m_Group;
-		int m_Position;
+		int m_Index;
 	};
 }
 #endif // OSMPBF_ABSTRACTOSMPRIMITIVE_H

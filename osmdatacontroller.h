@@ -29,7 +29,8 @@ namespace osmpbf {
 		OSMWay getWayAt(int position) const;
 		int waysSize() const;
 
-		OSMNodeStream getNodeStream();
+		OSMStreamNode getNodeStream();
+		OSMStreamWay getWayStream();
 
 		bool isNull() const {
 			return !(m_PBFPrimitiveBlock && (
@@ -53,12 +54,13 @@ namespace osmpbf {
 		}
 
 		void unpackDenseNodes();
+		inline bool denseNodesUnpacked() const { return m_DenseNodesUnpacked; }
 	private:
-		friend class OSMNodeStream;
-
-		friend class OSMNode::OSMPlainNodeAdaptor;
-		friend class OSMNode::OSMDenseNodeAdaptor;
-		friend class OSMWay::OSMWayAdaptor;
+		friend class OSMPlainNodeAdaptor;
+		friend class OSMDenseNodeAdaptor;
+		friend class OSMStreamNodeAdaptor;
+		friend class OSMWayAdaptor;
+		friend class OSMStreamWayAdaptor;
 
 		PrimitiveBlock * m_PBFPrimitiveBlock;
 

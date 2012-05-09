@@ -73,9 +73,9 @@ namespace osmpbf {
 			return OSMNode();
 
 		if (m_DenseNodesGroup && (!m_NodesGroup || (position > m_NodesGroup->nodes_size())))
-			return OSMNode(new OSMNode::OSMDenseNodeAdaptor(const_cast<OSMPrimitiveBlockController *>(this), m_DenseNodesGroup, position));
+			return OSMNode(new OSMDenseNodeAdaptor(const_cast<OSMPrimitiveBlockController *>(this), m_DenseNodesGroup, position));
 		else
-			return OSMNode(new OSMNode::OSMPlainNodeAdaptor(const_cast<OSMPrimitiveBlockController *>(this), m_NodesGroup, position));
+			return OSMNode(new OSMPlainNodeAdaptor(const_cast<OSMPrimitiveBlockController *>(this), m_NodesGroup, position));
 
 	}
 
@@ -92,7 +92,7 @@ namespace osmpbf {
 	}
 
 	OSMWay OSMPrimitiveBlockController::getWayAt(int position) const {
-		return OSMWay(new OSMWay::OSMWayAdaptor(const_cast<OSMPrimitiveBlockController *>(this), m_WaysGroup, position));
+		return OSMWay(new OSMWayAdaptor(const_cast<OSMPrimitiveBlockController *>(this), m_WaysGroup, position));
 	}
 
 	int OSMPrimitiveBlockController::waysSize() const {

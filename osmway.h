@@ -10,7 +10,34 @@
 namespace osmpbf {
 	class OSMPrimitiveBlockController;
 
+	class OSMWayAdaptor : public AbstractOSMPrimitiveAdaptor {
+	public:
+		OSMWayAdaptor();
+		OSMWayAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position);
+
+		virtual int64_t id();
+
+		virtual int refsSize() const;
+		virtual int64_t rawRef(int index) const;
+
+		// warning: This methods complexity is O(n). It's here for convenience. You shouldn't
+		//          call this method very often or with a high index parameter.
+		virtual int64_t ref(int index) const;
+
+		DeltaFieldConstForwardIterator<int64_t> refBegin() const;
+		DeltaFieldConstForwardIterator<int64_t> refEnd() const;
+
+		virtual int keysSize() const;
+
+		virtual int keyId(int index) const;
+		virtual int valueId(int index) const;
+
+		virtual std::string key(int index) const;
+		virtual std::string value(int index) const;
+	};
+
 	class OSMWay {
+		friend class OSMPrimitiveBlockController;
 	public:
 		OSMWay() : m_Private(NULL) {};
 		OSMWay(const OSMWay & other) : m_Private(other.m_Private) { if (m_Private) m_Private->refInc(); }
@@ -45,67 +72,33 @@ namespace osmpbf {
 
 		inline std::string key(int index) const { return m_Private->key(index); }
 		inline std::string value(int index) const { return m_Private->value(index); }
-	private:
-		friend class OSMPrimitiveBlockController;
 
-		class OSMWayAdaptor : public AbstractOSMPrimitiveAdaptor {
-		public:
-			OSMWayAdaptor();
-			OSMWayAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position);
-
-			virtual int64_t id();
-
-			virtual int refsSize() const;
-			virtual int64_t rawRef(int index) const;
-
-			// warning: This methods complexity is O(n). It's here for convenience. You shouldn't
-			//          call this method very often or with a high index parameter.
-			virtual int64_t ref(int index) const;
-
-			DeltaFieldConstForwardIterator<int64_t> refBegin() const;
-			DeltaFieldConstForwardIterator<int64_t> refEnd() const;
-
-			virtual int keysSize() const;
-
-			virtual int keyId(int index) const;
-			virtual int valueId(int index) const;
-
-			virtual std::string key(int index) const;
-			virtual std::string value(int index) const;
-		};
-
-		OSMWay(OSMWayAdaptor * data) : m_Private(data) { if (m_Private) m_Private->refInc(); }
-
+	protected:
 		OSMWayAdaptor * m_Private;
+		OSMWay(OSMWayAdaptor * data) : m_Private(data) { if (m_Private) m_Private->refInc(); }
 	};
 
-	class OSMWayStream {
+	class OSMStreamWayAdaptor : public OSMWayAdaptor {
 	public:
-		OSMWayStream(OSMPrimitiveBlockController * controller);
-		OSMWayStream(const OSMWayStream & other);
+		OSMStreamWayAdaptor();
+		OSMStreamWayAdaptor(OSMPrimitiveBlockController * controller);
+
+		virtual bool isNull() const;
 
 		void next();
 		void previous();
 
-		inline bool isNull() const { return m_Position < 0 || m_Position > m_WaysSize - 1 || !m_Controller; }
-
-		int64_t id() const;
-
-		DeltaFieldConstForwardIterator<int64_t> refBegin() const;
-		DeltaFieldConstForwardIterator<int64_t> refEnd() const;
-
-		int keysSize() const;
-
-		int keyId(int index) const;
-		int valueId(int index) const;
-
-		std::string key(int index) const;
-		std::string value(int index) const;
 	private:
-		OSMPrimitiveBlockController * m_Controller;
+		int m_WaysSize;
+	};
 
-		int m_Position; // [-1, 0 .. ways_size]
-		const int m_WaysSize;
+	class OSMStreamWay : public OSMWay {
+	public:
+		OSMStreamWay(OSMPrimitiveBlockController * controller);
+		OSMStreamWay(const OSMStreamWay & other);
+
+		inline void next() { static_cast<OSMStreamWayAdaptor *>(m_Private)->next(); }
+		inline void previous() { static_cast<OSMStreamWayAdaptor *>(m_Private)->previous(); }
 	};
 }
 #endif // OSMPBF_OSMWAY_H
