@@ -47,12 +47,12 @@ namespace osmpbf {
 	{}
 
 	void OSMStreamNodeAdaptor::next() {
+		m_Index++;
+
 		if (isNull())
 			return;
 
-		m_Index++;
 		m_DenseIndex = m_Index - m_NodesSize;
-
 		if (m_DenseIndex < 0) {
 			m_Id = m_Group->nodes(m_Index).id();
 			m_Lat = m_Group->nodes(m_Index).lat();
@@ -81,10 +81,10 @@ namespace osmpbf {
 	}
 
 	void OSMStreamNodeAdaptor::previous() {
+		m_Index--;
+
 		if (isNull())
 			return;
-
-		m_Index--;
 
 		m_DenseIndex = m_Index - m_NodesSize;
 		if (m_DenseIndex < 0) {

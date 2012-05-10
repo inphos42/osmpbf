@@ -76,10 +76,10 @@ namespace osmpbf {
 	}
 
 	void OSMStreamWayAdaptor::next() {
-		if (m_Index < m_WaysSize) m_Index++;
+		m_Index++;
 	}
 
 	void OSMStreamWayAdaptor::previous() {
-		if (m_Index > -1) m_Index--;
+		m_Index--;
 	}
 }
