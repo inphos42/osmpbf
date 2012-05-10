@@ -31,12 +31,12 @@ namespace osmpbf {
 
 // OSMStreamNode
 
-	OSMStreamNode::OSMStreamNode(OSMPrimitiveBlockController * controller) : OSMNode(new OSMStreamNodeAdaptor(controller)) {}
+	OSMStreamNode::OSMStreamNode(OSMPrimitiveBlockInputAdaptor * controller) : OSMNode(new OSMStreamNodeAdaptor(controller)) {}
 	OSMStreamNode::OSMStreamNode(const OSMStreamNode & other): OSMNode(other) {}
 
 // OSMStreamNodeAdaptor
 
-	OSMStreamNodeAdaptor::OSMStreamNodeAdaptor(OSMPrimitiveBlockController * controller) :
+	OSMStreamNodeAdaptor::OSMStreamNodeAdaptor(OSMPrimitiveBlockInputAdaptor * controller) :
 		AbstractOSMNodeAdaptor(controller, controller->m_NodesGroup, 0),
 		m_DenseGroup(controller->m_DenseNodesGroup),
 		m_NodesSize(m_Group ? m_Group->nodes_size() : 0),
@@ -151,7 +151,7 @@ namespace osmpbf {
 // OSMPlainNodeAdaptor
 
 	OSMPlainNodeAdaptor::OSMPlainNodeAdaptor() : AbstractOSMNodeAdaptor() {}
-	OSMPlainNodeAdaptor::OSMPlainNodeAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position) :
+	OSMPlainNodeAdaptor::OSMPlainNodeAdaptor(OSMPrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position) :
 		AbstractOSMNodeAdaptor(controller, group, position) {}
 
 	int64_t OSMPlainNodeAdaptor::id() {
@@ -196,7 +196,7 @@ namespace osmpbf {
 // OSMDenseNodeAdaptor
 
 	OSMDenseNodeAdaptor::OSMDenseNodeAdaptor() : AbstractOSMNodeAdaptor() {}
-	OSMDenseNodeAdaptor::OSMDenseNodeAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position) :
+	OSMDenseNodeAdaptor::OSMDenseNodeAdaptor(OSMPrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position) :
 		AbstractOSMNodeAdaptor(controller, group, position) {}
 
 	int64_t OSMDenseNodeAdaptor::id() {

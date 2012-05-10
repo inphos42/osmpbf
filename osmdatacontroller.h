@@ -13,12 +13,10 @@ class PrimitiveBlock;
 class PrimitiveGroup;
 
 namespace osmpbf {
-	class OSMPrimitiveBlockController;
-
-	class OSMPrimitiveBlockController {
+	class OSMPrimitiveBlockInputAdaptor {
 	public:
-		OSMPrimitiveBlockController(char * rawData, uint32_t length, bool unpackDense = false);
-		virtual ~OSMPrimitiveBlockController();
+		OSMPrimitiveBlockInputAdaptor(char * rawData, uint32_t length, bool unpackDense = false);
+		virtual ~OSMPrimitiveBlockInputAdaptor();
 
 		std::string queryStringTable(int id) const;
 		int stringTableSize() const;

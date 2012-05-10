@@ -8,12 +8,12 @@
 #include "fielditerator.h"
 
 namespace osmpbf {
-	class OSMPrimitiveBlockController;
+	class OSMPrimitiveBlockInputAdaptor;
 
 	class OSMWayAdaptor : public AbstractOSMPrimitiveAdaptor {
 	public:
 		OSMWayAdaptor();
-		OSMWayAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position);
+		OSMWayAdaptor(OSMPrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position);
 
 		virtual int64_t id();
 
@@ -37,7 +37,7 @@ namespace osmpbf {
 	};
 
 	class OSMWay {
-		friend class OSMPrimitiveBlockController;
+		friend class OSMPrimitiveBlockInputAdaptor;
 	public:
 		OSMWay() : m_Private(NULL) {};
 		OSMWay(const OSMWay & other) : m_Private(other.m_Private) { if (m_Private) m_Private->refInc(); }
@@ -81,7 +81,7 @@ namespace osmpbf {
 	class OSMStreamWayAdaptor : public OSMWayAdaptor {
 	public:
 		OSMStreamWayAdaptor();
-		OSMStreamWayAdaptor(OSMPrimitiveBlockController * controller);
+		OSMStreamWayAdaptor(OSMPrimitiveBlockInputAdaptor * controller);
 
 		virtual bool isNull() const;
 
@@ -94,7 +94,7 @@ namespace osmpbf {
 
 	class OSMStreamWay : public OSMWay {
 	public:
-		OSMStreamWay(OSMPrimitiveBlockController * controller);
+		OSMStreamWay(OSMPrimitiveBlockInputAdaptor * controller);
 		OSMStreamWay(const OSMStreamWay & other);
 
 		inline void next() { static_cast<OSMStreamWayAdaptor *>(m_Private)->next(); }

@@ -7,11 +7,13 @@ namespace osmpbf {
 
 // OSMStreamWay
 
+	OSMStreamWay::OSMStreamWay(OSMPrimitiveBlockInputAdaptor * controller) : OSMWay(new OSMStreamWayAdaptor(controller)) {}
+	OSMStreamWay::OSMStreamWay(const osmpbf::OSMStreamWay & other) : OSMWay(other) {}
 
 // OSMWayAdaptor
 
 	OSMWayAdaptor::OSMWayAdaptor() : AbstractOSMPrimitiveAdaptor() {}
-	OSMWayAdaptor::OSMWayAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position)
+	OSMWayAdaptor::OSMWayAdaptor(OSMPrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position)
 		: AbstractOSMPrimitiveAdaptor(controller, group, position) {}
 
 	int64_t OSMWayAdaptor::id() {
@@ -64,7 +66,7 @@ namespace osmpbf {
 // OSMStreamWayAdaptor
 
 	OSMStreamWayAdaptor::OSMStreamWayAdaptor() {}
-	OSMStreamWayAdaptor::OSMStreamWayAdaptor(OSMPrimitiveBlockController * controller) :
+	OSMStreamWayAdaptor::OSMStreamWayAdaptor(OSMPrimitiveBlockInputAdaptor * controller) :
 		OSMWayAdaptor(controller, controller->m_WaysGroup, 0),
 		m_WaysSize(m_Controller->waysSize())
 	{}
@@ -80,6 +82,4 @@ namespace osmpbf {
 	void OSMStreamWayAdaptor::previous() {
 		if (m_Index > -1) m_Index--;
 	}
-
-
 }

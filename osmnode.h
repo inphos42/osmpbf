@@ -7,12 +7,12 @@
 #include "abstractosmprimitive.h"
 
 namespace osmpbf {
-	class OSMPrimitiveBlockController;
+	class OSMPrimitiveBlockInputAdaptor;
 
 	class AbstractOSMNodeAdaptor : public AbstractOSMPrimitiveAdaptor {
 	public:
 		AbstractOSMNodeAdaptor() : AbstractOSMPrimitiveAdaptor() {}
-		AbstractOSMNodeAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position)
+		AbstractOSMNodeAdaptor(OSMPrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position)
 			: AbstractOSMPrimitiveAdaptor(controller, group, position) {}
 
 		virtual int64_t lat() = 0;
@@ -23,7 +23,7 @@ namespace osmpbf {
 	};
 
 	class OSMNode {
-		friend class OSMPrimitiveBlockController;
+		friend class OSMPrimitiveBlockInputAdaptor;
 	public:
 		OSMNode();
 		OSMNode(const OSMNode & other);
@@ -60,7 +60,7 @@ namespace osmpbf {
 	class OSMPlainNodeAdaptor : public AbstractOSMNodeAdaptor {
 	public:
 		OSMPlainNodeAdaptor();
-		OSMPlainNodeAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position);
+		OSMPlainNodeAdaptor(OSMPrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position);
 
 		virtual int64_t id();
 
@@ -82,7 +82,7 @@ namespace osmpbf {
 	class OSMDenseNodeAdaptor : public AbstractOSMNodeAdaptor {
 	public:
 		OSMDenseNodeAdaptor();
-		OSMDenseNodeAdaptor(OSMPrimitiveBlockController * controller, PrimitiveGroup * group, int position);
+		OSMDenseNodeAdaptor(OSMPrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position);
 
 		virtual int64_t id();
 
@@ -113,7 +113,7 @@ namespace osmpbf {
 	class OSMStreamNodeAdaptor : public AbstractOSMNodeAdaptor {
 	public:
 		OSMStreamNodeAdaptor();
-		OSMStreamNodeAdaptor(OSMPrimitiveBlockController * controller);
+		OSMStreamNodeAdaptor(OSMPrimitiveBlockInputAdaptor * controller);
 
 		void next();
 		void previous();
@@ -152,7 +152,7 @@ namespace osmpbf {
 
 	class OSMStreamNode : public OSMNode {
 	public:
-		OSMStreamNode(OSMPrimitiveBlockController * controller);
+		OSMStreamNode(OSMPrimitiveBlockInputAdaptor * controller);
 		OSMStreamNode(const OSMStreamNode & other);
 
 		inline void next() { static_cast<OSMStreamNodeAdaptor *>(m_Private)->next(); }

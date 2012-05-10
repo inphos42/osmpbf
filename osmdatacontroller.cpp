@@ -7,9 +7,9 @@
 
 namespace osmpbf {
 
-// OSMPrimitiveBlockController
+// OSMPrimitiveBlockInputAdaptor
 
-	OSMPrimitiveBlockController::OSMPrimitiveBlockController(char * rawData, uint32_t length, bool unpackDense) :
+	OSMPrimitiveBlockInputAdaptor::OSMPrimitiveBlockInputAdaptor(char * rawData, uint32_t length, bool unpackDense) :
 		m_NodesGroup(NULL),
 		m_DenseNodesGroup(NULL),
 		m_WaysGroup(NULL),
@@ -61,25 +61,25 @@ namespace osmpbf {
 		m_PBFPrimitiveBlock = NULL;
 	}
 
-	OSMPrimitiveBlockController::~OSMPrimitiveBlockController() {
+	OSMPrimitiveBlockInputAdaptor::~OSMPrimitiveBlockInputAdaptor() {
 		delete m_PBFPrimitiveBlock;
 
 		if (m_DenseNodeKeyValIndex)
 			delete[] m_DenseNodeKeyValIndex;
 	}
 
-	OSMNode OSMPrimitiveBlockController::getNodeAt(int position) const {
+	OSMNode OSMPrimitiveBlockInputAdaptor::getNodeAt(int position) const {
 		if (!m_NodesGroup && !m_DenseNodesGroup)
 			return OSMNode();
 
 		if (m_DenseNodesGroup && (!m_NodesGroup || (position > m_NodesGroup->nodes_size())))
-			return OSMNode(new OSMDenseNodeAdaptor(const_cast<OSMPrimitiveBlockController *>(this), m_DenseNodesGroup, position));
+			return OSMNode(new OSMDenseNodeAdaptor(const_cast<OSMPrimitiveBlockInputAdaptor *>(this), m_DenseNodesGroup, position));
 		else
-			return OSMNode(new OSMPlainNodeAdaptor(const_cast<OSMPrimitiveBlockController *>(this), m_NodesGroup, position));
+			return OSMNode(new OSMPlainNodeAdaptor(const_cast<OSMPrimitiveBlockInputAdaptor *>(this), m_NodesGroup, position));
 
 	}
 
-	int OSMPrimitiveBlockController::nodesSize() const {
+	int OSMPrimitiveBlockInputAdaptor::nodesSize() const {
 		int result = 0;
 
 		if (m_NodesGroup)
@@ -91,30 +91,30 @@ namespace osmpbf {
 		return result;
 	}
 
-	OSMWay OSMPrimitiveBlockController::getWayAt(int position) const {
-		return OSMWay(new OSMWayAdaptor(const_cast<OSMPrimitiveBlockController *>(this), m_WaysGroup, position));
+	OSMWay OSMPrimitiveBlockInputAdaptor::getWayAt(int position) const {
+		return OSMWay(new OSMWayAdaptor(const_cast<OSMPrimitiveBlockInputAdaptor *>(this), m_WaysGroup, position));
 	}
 
-	int OSMPrimitiveBlockController::waysSize() const {
+	int OSMPrimitiveBlockInputAdaptor::waysSize() const {
 		if (m_WaysGroup)
 			return m_WaysGroup->ways_size();
 		else
 			return 0;
 	}
 
-	int32_t OSMPrimitiveBlockController::granularity() const {
+	int32_t OSMPrimitiveBlockInputAdaptor::granularity() const {
 		return m_PBFPrimitiveBlock->granularity();
 	}
 
-	int64_t OSMPrimitiveBlockController::latOffset() const {
+	int64_t OSMPrimitiveBlockInputAdaptor::latOffset() const {
 		return m_PBFPrimitiveBlock->lat_offset();
 	}
 
-	int64_t OSMPrimitiveBlockController::lonOffset() const {
+	int64_t OSMPrimitiveBlockInputAdaptor::lonOffset() const {
 		return m_PBFPrimitiveBlock->lon_offset();
 	}
 
-	void OSMPrimitiveBlockController::unpackDenseNodes(){
+	void OSMPrimitiveBlockInputAdaptor::unpackDenseNodes(){
 		if (!m_DenseNodesGroup)
 			return;
 
@@ -135,7 +135,7 @@ namespace osmpbf {
 		}
 	}
 
-	void OSMPrimitiveBlockController::buildDenseNodeKeyValIndex() {
+	void OSMPrimitiveBlockInputAdaptor::buildDenseNodeKeyValIndex() {
 		int keys_vals_size = m_DenseNodesGroup->dense().keys_vals_size();
 
 		if (!keys_vals_size)
@@ -163,16 +163,19 @@ namespace osmpbf {
 		}
 	}
 
-	std::string OSMPrimitiveBlockController::queryStringTable(int id) const {
+	std::string OSMPrimitiveBlockInputAdaptor::queryStringTable(int id) const {
 		return m_PBFPrimitiveBlock->stringtable().s(id);
 	}
 
-	int OSMPrimitiveBlockController::stringTableSize() const {
+	int OSMPrimitiveBlockInputAdaptor::stringTableSize() const {
 		return m_PBFPrimitiveBlock->stringtable().s_size();
 	}
 
+	OSMStreamNode OSMPrimitiveBlockInputAdaptor::getNodeStream() {
+		return OSMStreamNode(this);
+	}
 
-	OSMNodeStream OSMPrimitiveBlockController::getNodeStream() {
-		return OSMNodeStream(this);
+	OSMStreamWay OSMPrimitiveBlockInputAdaptor::getWayStream() {
+		return OSMStreamWay(this);
 	}
 }
