@@ -4,16 +4,16 @@
 #include <cstdint>
 #include <string>
 
-#include "abstractosmprimitive.h"
+#include "abstractprimitiveinputadaptor.h"
 #include "fielditerator.h"
 
 namespace osmpbf {
-	class OSMPrimitiveBlockInputAdaptor;
+	class PrimitiveBlockInputAdaptor;
 
-	class OSMWayAdaptor : public AbstractOSMPrimitiveAdaptor {
+	class WayInputAdaptor : public AbstractPrimitiveInputAdaptor {
 	public:
-		OSMWayAdaptor();
-		OSMWayAdaptor(OSMPrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position);
+		WayInputAdaptor();
+		WayInputAdaptor(PrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position);
 
 		virtual int64_t id();
 
@@ -36,14 +36,14 @@ namespace osmpbf {
 		virtual std::string value(int index) const;
 	};
 
-	class OSMWay {
-		friend class OSMPrimitiveBlockInputAdaptor;
+	class IWay {
+		friend class PrimitiveBlockInputAdaptor;
 	public:
-		OSMWay() : m_Private(NULL) {};
-		OSMWay(const OSMWay & other) : m_Private(other.m_Private) { if (m_Private) m_Private->refInc(); }
-		virtual ~OSMWay() { if (m_Private) m_Private->refDec(); }
+		IWay() : m_Private(NULL) {};
+		IWay(const IWay & other) : m_Private(other.m_Private) { if (m_Private) m_Private->refInc(); }
+		virtual ~IWay() { if (m_Private) m_Private->refDec(); }
 
-		OSMWay & operator=(const OSMWay & other) {
+		IWay & operator=(const IWay & other) {
 			if (m_Private)
 				m_Private->refDec();
 			m_Private = other.m_Private;
@@ -52,7 +52,7 @@ namespace osmpbf {
 			return *this;
 		}
 
-		bool operator==(const OSMWay & other) { return m_Private == other.m_Private; }
+		bool operator==(const IWay & other) { return m_Private == other.m_Private; }
 
 		inline bool isNull() const { return !m_Private || m_Private->isNull(); }
 
@@ -74,14 +74,15 @@ namespace osmpbf {
 		inline std::string value(int index) const { return m_Private->value(index); }
 
 	protected:
-		OSMWayAdaptor * m_Private;
-		OSMWay(OSMWayAdaptor * data) : m_Private(data) { if (m_Private) m_Private->refInc(); }
+		WayInputAdaptor * m_Private;
+
+		IWay(WayInputAdaptor * data) : m_Private(data) { if (m_Private) m_Private->refInc(); }
 	};
 
-	class OSMStreamWayAdaptor : public OSMWayAdaptor {
+	class WayStreamInputAdaptor : public WayInputAdaptor {
 	public:
-		OSMStreamWayAdaptor();
-		OSMStreamWayAdaptor(OSMPrimitiveBlockInputAdaptor * controller);
+		WayStreamInputAdaptor();
+		WayStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller);
 
 		virtual bool isNull() const;
 
@@ -92,13 +93,13 @@ namespace osmpbf {
 		int m_WaysSize;
 	};
 
-	class OSMStreamWay : public OSMWay {
+	class IWayStream : public IWay {
 	public:
-		OSMStreamWay(OSMPrimitiveBlockInputAdaptor * controller);
-		OSMStreamWay(const OSMStreamWay & other);
+		IWayStream(PrimitiveBlockInputAdaptor * controller);
+		IWayStream(const IWayStream & other);
 
-		inline void next() { static_cast<OSMStreamWayAdaptor *>(m_Private)->next(); }
-		inline void previous() { static_cast<OSMStreamWayAdaptor *>(m_Private)->previous(); }
+		inline void next() { static_cast<WayStreamInputAdaptor *>(m_Private)->next(); }
+		inline void previous() { static_cast<WayStreamInputAdaptor *>(m_Private)->previous(); }
 	};
 }
 #endif // OSMPBF_OSMWAY_H

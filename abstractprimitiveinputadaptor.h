@@ -8,13 +8,13 @@
 class PrimitiveGroup;
 
 namespace osmpbf {
-	class OSMPrimitiveBlockInputAdaptor;
+	class PrimitiveBlockInputAdaptor;
 
-	class AbstractOSMPrimitiveAdaptor : public RefCountObject {
+	class AbstractPrimitiveInputAdaptor : public RefCountObject {
 	public:
-		AbstractOSMPrimitiveAdaptor()
+		AbstractPrimitiveInputAdaptor()
 			: RefCountObject(), m_Controller(NULL), m_Group(NULL), m_Index(-1) {}
-		AbstractOSMPrimitiveAdaptor(OSMPrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int index)
+		AbstractPrimitiveInputAdaptor(PrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int index)
 			: RefCountObject(), m_Controller(controller), m_Group(group), m_Index(index) {}
 
 		virtual bool isNull() const { return !m_Controller || !m_Group || (m_Index < 0); }
@@ -30,7 +30,7 @@ namespace osmpbf {
 		virtual std::string value(int index) const = 0;
 
 	protected:
-		OSMPrimitiveBlockInputAdaptor * m_Controller;
+		PrimitiveBlockInputAdaptor * m_Controller;
 		PrimitiveGroup * m_Group;
 		int m_Index;
 	};

@@ -1,19 +1,19 @@
-#ifndef OSMPBF_OSMNODE_H
-#define OSMPBF_OSMNODE_H
+#ifndef OSMPBF_INNODE_H
+#define OSMPBF_INNODE_H
 
 #include <cstdint>
 #include <string>
 
-#include "abstractosmprimitive.h"
+#include "abstractprimitiveinputadaptor.h"
 
 namespace osmpbf {
-	class OSMPrimitiveBlockInputAdaptor;
+	class PrimitiveBlockInputAdaptor;
 
-	class AbstractOSMNodeAdaptor : public AbstractOSMPrimitiveAdaptor {
+	class AbstractNodeInputAdaptor : public AbstractPrimitiveInputAdaptor {
 	public:
-		AbstractOSMNodeAdaptor() : AbstractOSMPrimitiveAdaptor() {}
-		AbstractOSMNodeAdaptor(OSMPrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position)
-			: AbstractOSMPrimitiveAdaptor(controller, group, position) {}
+		AbstractNodeInputAdaptor() : AbstractPrimitiveInputAdaptor() {}
+		AbstractNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position)
+			: AbstractPrimitiveInputAdaptor(controller, group, position) {}
 
 		virtual int64_t lati() = 0;
 		virtual int64_t loni() = 0;
@@ -25,16 +25,16 @@ namespace osmpbf {
 		virtual int64_t rawLon() const = 0;
 	};
 
-	class OSMNode {
-		friend class OSMPrimitiveBlockInputAdaptor;
+	class INode {
+		friend class PrimitiveBlockInputAdaptor;
 	public:
-		OSMNode();
-		OSMNode(const OSMNode & other);
-		virtual ~OSMNode();
+		INode();
+		INode(const INode & other);
+		virtual ~INode();
 
-		OSMNode & operator=(const OSMNode & other);
+		INode & operator=(const INode & other);
 
-		inline bool operator==(const OSMNode & other) { return m_Private == other.m_Private; }
+		inline bool operator==(const INode & other) { return m_Private == other.m_Private; }
 
 		inline bool isNull() const { return !m_Private || m_Private->isNull(); }
 
@@ -58,15 +58,15 @@ namespace osmpbf {
 		inline std::string value(int index) const { return m_Private->value(index); }
 
 	protected:
-		OSMNode(AbstractOSMNodeAdaptor * data);
+		INode(AbstractNodeInputAdaptor * data);
 
-		AbstractOSMNodeAdaptor * m_Private;
+		AbstractNodeInputAdaptor * m_Private;
 	};
 
-	class OSMPlainNodeAdaptor : public AbstractOSMNodeAdaptor {
+	class PlainNodeInputAdaptor : public AbstractNodeInputAdaptor {
 	public:
-		OSMPlainNodeAdaptor();
-		OSMPlainNodeAdaptor(OSMPrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position);
+		PlainNodeInputAdaptor();
+		PlainNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position);
 
 		virtual int64_t id();
 
@@ -88,10 +88,10 @@ namespace osmpbf {
 		virtual std::string value(int index) const;
 	};
 
-	class OSMDenseNodeAdaptor : public AbstractOSMNodeAdaptor {
+	class DenseNodeInputAdaptor : public AbstractNodeInputAdaptor {
 	public:
-		OSMDenseNodeAdaptor();
-		OSMDenseNodeAdaptor(OSMPrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position);
+		DenseNodeInputAdaptor();
+		DenseNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position);
 
 		virtual int64_t id();
 
@@ -122,10 +122,10 @@ namespace osmpbf {
 		int64_t m_CachedLon;
 	};
 
-	class OSMStreamNodeAdaptor : public AbstractOSMNodeAdaptor {
+	class NodeStreamInputAdaptor : public AbstractNodeInputAdaptor {
 	public:
-		OSMStreamNodeAdaptor();
-		OSMStreamNodeAdaptor(OSMPrimitiveBlockInputAdaptor * controller);
+		NodeStreamInputAdaptor();
+		NodeStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller);
 
 		void next();
 		void previous();
@@ -165,13 +165,13 @@ namespace osmpbf {
 		int64_t m_WGS84Lon;
 	};
 
-	class OSMStreamNode : public OSMNode {
+	class INodeStream : public INode {
 	public:
-		OSMStreamNode(OSMPrimitiveBlockInputAdaptor * controller);
-		OSMStreamNode(const OSMStreamNode & other);
+		INodeStream(PrimitiveBlockInputAdaptor * controller);
+		INodeStream(const INodeStream & other);
 
-		inline void next() { static_cast<OSMStreamNodeAdaptor *>(m_Private)->next(); }
-		inline void previous() { static_cast<OSMStreamNodeAdaptor *>(m_Private)->previous(); }
+		inline void next() { static_cast<NodeStreamInputAdaptor *>(m_Private)->next(); }
+		inline void previous() { static_cast<NodeStreamInputAdaptor *>(m_Private)->previous(); }
 	};
 }
-#endif // OSMPBF_OSMNODE_H
+#endif // OSMPBF_INNODE_H

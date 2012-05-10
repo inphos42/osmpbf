@@ -1,15 +1,15 @@
-#include "osmdatacontroller.h"
+#include "primitiveblockinputadaptor.h"
 
 #include <iostream>
 
 #include "osmformat.pb.h"
-#include "osmblobfile.h"
+#include "blobfile.h"
 
 namespace osmpbf {
 
-// OSMPrimitiveBlockInputAdaptor
+// PrimitiveBlockInputAdaptor
 
-	OSMPrimitiveBlockInputAdaptor::OSMPrimitiveBlockInputAdaptor(char * rawData, uint32_t length, bool unpackDense) :
+	PrimitiveBlockInputAdaptor::PrimitiveBlockInputAdaptor(char * rawData, uint32_t length, bool unpackDense) :
 		m_NodesGroup(NULL),
 		m_DenseNodesGroup(NULL),
 		m_WaysGroup(NULL),
@@ -61,25 +61,25 @@ namespace osmpbf {
 		m_PBFPrimitiveBlock = NULL;
 	}
 
-	OSMPrimitiveBlockInputAdaptor::~OSMPrimitiveBlockInputAdaptor() {
+	PrimitiveBlockInputAdaptor::~PrimitiveBlockInputAdaptor() {
 		delete m_PBFPrimitiveBlock;
 
 		if (m_DenseNodeKeyValIndex)
 			delete[] m_DenseNodeKeyValIndex;
 	}
 
-	OSMNode OSMPrimitiveBlockInputAdaptor::getNodeAt(int position) const {
+	INode PrimitiveBlockInputAdaptor::getNodeAt(int position) const {
 		if (!m_NodesGroup && !m_DenseNodesGroup)
-			return OSMNode();
+			return INode();
 
 		if (m_DenseNodesGroup && (!m_NodesGroup || (position > m_NodesGroup->nodes_size())))
-			return OSMNode(new OSMDenseNodeAdaptor(const_cast<OSMPrimitiveBlockInputAdaptor *>(this), m_DenseNodesGroup, position));
+			return INode(new DenseNodeInputAdaptor(const_cast<PrimitiveBlockInputAdaptor *>(this), m_DenseNodesGroup, position));
 		else
-			return OSMNode(new OSMPlainNodeAdaptor(const_cast<OSMPrimitiveBlockInputAdaptor *>(this), m_NodesGroup, position));
+			return INode(new PlainNodeInputAdaptor(const_cast<PrimitiveBlockInputAdaptor *>(this), m_NodesGroup, position));
 
 	}
 
-	int OSMPrimitiveBlockInputAdaptor::nodesSize() const {
+	int PrimitiveBlockInputAdaptor::nodesSize() const {
 		int result = 0;
 
 		if (m_NodesGroup)
@@ -91,30 +91,30 @@ namespace osmpbf {
 		return result;
 	}
 
-	OSMWay OSMPrimitiveBlockInputAdaptor::getWayAt(int position) const {
-		return OSMWay(new OSMWayAdaptor(const_cast<OSMPrimitiveBlockInputAdaptor *>(this), m_WaysGroup, position));
+	IWay PrimitiveBlockInputAdaptor::getWayAt(int position) const {
+		return IWay(new WayInputAdaptor(const_cast<PrimitiveBlockInputAdaptor *>(this), m_WaysGroup, position));
 	}
 
-	int OSMPrimitiveBlockInputAdaptor::waysSize() const {
+	int PrimitiveBlockInputAdaptor::waysSize() const {
 		if (m_WaysGroup)
 			return m_WaysGroup->ways_size();
 		else
 			return 0;
 	}
 
-	int32_t OSMPrimitiveBlockInputAdaptor::granularity() const {
+	int32_t PrimitiveBlockInputAdaptor::granularity() const {
 		return m_PBFPrimitiveBlock->granularity();
 	}
 
-	int64_t OSMPrimitiveBlockInputAdaptor::latOffset() const {
+	int64_t PrimitiveBlockInputAdaptor::latOffset() const {
 		return m_PBFPrimitiveBlock->lat_offset();
 	}
 
-	int64_t OSMPrimitiveBlockInputAdaptor::lonOffset() const {
+	int64_t PrimitiveBlockInputAdaptor::lonOffset() const {
 		return m_PBFPrimitiveBlock->lon_offset();
 	}
 
-	void OSMPrimitiveBlockInputAdaptor::unpackDenseNodes(){
+	void PrimitiveBlockInputAdaptor::unpackDenseNodes(){
 		if (!m_DenseNodesGroup)
 			return;
 
@@ -135,7 +135,7 @@ namespace osmpbf {
 		}
 	}
 
-	void OSMPrimitiveBlockInputAdaptor::buildDenseNodeKeyValIndex() {
+	void PrimitiveBlockInputAdaptor::buildDenseNodeKeyValIndex() {
 		int keys_vals_size = m_DenseNodesGroup->dense().keys_vals_size();
 
 		if (!keys_vals_size)
@@ -163,19 +163,19 @@ namespace osmpbf {
 		}
 	}
 
-	std::string OSMPrimitiveBlockInputAdaptor::queryStringTable(int id) const {
+	std::string PrimitiveBlockInputAdaptor::queryStringTable(int id) const {
 		return m_PBFPrimitiveBlock->stringtable().s(id);
 	}
 
-	int OSMPrimitiveBlockInputAdaptor::stringTableSize() const {
+	int PrimitiveBlockInputAdaptor::stringTableSize() const {
 		return m_PBFPrimitiveBlock->stringtable().s_size();
 	}
 
-	OSMStreamNode OSMPrimitiveBlockInputAdaptor::getNodeStream() {
-		return OSMStreamNode(this);
+	INodeStream PrimitiveBlockInputAdaptor::getNodeStream() {
+		return INodeStream(this);
 	}
 
-	OSMStreamWay OSMPrimitiveBlockInputAdaptor::getWayStream() {
-		return OSMStreamWay(this);
+	IWayStream PrimitiveBlockInputAdaptor::getWayStream() {
+		return IWayStream(this);
 	}
 }

@@ -1,5 +1,5 @@
-#ifndef OSMPBF_OSMBLOBFILE_H
-#define OSMPBF_OSMBLOBFILE_H
+#ifndef OSMPBF_BLOBFILE_H
+#define OSMPBF_BLOBFILE_H
 
 #include <cstdint>
 #include <string>
@@ -61,4 +61,4 @@ namespace osmpbf {
 	};
 }
 
-#endif // OSMPBF_OSMBLOBFILE_H
+#endif // OSMPBF_BLOBFILE_H

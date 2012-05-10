@@ -1,34 +1,34 @@
-#ifndef OSMPBF_OSMDATACONTROLLER_H
-#define OSMPBF_OSMDATACONTROLLER_H
+#ifndef OSMPBF_PRIMITIVEBLOCKINPUTADAPTOR_H
+#define OSMPBF_PRIMITIVEBLOCKINPUTADAPTOR_H
 
 #include <cstdint>
 #include <string>
 
-#include "abstractosmprimitive.h"
+#include "abstractprimitiveinputadaptor.h"
 
-#include "osmnode.h"
-#include "osmway.h"
+#include "inode.h"
+#include "iway.h"
 
 class PrimitiveBlock;
 class PrimitiveGroup;
 
 namespace osmpbf {
-	class OSMPrimitiveBlockInputAdaptor {
+	class PrimitiveBlockInputAdaptor {
 	public:
-		OSMPrimitiveBlockInputAdaptor(char * rawData, uint32_t length, bool unpackDense = false);
-		virtual ~OSMPrimitiveBlockInputAdaptor();
+		PrimitiveBlockInputAdaptor(char * rawData, uint32_t length, bool unpackDense = false);
+		virtual ~PrimitiveBlockInputAdaptor();
 
 		std::string queryStringTable(int id) const;
 		int stringTableSize() const;
 
-		OSMNode getNodeAt(int position) const;
+		INode getNodeAt(int position) const;
 		int nodesSize() const;
 
-		OSMWay getWayAt(int position) const;
+		IWay getWayAt(int position) const;
 		int waysSize() const;
 
-		OSMStreamNode getNodeStream();
-		OSMStreamWay getWayStream();
+		INodeStream getNodeStream();
+		IWayStream getWayStream();
 
 		bool isNull() const {
 			return !(m_PBFPrimitiveBlock && (
@@ -62,11 +62,11 @@ namespace osmpbf {
 		void unpackDenseNodes();
 		inline bool denseNodesUnpacked() const { return m_DenseNodesUnpacked; }
 	private:
-		friend class OSMPlainNodeAdaptor;
-		friend class OSMDenseNodeAdaptor;
-		friend class OSMStreamNodeAdaptor;
-		friend class OSMWayAdaptor;
-		friend class OSMStreamWayAdaptor;
+		friend class PlainNodeInputAdaptor;
+		friend class DenseNodeInputAdaptor;
+		friend class NodeStreamInputAdaptor;
+		friend class WayInputAdaptor;
+		friend class WayStreamInputAdaptor;
 
 		PrimitiveBlock * m_PBFPrimitiveBlock;
 
@@ -87,4 +87,4 @@ namespace osmpbf {
 	};
 }
 
-#endif
+#endif // OSMPBF_PRIMITIVEBLOCKINPUTADAPTOR_H

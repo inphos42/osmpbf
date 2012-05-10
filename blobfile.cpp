@@ -1,4 +1,4 @@
-#include "osmblobfile.h"
+#include "blobfile.h"
 
 #include <iostream>
 #include <netinet/in.h>

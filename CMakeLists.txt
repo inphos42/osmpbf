@@ -21,10 +21,10 @@ include_directories(
 )
 
 set(SOURCES_CPP
-	osmblobfile.cpp
-	osmdatacontroller.cpp
-	osmway.cpp
-	osmnode.cpp
+	blobfile.cpp
+	primitiveblockinputadaptor.cpp
+	iway.cpp
+	inode.cpp
 )
 
 PROTOBUF_GENERATE_CPP(PROTO_SOURCES PROTO_HEADERS osmblob.proto osmformat.proto)
