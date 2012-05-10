@@ -44,7 +44,9 @@ namespace osmpbf {
 		m_Id(0),
 		m_Lat(0), m_Lon(0),
 		m_WGS84Lat(0), m_WGS84Lon(0)
-	{}
+	{
+		m_DenseIndex = m_Index - m_NodesSize;
+	}
 
 	void OSMStreamNodeAdaptor::next() {
 		m_Index++;
