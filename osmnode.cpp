@@ -76,8 +76,8 @@ namespace osmpbf {
 			m_Lon = m_DenseGroup->dense().lon(0);
 		}
 
-		m_WGS84Lat = m_Controller->toWGS84Lat(m_Lat);
-		m_WGS84Lon = m_Controller->toWGS84Lon(m_Lon);
+		m_WGS84Lat = m_Controller->toWGS84Lati(m_Lat);
+		m_WGS84Lon = m_Controller->toWGS84Loni(m_Lon);
 	}
 
 	void OSMStreamNodeAdaptor::previous() {
@@ -110,8 +110,8 @@ namespace osmpbf {
 			m_Lon = m_DenseGroup->dense().lon(0);
 		}
 
-		m_WGS84Lat = m_Controller->toWGS84Lat(m_Lat);
-		m_WGS84Lon = m_Controller->toWGS84Lon(m_Lon);
+		m_WGS84Lat = m_Controller->toWGS84Lati(m_Lat);
+		m_WGS84Lon = m_Controller->toWGS84Loni(m_Lon);
 	}
 
 	int OSMStreamNodeAdaptor::keysSize() const {
@@ -158,12 +158,20 @@ namespace osmpbf {
 		return m_Group->nodes(m_Index).id();
 	}
 
-	int64_t OSMPlainNodeAdaptor::lat() {
-		return m_Controller->toWGS84Lat(m_Group->nodes(m_Index).lat());
+	int64_t OSMPlainNodeAdaptor::lati() {
+		return m_Controller->toWGS84Lati(m_Group->nodes(m_Index).lat());
 	}
 
-	int64_t OSMPlainNodeAdaptor::lon() {
-		return m_Controller->toWGS84Lon(m_Group->nodes(m_Index).lon());
+	int64_t OSMPlainNodeAdaptor::loni() {
+		return m_Controller->toWGS84Loni(m_Group->nodes(m_Index).lon());
+	}
+
+	double OSMPlainNodeAdaptor::latd() {
+		return m_Controller->toWGS84Latd(m_Group->nodes(m_Index).lat());
+	}
+
+	double OSMPlainNodeAdaptor::lond() {
+		return m_Controller->toWGS84Lond(m_Group->nodes(m_Index).lon());
 	}
 
 	int64_t OSMPlainNodeAdaptor::rawLat() const {
@@ -209,9 +217,9 @@ namespace osmpbf {
 		return m_CachedId;
 	}
 
-	int64_t OSMDenseNodeAdaptor::lat() {
+	int64_t OSMDenseNodeAdaptor::lati() {
 		if (m_Controller->denseNodesUnpacked())
-			m_Controller->toWGS84Lat(m_Group->dense().lat(m_Index));
+			return m_Controller->toWGS84Lati(m_Group->dense().lat(m_Index));
 
 		if (!m_HasCachedLat) {
 			m_CachedLat = m_Group->dense().lat(0);
@@ -219,17 +227,28 @@ namespace osmpbf {
 				m_CachedLat += m_Group->dense().lat(i);
 		}
 
-		return m_Controller->toWGS84Lat(m_CachedLat);
+		return m_Controller->toWGS84Lati(m_CachedLat);
 	}
 
-	int64_t OSMDenseNodeAdaptor::lon() {
+	int64_t OSMDenseNodeAdaptor::loni() {
+		if (m_Controller->denseNodesUnpacked())
+			return m_Controller->toWGS84Loni(m_Group->dense().lon(m_Index));
+
 		if (!m_HasCachedLon) {
 			m_CachedLon = m_Group->dense().lon(0);
 			for (int i = 0; i < m_Index; i++)
 				m_CachedLon += m_Group->dense().lon(i);
 		}
 
-		return m_Controller->toWGS84Lon(m_CachedLon);
+		return m_Controller->toWGS84Loni(m_CachedLon);
+	}
+
+	double OSMDenseNodeAdaptor::latd() {
+		return lati() * .000000001;
+	}
+
+	double OSMDenseNodeAdaptor::lond() {
+		return loni() * .000000001;
 	}
 
 	int64_t OSMDenseNodeAdaptor::rawLat() const {

@@ -15,8 +15,11 @@ namespace osmpbf {
 		AbstractOSMNodeAdaptor(OSMPrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position)
 			: AbstractOSMPrimitiveAdaptor(controller, group, position) {}
 
-		virtual int64_t lat() = 0;
-		virtual int64_t lon() = 0;
+		virtual int64_t lati() = 0;
+		virtual int64_t loni() = 0;
+
+		virtual double latd() = 0;
+		virtual double lond() = 0;
 
 		virtual int64_t rawLat() const = 0;
 		virtual int64_t rawLon() const = 0;
@@ -37,8 +40,11 @@ namespace osmpbf {
 
 		inline int64_t id() const { return m_Private->id(); }
 
-		inline int64_t lat() const { return m_Private->lat(); }
-		inline int64_t lon() const { return m_Private->lon(); }
+		inline int64_t lati() const { return m_Private->lati(); }
+		inline int64_t loni() const { return m_Private->loni(); }
+
+		inline double latd() const { return m_Private->latd(); }
+		inline double lond() const { return m_Private->lond(); }
 
 		inline int64_t rawLat() const { return m_Private->rawLat(); }
 		inline int64_t rawLon() const { return m_Private->rawLon(); }
@@ -64,8 +70,11 @@ namespace osmpbf {
 
 		virtual int64_t id();
 
-		virtual int64_t lat();
-		virtual int64_t lon();
+		virtual int64_t lati();
+		virtual int64_t loni();
+
+		virtual double latd();
+		virtual double lond();
 
 		virtual int64_t rawLat() const;
 		virtual int64_t rawLon() const;
@@ -86,8 +95,11 @@ namespace osmpbf {
 
 		virtual int64_t id();
 
-		virtual int64_t lat();
-		virtual int64_t lon();
+		virtual int64_t lati();
+		virtual int64_t loni();
+
+		virtual double latd();
+		virtual double lond();
 
 		virtual int64_t rawLat() const;
 		virtual int64_t rawLon() const;
@@ -122,8 +134,11 @@ namespace osmpbf {
 
 		virtual int64_t id() { return m_Id; }
 
-		virtual int64_t lat() { return m_WGS84Lat; }
-		virtual int64_t lon() { return m_WGS84Lon; }
+		virtual int64_t lati() { return m_WGS84Lat; }
+		virtual int64_t loni() { return m_WGS84Lon; }
+
+		virtual double latd() { return m_WGS84Lat * .000000001; }
+		virtual double lond() { return m_WGS84Lon * .000000001; }
 
 		virtual int64_t rawLat() const { return m_Lat; }
 		virtual int64_t rawLon() const { return m_Lon; }
