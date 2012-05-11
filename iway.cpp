@@ -44,7 +44,7 @@ namespace osmpbf {
 		return m_Group->ways(m_Index).refs().data() + m_Group->ways(m_Index).refs_size();
 	}
 
-	int WayInputAdaptor::keysSize() const {
+	int WayInputAdaptor::tagsSize() const {
 		return m_Group->ways(m_Index).keys_size();
 	}
 

@@ -16,14 +16,24 @@ class PrimitiveGroup;
 namespace osmpbf {
 	class PrimitiveBlockOutputAdaptor {
 	public:
-		OSMPrimitiveBlockOutputAdaptor();
-		virtual ~OSMPrimitiveBlockOutputAdaptor();
+		PrimitiveBlockOutputAdaptor();
+		virtual ~PrimitiveBlockOutputAdaptor();
+
+		bool isInitialized() const;
 
 		ONode createNode();
 		ONode createNode(INode & templateNode);
 
+		int nodesSize();
+
 		OWay createWay();
 		OWay createWay(IWay & templateWay);
+
+		int waysSize();
+
+		void setGranularity(int32_t value);
+		void setLatOffset(int64_t value);
+		void setLonOffset(int64_t value);
 
 		PrimitiveBlockOutputAdaptor & operator<<(INode & node);
 		PrimitiveBlockOutputAdaptor & operator<<(IWay & way);
@@ -31,6 +41,8 @@ namespace osmpbf {
 		bool serialize(std::string & output);
 	private:
 		PrimitiveBlock * m_PrimitiveBlock;
+
+		void buildStringTable();
 	};
 }
 

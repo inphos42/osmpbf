@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+
 #include "refcountobject.h"
 
 class PrimitiveGroup;
@@ -21,7 +22,7 @@ namespace osmpbf {
 
 		virtual int64_t id() = 0;
 
-		virtual int keysSize() const = 0;
+		virtual int tagsSize() const = 0;
 
 		virtual int keyId(int index) const = 0;
 		virtual int valueId(int index) const = 0;
@@ -41,7 +42,7 @@ namespace osmpbf {
 	public:
 		AbstractPrimitiveOutputAdaptor()
 			: RefCountObject(), m_Controller(NULL), m_Group(NULL), m_Index(-1) {}
-		AbstractPrimitiveOutputAdaptor(PrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int index)
+		AbstractPrimitiveOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, PrimitiveGroup * group, int index)
 			: RefCountObject(), m_Controller(controller), m_Group(group), m_Index(index) {}
 
 		virtual bool isNULL() const { return !m_Controller || !m_Group || (m_Index < 0); }
@@ -59,7 +60,7 @@ namespace osmpbf {
 
 		virtual void clearTags() = 0;
 	protected:
-		PrimitiveBlockInputAdaptor * m_Controller;
+		PrimitiveBlockOutputAdaptor * m_Controller;
 		PrimitiveGroup * m_Group;
 		int m_Index;
 	};

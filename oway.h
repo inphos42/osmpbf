@@ -3,8 +3,9 @@
 
 #include <cstdint>
 #include <string>
+#include <utility>
 
-#include "tag.h"
+#include "common.h"
 #include "abstractprimitiveadaptor.h"
 
 namespace osmpbf {
@@ -27,9 +28,9 @@ namespace osmpbf {
 
 		int refsSize() const;
 
-		Tag & tag(int index);
+		std::pair<std:string, std::string> & tag(int index);
 
-		void addTag(Tag & tag);
+		void addTag(std::pair<std::string, std::string> & tag);
 		void addTag(std::string key, std::string value);
 		void removeTag(int index);
 

@@ -27,7 +27,7 @@ namespace osmpbf {
 		DeltaFieldConstForwardIterator<int64_t> refBegin() const;
 		DeltaFieldConstForwardIterator<int64_t> refEnd() const;
 
-		virtual int keysSize() const;
+		virtual int tagsSize() const;
 
 		virtual int keyId(int index) const;
 		virtual int valueId(int index) const;
@@ -65,7 +65,7 @@ namespace osmpbf {
 		inline DeltaFieldConstForwardIterator<int64_t> refBegin() const { return m_Private->refBegin(); }
 		inline DeltaFieldConstForwardIterator<int64_t> refEnd() const { return m_Private->refEnd(); }
 
-		inline int keysSize() const { return m_Private->keysSize(); }
+		inline int tagsSize() const { return m_Private->tagsSize(); }
 
 		inline int keyId(int index) const { return m_Private->keyId(index); }
 		inline int valueId(int index) const { return m_Private->valueId(index); }

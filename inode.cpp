@@ -116,14 +116,14 @@ namespace osmpbf {
 		m_WGS84Lon = m_Controller->toWGS84Loni(m_Lon);
 	}
 
-	int NodeStreamInputAdaptor::keysSize() const {
+	int NodeStreamInputAdaptor::tagsSize() const {
 		return (m_DenseIndex < 0) ?
 			m_Group->nodes(m_Index).keys_size() :
 			m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2 + 1);
 	}
 
 	int NodeStreamInputAdaptor::keyId(int index) const {
-		if (index < 0 || index > keysSize())
+		if (index < 0 || index > tagsSize())
 			return 0;
 
 		return (m_DenseIndex < 0) ?
@@ -132,7 +132,7 @@ namespace osmpbf {
 	}
 
 	int NodeStreamInputAdaptor::valueId(int index) const {
-		if (index < 0 || index > keysSize())
+		if (index < 0 || index > tagsSize())
 			return 0;
 
 		return (m_DenseIndex < 0) ?
@@ -182,7 +182,7 @@ namespace osmpbf {
 		return m_Group->nodes(m_Index).lon();
 	}
 
-	int PlainNodeInputAdaptor::keysSize() const {
+	int PlainNodeInputAdaptor::tagsSize() const {
 		return m_Group->nodes(m_Index).keys_size();
 	}
 
@@ -260,16 +260,16 @@ namespace osmpbf {
 		return m_Group->dense().lon(m_Index);
 	}
 
-	int DenseNodeInputAdaptor::keysSize() const {
+	int DenseNodeInputAdaptor::tagsSize() const {
 		return (!m_Group->dense().keys_vals_size()) ? 0 : m_Controller->queryDenseNodeKeyValIndex(m_Index * 2 + 1);
 	}
 
 	int DenseNodeInputAdaptor::keyId(int index) const {
-		return (index < 0 || index >= keysSize()) ? 0 : m_Group->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Index * 2) + index * 2);
+		return (index < 0 || index >= tagsSize()) ? 0 : m_Group->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Index * 2) + index * 2);
 	}
 
 	int DenseNodeInputAdaptor::valueId(int index) const {
-		return (index < 0 || index >= keysSize()) ? 0 : m_Group->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Index * 2) + index * 2 + 1);
+		return (index < 0 || index >= tagsSize()) ? 0 : m_Group->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Index * 2) + index * 2 + 1);
 	}
 
 	const std::string & DenseNodeInputAdaptor::key(int index) const {

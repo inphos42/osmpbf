@@ -49,7 +49,7 @@ namespace osmpbf {
 		inline int64_t rawLat() const { return m_Private->rawLat(); }
 		inline int64_t rawLon() const { return m_Private->rawLon(); }
 
-		inline int keysSize() const { return m_Private->keysSize(); }
+		inline int tagsSize() const { return m_Private->tagsSize(); }
 
 		inline int keyId(int index) const { return m_Private->keyId(index); }
 		inline int valueId(int index) const { return m_Private->valueId(index); }
@@ -79,7 +79,7 @@ namespace osmpbf {
 		virtual int64_t rawLat() const;
 		virtual int64_t rawLon() const;
 
-		virtual int keysSize() const;
+		virtual int tagsSize() const;
 
 		virtual int keyId(int index) const;
 		virtual int valueId(int index) const;
@@ -104,7 +104,7 @@ namespace osmpbf {
 		virtual int64_t rawLat() const;
 		virtual int64_t rawLon() const;
 
-		virtual int keysSize() const;
+		virtual int tagsSize() const;
 
 		virtual int keyId(int index) const;
 		virtual int valueId(int index) const;
@@ -143,7 +143,7 @@ namespace osmpbf {
 		virtual int64_t rawLat() const { return m_Lat; }
 		virtual int64_t rawLon() const { return m_Lon; }
 
-		virtual int keysSize() const;
+		virtual int tagsSize() const;
 
 		virtual int keyId(int index) const;
 		virtual int valueId(int index) const;
