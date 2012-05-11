@@ -4,10 +4,11 @@
 #include <cstdint>
 #include <string>
 
-#include "abstractosmprimitive.h"
+#include "onode.h"
+#include "oway.h"
 
-#include "pbfnode.h"
-#include "pbfway.h"
+#include "inode.h"
+#include "iway.h"
 
 class PrimitiveBlock;
 class PrimitiveGroup;
@@ -18,12 +19,19 @@ namespace osmpbf {
 		OSMPrimitiveBlockOutputAdaptor();
 		virtual ~OSMPrimitiveBlockOutputAdaptor();
 
-		PBFNode createNode();
-		PBFWay createWay();
+		ONode createNode();
+		ONode createNode(INode & templateNode);
+
+		OWay createWay();
+		OWay createWay(IWay & templateWay);
+
+		PrimitiveBlockOutputAdaptor & operator<<(INode & node);
+		PrimitiveBlockOutputAdaptor & operator<<(IWay & way);
 
 		bool serialize(std::string & output);
 	private:
 		PrimitiveBlock * m_PrimitiveBlock;
 	};
 }
+
 #endif // PRIMITIVEBLOCKOUTPUTADAPTOR_H
