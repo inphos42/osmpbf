@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-#include "abstractprimitiveinputadaptor.h"
+#include "abstractprimitiveadaptor.h"
 
 #include "inode.h"
 #include "iway.h"
@@ -18,7 +18,7 @@ namespace osmpbf {
 		PrimitiveBlockInputAdaptor(char * rawData, uint32_t length, bool unpackDense = false);
 		virtual ~PrimitiveBlockInputAdaptor();
 
-		std::string queryStringTable(int id) const;
+		const std::string & queryStringTable(int id) const;
 		int stringTableSize() const;
 
 		INode getNodeAt(int position) const;
@@ -31,7 +31,7 @@ namespace osmpbf {
 		IWayStream getWayStream();
 
 		bool isNull() const {
-			return !(m_PBFPrimitiveBlock && (
+			return !(m_PrimitiveBlock && (
 				m_NodesGroup ||
 				m_WaysGroup ||
 				m_DenseNodesGroup ||
@@ -68,7 +68,7 @@ namespace osmpbf {
 		friend class WayInputAdaptor;
 		friend class WayStreamInputAdaptor;
 
-		PrimitiveBlock * m_PBFPrimitiveBlock;
+		PrimitiveBlock * m_PrimitiveBlock;
 
 		PrimitiveGroup * m_NodesGroup;
 		PrimitiveGroup * m_DenseNodesGroup;

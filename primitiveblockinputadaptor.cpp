@@ -19,14 +19,14 @@ namespace osmpbf {
 	{
 		GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-		m_PBFPrimitiveBlock = new PrimitiveBlock();
+		m_PrimitiveBlock = new PrimitiveBlock();
 
-		if (m_PBFPrimitiveBlock->ParseFromArray((void*)rawData, length)) {
+		if (m_PrimitiveBlock->ParseFromArray((void*)rawData, length)) {
 			// we assume each primitive block has one primitive group for each primitive type
 			// populate group refs
-			PrimitiveGroup ** primGroups = m_PBFPrimitiveBlock->mutable_primitivegroup()->mutable_data();
+			PrimitiveGroup ** primGroups = m_PrimitiveBlock->mutable_primitivegroup()->mutable_data();
 
-			for (int i = 0; i < m_PBFPrimitiveBlock->primitivegroup_size(); ++i) {
+			for (int i = 0; i < m_PrimitiveBlock->primitivegroup_size(); ++i) {
 				if (primGroups[i]->nodes_size()) {
 					m_NodesGroup = primGroups[i];
 					break;
@@ -57,12 +57,12 @@ namespace osmpbf {
 
 		std::cerr << "ERROR: invalid OSM primitive block" << std::endl;
 
-		delete m_PBFPrimitiveBlock;
-		m_PBFPrimitiveBlock = NULL;
+		delete m_PrimitiveBlock;
+		m_PrimitiveBlock = NULL;
 	}
 
 	PrimitiveBlockInputAdaptor::~PrimitiveBlockInputAdaptor() {
-		delete m_PBFPrimitiveBlock;
+		delete m_PrimitiveBlock;
 
 		if (m_DenseNodeKeyValIndex)
 			delete[] m_DenseNodeKeyValIndex;
@@ -103,15 +103,15 @@ namespace osmpbf {
 	}
 
 	int32_t PrimitiveBlockInputAdaptor::granularity() const {
-		return m_PBFPrimitiveBlock->granularity();
+		return m_PrimitiveBlock->granularity();
 	}
 
 	int64_t PrimitiveBlockInputAdaptor::latOffset() const {
-		return m_PBFPrimitiveBlock->lat_offset();
+		return m_PrimitiveBlock->lat_offset();
 	}
 
 	int64_t PrimitiveBlockInputAdaptor::lonOffset() const {
-		return m_PBFPrimitiveBlock->lon_offset();
+		return m_PrimitiveBlock->lon_offset();
 	}
 
 	void PrimitiveBlockInputAdaptor::unpackDenseNodes(){
@@ -163,12 +163,12 @@ namespace osmpbf {
 		}
 	}
 
-	std::string PrimitiveBlockInputAdaptor::queryStringTable(int id) const {
-		return m_PBFPrimitiveBlock->stringtable().s(id);
+	const std::string & PrimitiveBlockInputAdaptor::queryStringTable(int id) const {
+		return m_PrimitiveBlock->stringtable().s(id);
 	}
 
 	int PrimitiveBlockInputAdaptor::stringTableSize() const {
-		return m_PBFPrimitiveBlock->stringtable().s_size();
+		return m_PrimitiveBlock->stringtable().s_size();
 	}
 
 	INodeStream PrimitiveBlockInputAdaptor::getNodeStream() {

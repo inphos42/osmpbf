@@ -56,11 +56,11 @@ namespace osmpbf {
 		return m_Group->ways(m_Index).vals(index);
 	}
 
-	std::string WayInputAdaptor::key(int index) const {
+	const std::string & WayInputAdaptor::key(int index) const {
 		return m_Controller->queryStringTable(m_Group->ways(m_Index).keys(index));
 	}
 
-	std::string WayInputAdaptor::value(int index) const {
+	const std::string & WayInputAdaptor::value(int index) const {
 		return m_Controller->queryStringTable(m_Group->ways(m_Index).vals(index));
 	}
 

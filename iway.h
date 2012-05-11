@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-#include "abstractprimitiveinputadaptor.h"
+#include "abstractprimitiveadaptor.h"
 #include "fielditerator.h"
 
 namespace osmpbf {
@@ -32,8 +32,8 @@ namespace osmpbf {
 		virtual int keyId(int index) const;
 		virtual int valueId(int index) const;
 
-		virtual std::string key(int index) const;
-		virtual std::string value(int index) const;
+		virtual const std::string & key(int index) const;
+		virtual const std::string & value(int index) const;
 	};
 
 	class IWay {
@@ -70,8 +70,8 @@ namespace osmpbf {
 		inline int keyId(int index) const { return m_Private->keyId(index); }
 		inline int valueId(int index) const { return m_Private->valueId(index); }
 
-		inline std::string key(int index) const { return m_Private->key(index); }
-		inline std::string value(int index) const { return m_Private->value(index); }
+		inline const std::string & key(int index) const { return m_Private->key(index); }
+		inline const std::string & value(int index) const { return m_Private->value(index); }
 
 	protected:
 		WayInputAdaptor * m_Private;

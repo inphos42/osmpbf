@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-#include "abstractprimitiveinputadaptor.h"
+#include "abstractprimitiveadaptor.h"
 
 namespace osmpbf {
 	class PrimitiveBlockInputAdaptor;
@@ -54,8 +54,8 @@ namespace osmpbf {
 		inline int keyId(int index) const { return m_Private->keyId(index); }
 		inline int valueId(int index) const { return m_Private->valueId(index); }
 
-		inline std::string key(int index) const { return m_Private->key(index); }
-		inline std::string value(int index) const { return m_Private->value(index); }
+		inline const std::string & key(int index) const { return m_Private->key(index); }
+		inline const std::string & value(int index) const { return m_Private->value(index); }
 
 	protected:
 		INode(AbstractNodeInputAdaptor * data);
@@ -84,8 +84,8 @@ namespace osmpbf {
 		virtual int keyId(int index) const;
 		virtual int valueId(int index) const;
 
-		virtual std::string key(int index) const;
-		virtual std::string value(int index) const;
+		virtual const std::string & key(int index) const;
+		virtual const std::string & value(int index) const;
 	};
 
 	class DenseNodeInputAdaptor : public AbstractNodeInputAdaptor {
@@ -109,8 +109,8 @@ namespace osmpbf {
 		virtual int keyId(int index) const;
 		virtual int valueId(int index) const;
 
-		virtual std::string key(int index) const;
-		virtual std::string value(int index) const;
+		virtual const std::string & key(int index) const;
+		virtual const std::string & value(int index) const;
 
 	public:
 		bool m_HasCachedId;
@@ -148,8 +148,8 @@ namespace osmpbf {
 		virtual int keyId(int index) const;
 		virtual int valueId(int index) const;
 
-		virtual std::string key(int index) const;
-		virtual std::string value(int index) const;
+		virtual const std::string & key(int index) const;
+		virtual const std::string & value(int index) const;
 
 	private:
 		PrimitiveGroup * m_DenseGroup;
