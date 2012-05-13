@@ -16,11 +16,13 @@ namespace osmpbf {
 		AbstractNodeOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, PrimitiveGroup * group, int position)
 			: AbstractPrimitiveOutputAdaptor(controller, group, position) {}
 
-		int64_t lat() const = 0;
-		void setLat(int64_t value) = 0;
+		virtual int64_t lati() const = 0;
+		virtual void setLati(int64_t value) = 0;
 
-		int64_t lon() const = 0;
-		void setLon(int64_t value) = 0;
+		virtual int64_t loni() const = 0;
+		virtual void setLoni(int64_t value) = 0;
+
+		virtual NodeType nodeType() const = 0;
 	};
 
 	class ONode {
@@ -35,11 +37,11 @@ namespace osmpbf {
 		inline int64_t id() const { m_Private->id(); }
 		inline void setId(int64_t value) { m_Private->setId(value); }
 
-		int64_t lat() const;
-		void setLat(int64_t value);
+		int64_t lati() const;
+		void setLati(int64_t value);
 
-		int64_t lon() const;
-		void setLon(int64_t value);
+		int64_t loni() const;
+		void setLoni(int64_t value);
 
 		std::pair<std::string, std::string> & tag(int index);
 
