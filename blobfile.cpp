@@ -145,12 +145,13 @@ namespace osmpbf {
 		}
 	}
 
-	BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferLength) {
+	void BlobFileIn::readBlob(BlobDataBuffer & buffer) {
+		buffer.type = readBlob(buffer.data, buffer.totalBytes, buffer.availableBytes);
+	}
+
+	BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize) {
 		if (m_FilePos > m_FileSize - 1)
 			return BLOB_Invalid;
-
-		buffer = NULL;
-		bufferLength = 0;
 
 		if (m_VerboseOutput) std::cout << "== blob ==" << std::endl;
 		BlobDataType blobDataType = BLOB_Invalid;
@@ -219,15 +220,20 @@ namespace osmpbf {
 				if (m_VerboseOutput) std::cout << "uncompressed size : " << blob->raw_size() << "B ( " << blob->raw_size() / 1024.f << " KiB )" << std::endl;
 
 				std::string * compressedData = blob->release_zlib_data();
-				bufferLength = blob->raw_size();
+				availableDataSize = blob->raw_size();
 
 				delete blob;
 
-				buffer = new char[bufferLength];
+				if (bufferSize < availableDataSize) {
+					if (buffer) delete[] buffer;
+					buffer = new char[availableDataSize];
+
+					bufferSize = availableDataSize;
+				}
 
 				if (m_VerboseOutput) std::cout << "decompressing data ... ";
 
-				inflateData(compressedData->data(), compressedData->length(), buffer, bufferLength);
+				inflateData(compressedData->data(), compressedData->length(), buffer, availableDataSize);
 
 				if (m_VerboseOutput) std::cout << "done" << std::endl;
 
@@ -237,13 +243,18 @@ namespace osmpbf {
 				if (m_VerboseOutput) std::cout << "found uncompressed blob data" << std::endl;
 
 				std::string * uncompressedData = blob->release_raw();
-				bufferLength = uncompressedData->length();
+				availableDataSize = uncompressedData->length();
 
 				delete blob;
 
-				buffer = new char[bufferLength];
+				if (bufferSize < availableDataSize) {
+					if (buffer) delete[] buffer;
+					buffer = new char[availableDataSize];
 
-				memmove(buffer, uncompressedData->data(), bufferLength);
+					bufferSize = availableDataSize;
+				}
+
+				memmove(buffer, uncompressedData->data(), availableDataSize);
 				delete uncompressedData;
 			}
 
@@ -253,7 +264,7 @@ namespace osmpbf {
 		std::cerr << "ERROR: ";
 		if (!blobDataType)
 			std::cerr << "invalid blob type";
-		if (!bufferLength)
+		if (!availableDataSize)
 			std::cerr << "invalid blob size";
 		std::cerr << std::endl;
 
@@ -284,6 +295,10 @@ namespace osmpbf {
 
 	uint32_t BlobFileOut::position() const {
 		return ::lseek(m_FileDescriptor, 0, SEEK_CUR);
+	}
+
+	bool BlobFileOut::writeBlob(BlobDataBuffer & buffer, bool compress) {
+		return writeBlob(buffer.type, buffer.data, buffer.availableBytes, compress);
 	}
 
 	bool BlobFileOut::writeBlob(BlobDataType type, char * buffer, uint32_t bufferSize, bool compress) {

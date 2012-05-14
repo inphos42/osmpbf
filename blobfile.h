@@ -26,6 +26,24 @@ namespace osmpbf {
 		bool m_VerboseOutput;
 	};
 
+	struct BlobDataBuffer {
+		BlobDataType type;
+		char * data;
+		uint32_t availableBytes;
+		uint32_t totalBytes;
+
+		inline void clear() {
+			if (data)
+				delete[] data;
+			data = NULL;
+			availableBytes = 0;
+			totalBytes = 0;
+		}
+
+		BlobDataBuffer() : type(BLOB_Invalid), data(NULL), availableBytes(0), totalBytes(0) {}
+		~BlobDataBuffer() { clear(); }
+	};
+
 	class BlobFileIn : public AbstractBlobFile {
 	public:
 		BlobFileIn(std::string fileName) : AbstractBlobFile(fileName), m_FileData(NULL) {}
@@ -37,7 +55,8 @@ namespace osmpbf {
 		virtual void seek(uint32_t position) { m_FilePos = position; }
 		virtual uint32_t position() const { return m_FilePos; }
 
-		BlobDataType readBlob(char * & buffer, uint32_t & bufferSize);
+		void readBlob(BlobDataBuffer & buffer);
+		BlobDataType readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize);
 	private:
 		char * m_FileData;
 		uint32_t m_FilePos;
@@ -57,6 +76,7 @@ namespace osmpbf {
 		virtual void seek(uint32_t position);
 		virtual uint32_t position() const;
 
+		bool writeBlob(BlobDataBuffer & buffer, bool compress = true);
 		bool writeBlob(BlobDataType type, char * buffer, uint32_t bufferSize, bool compress = true);
 	};
 }
