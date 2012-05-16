@@ -5,10 +5,20 @@
 
 namespace osmpbf {
 
+// IWay
+
+	IWay::IWay() : RCWrapper< WayInputAdaptor >() {};
+	IWay::IWay(WayInputAdaptor * data) : RCWrapper< WayInputAdaptor >(data) {}
+	IWay::IWay(const IWay & other) : RCWrapper< WayInputAdaptor >(other) {}
+
+	IWay & IWay::operator=(const IWay & other) { RCWrapper::operator=(other); return *this; }
+
 // IWayStream
 
 	IWayStream::IWayStream(PrimitiveBlockInputAdaptor * controller) : IWay(new WayStreamInputAdaptor(controller)) {}
-	IWayStream::IWayStream(const osmpbf::IWayStream & other) : IWay(other) {}
+	IWayStream::IWayStream(const IWayStream & other) : IWay(other) {}
+
+	IWayStream& IWayStream::operator=(IWayStream & other) { IWay::operator=(other); return *this; }
 
 // WayInputAdaptor
 
@@ -37,11 +47,11 @@ namespace osmpbf {
 	}
 
 	DeltaFieldConstForwardIterator<int64_t> WayInputAdaptor::refBegin() const {
-		return m_Group->ways(m_Index).refs().data();
+		return DeltaFieldConstForwardIterator<int64_t>(m_Group->ways(m_Index).refs().data());
 	}
 
 	DeltaFieldConstForwardIterator<int64_t> WayInputAdaptor::refEnd() const {
-		return m_Group->ways(m_Index).refs().data() + m_Group->ways(m_Index).refs_size();
+		return DeltaFieldConstForwardIterator<int64_t>(m_Group->ways(m_Index).refs().data() + m_Group->ways(m_Index).refs_size());
 	}
 
 	int WayInputAdaptor::tagsSize() const {
@@ -68,9 +78,7 @@ namespace osmpbf {
 
 	WayStreamInputAdaptor::WayStreamInputAdaptor() {}
 	WayStreamInputAdaptor::WayStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller) :
-		WayInputAdaptor(controller, controller->m_WaysGroup, 0),
-		m_WaysSize(m_Controller->waysSize())
-	{}
+		WayInputAdaptor(controller, controller->m_WaysGroup, 0), m_WaysSize(m_Controller->waysSize()) {}
 
 	bool WayStreamInputAdaptor::isNull() const {
 		return AbstractPrimitiveInputAdaptor::isNull() || (m_Index > m_WaysSize - 1);

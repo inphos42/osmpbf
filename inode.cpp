@@ -7,32 +7,18 @@ namespace osmpbf {
 
 // INode
 
-	INode::INode() : m_Private(NULL) {}
-	INode::INode(const INode & other) : m_Private(other.m_Private) {
-		if (m_Private) m_Private->refInc();
-	}
+	INode::INode() : RCWrapper< AbstractNodeInputAdaptor >() {}
+	INode::INode(const INode & other) : RCWrapper< AbstractNodeInputAdaptor >(other) {}
+	INode::INode(AbstractNodeInputAdaptor * data) : RCWrapper< AbstractNodeInputAdaptor >(data) {}
 
-	INode::INode(AbstractNodeInputAdaptor * data) : m_Private(data) {
-		if (m_Private) m_Private->refInc();
-	}
-
-	INode::~INode() {
-		if (m_Private) m_Private->refDec();
-	}
-
-	INode & INode::operator=(const INode & other) {
-		if (m_Private)
-			m_Private->refDec();
-		m_Private = other.m_Private;
-		if (m_Private)
-			m_Private->refInc();
-		return *this;
-	}
+	INode & INode::operator=(const INode & other) { RCWrapper::operator=(other); return *this; }
 
 // INodeStream
 
 	INodeStream::INodeStream(PrimitiveBlockInputAdaptor * controller) : INode(new NodeStreamInputAdaptor(controller)) {}
 	INodeStream::INodeStream(const INodeStream & other): INode(other) {}
+
+	INodeStream & INodeStream::operator=(const INodeStream & other) { INode::operator=(other); return *this; }
 
 // NodeStreamInputAdaptor
 

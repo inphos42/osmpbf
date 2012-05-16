@@ -25,18 +25,12 @@ namespace osmpbf {
 		virtual int64_t rawLon() const = 0;
 	};
 
-	class INode {
+	class INode : public RCWrapper<AbstractNodeInputAdaptor> {
 		friend class PrimitiveBlockInputAdaptor;
 	public:
-		INode();
 		INode(const INode & other);
-		virtual ~INode();
 
 		INode & operator=(const INode & other);
-
-		inline bool operator==(const INode & other) { return m_Private == other.m_Private; }
-
-		inline bool isNull() const { return !m_Private || m_Private->isNull(); }
 
 		inline int64_t id() const { return m_Private->id(); }
 
@@ -58,6 +52,7 @@ namespace osmpbf {
 		inline const std::string & value(int index) const { return m_Private->value(index); }
 
 	protected:
+		INode();
 		INode(AbstractNodeInputAdaptor * data);
 
 		AbstractNodeInputAdaptor * m_Private;
@@ -170,8 +165,13 @@ namespace osmpbf {
 		INodeStream(PrimitiveBlockInputAdaptor * controller);
 		INodeStream(const INodeStream & other);
 
+		INodeStream & operator=(const INodeStream & other);
+
 		inline void next() { static_cast<NodeStreamInputAdaptor *>(m_Private)->next(); }
 		inline void previous() { static_cast<NodeStreamInputAdaptor *>(m_Private)->previous(); }
+	private:
+		INodeStream();
+		INodeStream(AbstractNodeInputAdaptor * data);
 	};
 }
 #endif // OSMPBF_INNODE_H

@@ -36,25 +36,12 @@ namespace osmpbf {
 		virtual const std::string & value(int index) const;
 	};
 
-	class IWay {
+	class IWay : public RCWrapper<osmpbf::WayInputAdaptor> {
 		friend class PrimitiveBlockInputAdaptor;
 	public:
-		IWay() : m_Private(NULL) {};
-		IWay(const IWay & other) : m_Private(other.m_Private) { if (m_Private) m_Private->refInc(); }
-		virtual ~IWay() { if (m_Private) m_Private->refDec(); }
+		IWay(const IWay & other);
 
-		IWay & operator=(const IWay & other) {
-			if (m_Private)
-				m_Private->refDec();
-			m_Private = other.m_Private;
-			if (m_Private)
-				m_Private->refInc();
-			return *this;
-		}
-
-		bool operator==(const IWay & other) { return m_Private == other.m_Private; }
-
-		inline bool isNull() const { return !m_Private || m_Private->isNull(); }
+		IWay & operator=(const IWay & other);
 
 		inline int64_t id() const { return m_Private->id(); }
 
@@ -74,9 +61,8 @@ namespace osmpbf {
 		inline const std::string & value(int index) const { return m_Private->value(index); }
 
 	protected:
-		WayInputAdaptor * m_Private;
-
-		IWay(WayInputAdaptor * data) : m_Private(data) { if (m_Private) m_Private->refInc(); }
+		IWay();
+		IWay(WayInputAdaptor * data);
 	};
 
 	class WayStreamInputAdaptor : public WayInputAdaptor {
@@ -98,8 +84,13 @@ namespace osmpbf {
 		IWayStream(PrimitiveBlockInputAdaptor * controller);
 		IWayStream(const IWayStream & other);
 
+		IWayStream & operator=(IWayStream & other);
+
 		inline void next() { static_cast<WayStreamInputAdaptor *>(m_Private)->next(); }
 		inline void previous() { static_cast<WayStreamInputAdaptor *>(m_Private)->previous(); }
+	private:
+		IWayStream();
+		IWayStream(WayInputAdaptor * data);
 	};
 }
 #endif // OSMPBF_OSMWAY_H
