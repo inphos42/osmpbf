@@ -43,19 +43,19 @@ namespace osmpbf {
 		int64_t latOffset() const;
 		int64_t lonOffset() const;
 
-		inline double toWGS84Lati(int64_t rawValue) const {
+		inline int64_t toWGS84Lati(int64_t rawValue) const {
 			return (latOffset() + (granularity() * rawValue));
 		}
 
-		inline double toWGS84Loni(int64_t rawValue) const {
+		inline int64_t toWGS84Loni(int64_t rawValue) const {
 			return (lonOffset() + (granularity() * rawValue));
 		}
 
-		inline int64_t toWGS84Latd(int64_t rawValue) const {
+		inline double toWGS84Latd(int64_t rawValue) const {
 			return toWGS84Lati(rawValue) * .000000001;
 		}
 
-		inline int64_t toWGS84Lond(int64_t rawValue) const {
+		inline double toWGS84Lond(int64_t rawValue) const {
 			return toWGS84Loni(rawValue) * .000000001;
 		}
 
