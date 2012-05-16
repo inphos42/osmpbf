@@ -16,7 +16,7 @@ namespace osmpbf {
 // INodeStream
 
 	INodeStream::INodeStream(PrimitiveBlockInputAdaptor * controller) : INode(new NodeStreamInputAdaptor(controller)) {}
-	INodeStream::INodeStream(const INodeStream & other): INode(other) {}
+	INodeStream::INodeStream(const INodeStream & other) : INode(other) {}
 
 	INodeStream & INodeStream::operator=(const INodeStream & other) { INode::operator=(other); return *this; }
 

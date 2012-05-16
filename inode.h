@@ -54,8 +54,6 @@ namespace osmpbf {
 	protected:
 		INode();
 		INode(AbstractNodeInputAdaptor * data);
-
-		AbstractNodeInputAdaptor * m_Private;
 	};
 
 	class PlainNodeInputAdaptor : public AbstractNodeInputAdaptor {
