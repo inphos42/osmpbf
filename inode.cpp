@@ -32,6 +32,20 @@ namespace osmpbf {
 		m_WGS84Lat(0), m_WGS84Lon(0)
 	{
 		m_DenseIndex = m_Index - m_NodesSize;
+
+		if (m_DenseIndex < 0) {
+			m_Id = m_Group->nodes(m_Index).id();
+			m_Lat = m_Group->nodes(m_Index).lat();
+			m_Lon = m_Group->nodes(m_Index).lon();
+		}
+		else {
+			m_Id = m_DenseGroup->dense().id(m_DenseIndex);
+			m_Lat = m_DenseGroup->dense().lat(m_DenseIndex);
+			m_Lon = m_DenseGroup->dense().lon(m_DenseIndex);
+		}
+
+		m_WGS84Lat = m_Controller->toWGS84Lati(m_Lat);
+		m_WGS84Lon = m_Controller->toWGS84Loni(m_Lon);
 	}
 
 	void NodeStreamInputAdaptor::next() {
@@ -190,15 +204,19 @@ namespace osmpbf {
 
 // DenseNodeInputAdaptor
 
-	DenseNodeInputAdaptor::DenseNodeInputAdaptor() : AbstractNodeInputAdaptor() {}
+	DenseNodeInputAdaptor::DenseNodeInputAdaptor() : AbstractNodeInputAdaptor(), m_HasCachedId(false), m_HasCachedLat(false), m_HasCachedLon(false) {}
 	DenseNodeInputAdaptor::DenseNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position) :
-		AbstractNodeInputAdaptor(controller, group, position) {}
+		AbstractNodeInputAdaptor(controller, group, position), m_HasCachedId(false), m_HasCachedLat(false), m_HasCachedLon(false) {}
 
 	int64_t DenseNodeInputAdaptor::id() {
+		if (m_Controller->denseNodesUnpacked())
+			return m_Group->dense().id(m_Group->dense().id(m_Index));
+
 		if (!m_HasCachedId) {
 			m_CachedId = m_Group->dense().id(0);
-			for (int i = 0; i < m_Index; i++)
+			for (int i = 1; i < m_Index+1; i++)
 				m_CachedId += m_Group->dense().id(i);
+			m_HasCachedId = true;
 		}
 
 		return m_CachedId;
@@ -210,8 +228,9 @@ namespace osmpbf {
 
 		if (!m_HasCachedLat) {
 			m_CachedLat = m_Group->dense().lat(0);
-			for (int i = 0; i < m_Index; i++)
+			for (int i = 1; i < m_Index+1; i++)
 				m_CachedLat += m_Group->dense().lat(i);
+			m_HasCachedLat = true;
 		}
 
 		return m_Controller->toWGS84Lati(m_CachedLat);
@@ -223,8 +242,9 @@ namespace osmpbf {
 
 		if (!m_HasCachedLon) {
 			m_CachedLon = m_Group->dense().lon(0);
-			for (int i = 0; i < m_Index; i++)
+			for (int i = 1; i < m_Index+1; i++)
 				m_CachedLon += m_Group->dense().lon(i);
+			m_HasCachedLon = true;
 		}
 
 		return m_Controller->toWGS84Loni(m_CachedLon);
