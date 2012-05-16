@@ -25,23 +25,27 @@ namespace osmpbf {
 	NodeStreamInputAdaptor::NodeStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller) :
 		AbstractNodeInputAdaptor(controller, controller->m_NodesGroup, 0),
 		m_DenseGroup(controller->m_DenseNodesGroup),
+		m_DenseIndex(0),
 		m_NodesSize(m_Group ? m_Group->nodes_size() : 0),
 		m_DenseNodesSize(m_DenseGroup ? m_DenseGroup->dense().id_size() : 0),
 		m_Id(0),
 		m_Lat(0), m_Lon(0),
 		m_WGS84Lat(0), m_WGS84Lon(0)
 	{
+		if (isNull())
+			return;
+
 		m_DenseIndex = m_Index - m_NodesSize;
 
-		if (m_DenseIndex < 0) {
-			m_Id = m_Group->nodes(m_Index).id();
-			m_Lat = m_Group->nodes(m_Index).lat();
-			m_Lon = m_Group->nodes(m_Index).lon();
+		if (m_Group) {
+			m_Id = m_Group->nodes(0).id();
+			m_Lat = m_Group->nodes(0).lat();
+			m_Lon = m_Group->nodes(0).lon();
 		}
-		else {
-			m_Id = m_DenseGroup->dense().id(m_DenseIndex);
-			m_Lat = m_DenseGroup->dense().lat(m_DenseIndex);
-			m_Lon = m_DenseGroup->dense().lon(m_DenseIndex);
+		else if (m_DenseGroup) {
+			m_Id = m_DenseGroup->dense().id(0);
+			m_Lat = m_DenseGroup->dense().lat(0);
+			m_Lon = m_DenseGroup->dense().lon(0);
 		}
 
 		m_WGS84Lat = m_Controller->toWGS84Lati(m_Lat);
