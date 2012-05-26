@@ -19,6 +19,8 @@ namespace osmpbf {
 		virtual void seek(uint32_t position) = 0;
 		virtual uint32_t position() const = 0;
 
+		virtual uint32_t size() const = 0;
+
 		inline void setVerboseOutput(bool value) { m_VerboseOutput = value; }
 	protected:
 		std::string m_FileName;
@@ -55,6 +57,8 @@ namespace osmpbf {
 		virtual void seek(uint32_t position) { m_FilePos = position; }
 		virtual uint32_t position() const { return m_FilePos; }
 
+		virtual uint32_t size() const { return m_FileSize; }
+
 		void readBlob(BlobDataBuffer & buffer);
 		BlobDataType readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize);
 	private:
@@ -77,6 +81,8 @@ namespace osmpbf {
 
 		virtual void seek(uint32_t position);
 		virtual uint32_t position() const;
+
+		virtual uint32_t size() const;
 
 		bool writeBlob(BlobDataBuffer & buffer, bool compress = true);
 		bool writeBlob(BlobDataType type, char * buffer, uint32_t bufferSize, bool compress = true);

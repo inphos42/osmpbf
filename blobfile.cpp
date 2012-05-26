@@ -297,6 +297,17 @@ namespace osmpbf {
 		return ::lseek(m_FileDescriptor, 0, SEEK_CUR);
 	}
 
+	// TODO test this
+	uint32_t BlobFileOut::size() const {
+		struct stat stFileInfo;
+		if (fstat(m_FileDescriptor, &stFileInfo) == 0) {
+			if (stFileInfo.st_size <= INT32_MAX)
+				return uint32_t(stFileInfo.st_size);
+		}
+
+		return 0;
+	}
+
 	bool BlobFileOut::writeBlob(BlobDataBuffer & buffer, bool compress) {
 		return writeBlob(buffer.type, buffer.data, buffer.availableBytes, compress);
 	}
