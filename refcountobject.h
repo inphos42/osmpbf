@@ -30,13 +30,18 @@ namespace osmpbf {
 		virtual ~RCWrapper() { if (m_Private) m_Private->rcDec(); }
 
 		RCWrapper & operator=(const RCWrapper & other) {
+			if (m_Private == other.m_Private)
+				return *this;
+
 			if (m_Private) m_Private->rcDec();
 			m_Private = other.m_Private;
 			if (m_Private) m_Private->rcInc();
+
 			return *this;
 		}
 
 		bool operator==(const RCWrapper & other) { return m_Private == other.m_Private; }
+		bool operator!=(const RCWrapper & other) { return m_Private != other.m_Private; }
 
 		inline bool isNull() const { return !m_Private || m_Private->isNull(); }
 
