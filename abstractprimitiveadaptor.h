@@ -14,11 +14,11 @@ namespace osmpbf {
 	class AbstractPrimitiveInputAdaptor : public RefCountObject {
 	public:
 		AbstractPrimitiveInputAdaptor()
-			: RefCountObject(), m_Controller(NULL), m_Group(NULL), m_Index(-1) {}
-		AbstractPrimitiveInputAdaptor(PrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int index)
-			: RefCountObject(), m_Controller(controller), m_Group(group), m_Index(index) {}
+			: RefCountObject(), m_Controller(NULL) {}
+		AbstractPrimitiveInputAdaptor(PrimitiveBlockInputAdaptor * controller)
+			: RefCountObject(), m_Controller(controller) {}
 
-		virtual bool isNull() const { return !m_Controller || !m_Group || (m_Index < 0); }
+		virtual bool isNull() const { return !m_Controller; }
 
 		virtual int64_t id() = 0;
 
@@ -32,8 +32,6 @@ namespace osmpbf {
 
 	protected:
 		PrimitiveBlockInputAdaptor * m_Controller;
-		PrimitiveGroup * m_Group;
-		int m_Index;
 	};
 
 	class PrimitiveBlockOutputAdaptor;
@@ -41,28 +39,27 @@ namespace osmpbf {
 	class AbstractPrimitiveOutputAdaptor : public RefCountObject {
 	public:
 		AbstractPrimitiveOutputAdaptor()
-			: RefCountObject(), m_Controller(NULL), m_Group(NULL), m_Index(-1) {}
-		AbstractPrimitiveOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, PrimitiveGroup * group, int index)
-			: RefCountObject(), m_Controller(controller), m_Group(group), m_Index(index) {}
+			: RefCountObject(), m_Controller(NULL) {}
+		AbstractPrimitiveOutputAdaptor(PrimitiveBlockOutputAdaptor * controller)
+			: RefCountObject(), m_Controller(controller) {}
 
-		virtual bool isNULL() const { return !m_Controller || !m_Group || (m_Index < 0); }
+		virtual bool isNULL() const { return !m_Controller; }
 
 		virtual int64_t id() const = 0;
 		virtual void setId(int64_t value) = 0;
 
 		virtual int tagsSize() const = 0;
 
-		virtual std::string & key(int index) = 0;
-		virtual std::string & value(int index) = 0;
+		virtual std::string & key(int index) const = 0;
+		virtual std::string & value(int index) const = 0;
 
-		virtual void addTag(std::string key, std::string value) = 0;
-		virtual void removeTag(int index) = 0;
+		virtual void addTag(const std::string & key, const std::string & value) = 0;
+		virtual void removeTagLater(int index) = 0;
 
 		virtual void clearTags() = 0;
+
 	protected:
 		PrimitiveBlockOutputAdaptor * m_Controller;
-		PrimitiveGroup * m_Group;
-		int m_Index;
 	};
 }
 #endif // OSMPBF_ABSTRACTPRIMITIVEADAPTOR_H

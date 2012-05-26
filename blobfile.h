@@ -62,6 +62,8 @@ namespace osmpbf {
 		uint32_t m_FilePos;
 		uint32_t m_FileSize;
 
+		BlobFileIn() : AbstractBlobFile() {}
+
 		inline void * fileData() { return (void *) &(m_FileData[m_FilePos]); }
 	};
 
@@ -78,6 +80,8 @@ namespace osmpbf {
 
 		bool writeBlob(BlobDataBuffer & buffer, bool compress = true);
 		bool writeBlob(BlobDataType type, char * buffer, uint32_t bufferSize, bool compress = true);
+	private:
+		BlobFileOut() : AbstractBlobFile() {}
 	};
 }
 

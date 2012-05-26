@@ -32,7 +32,7 @@ namespace osmpbf {
 
 		bool isNull() const {
 			return !(m_PrimitiveBlock && (
-				m_NodesGroup ||
+				m_PlainNodesGroup ||
 				m_WaysGroup ||
 				m_DenseNodesGroup ||
 				m_RelationsGroup));
@@ -70,7 +70,7 @@ namespace osmpbf {
 
 		PrimitiveBlock * m_PrimitiveBlock;
 
-		PrimitiveGroup * m_NodesGroup;
+		PrimitiveGroup * m_PlainNodesGroup;
 		PrimitiveGroup * m_DenseNodesGroup;
 		PrimitiveGroup * m_WaysGroup;
 		PrimitiveGroup * m_RelationsGroup;

@@ -10,7 +10,7 @@ namespace osmpbf {
 // PrimitiveBlockInputAdaptor
 
 	PrimitiveBlockInputAdaptor::PrimitiveBlockInputAdaptor(char * rawData, uint32_t length, bool unpackDense) :
-		m_NodesGroup(NULL),
+		m_PlainNodesGroup(NULL),
 		m_DenseNodesGroup(NULL),
 		m_WaysGroup(NULL),
 		m_RelationsGroup(NULL),
@@ -28,7 +28,7 @@ namespace osmpbf {
 
 			for (int i = 0; i < m_PrimitiveBlock->primitivegroup_size(); ++i) {
 				if (primGroups[i]->nodes_size()) {
-					m_NodesGroup = primGroups[i];
+					m_PlainNodesGroup = primGroups[i];
 					break;
 				}
 
@@ -63,27 +63,25 @@ namespace osmpbf {
 
 	PrimitiveBlockInputAdaptor::~PrimitiveBlockInputAdaptor() {
 		delete m_PrimitiveBlock;
-
-		if (m_DenseNodeKeyValIndex)
-			delete[] m_DenseNodeKeyValIndex;
+		delete[] m_DenseNodeKeyValIndex;
 	}
 
 	INode PrimitiveBlockInputAdaptor::getNodeAt(int position) const {
-		if (!m_NodesGroup && !m_DenseNodesGroup)
+		if (!m_PlainNodesGroup && !m_DenseNodesGroup)
 			return INode();
 
-		if (m_DenseNodesGroup && (!m_NodesGroup || (position > m_NodesGroup->nodes_size())))
-			return INode(new DenseNodeInputAdaptor(const_cast<PrimitiveBlockInputAdaptor *>(this), m_DenseNodesGroup, position));
+		if (m_DenseNodesGroup && (!m_PlainNodesGroup || (position > m_PlainNodesGroup->nodes_size())))
+			return INode(new DenseNodeInputAdaptor(const_cast<PrimitiveBlockInputAdaptor *>(this), m_DenseNodesGroup->dense(), position));
 		else
-			return INode(new PlainNodeInputAdaptor(const_cast<PrimitiveBlockInputAdaptor *>(this), m_NodesGroup, position));
+			return INode(new PlainNodeInputAdaptor(const_cast<PrimitiveBlockInputAdaptor *>(this), m_PlainNodesGroup->nodes(position)));
 
 	}
 
 	int PrimitiveBlockInputAdaptor::nodesSize() const {
 		int result = 0;
 
-		if (m_NodesGroup)
-			result += m_NodesGroup->nodes_size();
+		if (m_PlainNodesGroup)
+			result += m_PlainNodesGroup->nodes_size();
 
 		if (m_DenseNodesGroup)
 			result += m_DenseNodesGroup->dense().id_size();
@@ -92,7 +90,7 @@ namespace osmpbf {
 	}
 
 	IWay PrimitiveBlockInputAdaptor::getWayAt(int position) const {
-		return IWay(new WayInputAdaptor(const_cast<PrimitiveBlockInputAdaptor *>(this), m_WaysGroup, position));
+		return IWay(new WayInputAdaptor(const_cast<PrimitiveBlockInputAdaptor *>(this), m_WaysGroup->ways().data()[position]));
 	}
 
 	int PrimitiveBlockInputAdaptor::waysSize() const {

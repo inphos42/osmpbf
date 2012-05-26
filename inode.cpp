@@ -23,11 +23,13 @@ namespace osmpbf {
 // NodeStreamInputAdaptor
 
 	NodeStreamInputAdaptor::NodeStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller) :
-		AbstractNodeInputAdaptor(controller, controller->m_NodesGroup, 0),
-		m_DenseGroup(controller->m_DenseNodesGroup),
+		AbstractNodeInputAdaptor(controller),
+		m_PlainNodes(controller->m_PlainNodesGroup),
+		m_DenseNodes(controller->m_DenseNodesGroup),
+		m_Index(0),
 		m_DenseIndex(0),
-		m_NodesSize(m_Group ? m_Group->nodes_size() : 0),
-		m_DenseNodesSize(m_DenseGroup ? m_DenseGroup->dense().id_size() : 0),
+		m_PlainNodesSize(m_PlainNodes ? m_PlainNodes->nodes_size() : 0),
+		m_DenseNodesSize(m_DenseNodes ? m_DenseNodes->dense().id_size() : 0),
 		m_Id(0),
 		m_Lat(0), m_Lon(0),
 		m_WGS84Lat(0), m_WGS84Lon(0)
@@ -35,17 +37,17 @@ namespace osmpbf {
 		if (isNull())
 			return;
 
-		m_DenseIndex = m_Index - m_NodesSize;
+		m_DenseIndex = m_Index - m_PlainNodesSize;
 
-		if (m_Group) {
-			m_Id = m_Group->nodes(0).id();
-			m_Lat = m_Group->nodes(0).lat();
-			m_Lon = m_Group->nodes(0).lon();
+		if (m_PlainNodes) {
+			m_Id = m_PlainNodes->nodes(0).id();
+			m_Lat = m_PlainNodes->nodes(0).lat();
+			m_Lon = m_PlainNodes->nodes(0).lon();
 		}
-		else if (m_DenseGroup) {
-			m_Id = m_DenseGroup->dense().id(0);
-			m_Lat = m_DenseGroup->dense().lat(0);
-			m_Lon = m_DenseGroup->dense().lon(0);
+		else if (m_DenseNodes) {
+			m_Id = m_DenseNodes->dense().id(0);
+			m_Lat = m_DenseNodes->dense().lat(0);
+			m_Lon = m_DenseNodes->dense().lon(0);
 		}
 
 		m_WGS84Lat = m_Controller->toWGS84Lati(m_Lat);
@@ -58,28 +60,28 @@ namespace osmpbf {
 		if (isNull())
 			return;
 
-		m_DenseIndex = m_Index - m_NodesSize;
+		m_DenseIndex = m_Index - m_PlainNodesSize;
 		if (m_DenseIndex < 0) {
-			m_Id = m_Group->nodes(m_Index).id();
-			m_Lat = m_Group->nodes(m_Index).lat();
-			m_Lon = m_Group->nodes(m_Index).lon();
+			m_Id = m_PlainNodes->nodes(m_Index).id();
+			m_Lat = m_PlainNodes->nodes(m_Index).lat();
+			m_Lon = m_PlainNodes->nodes(m_Index).lon();
 		}
 		else if (m_DenseIndex > 0) {
 			if (m_Controller->denseNodesUnpacked()) {
-				m_Id = m_DenseGroup->dense().id(m_DenseIndex);
-				m_Lat = m_DenseGroup->dense().lat(m_DenseIndex);
-				m_Lon = m_DenseGroup->dense().lon(m_DenseIndex);
+				m_Id = m_DenseNodes->dense().id(m_DenseIndex);
+				m_Lat = m_DenseNodes->dense().lat(m_DenseIndex);
+				m_Lon = m_DenseNodes->dense().lon(m_DenseIndex);
 			}
 			else {
-				m_Id += m_DenseGroup->dense().id(m_DenseIndex);
-				m_Lat += m_DenseGroup->dense().lat(m_DenseIndex);
-				m_Lon += m_DenseGroup->dense().lon(m_DenseIndex);
+				m_Id += m_DenseNodes->dense().id(m_DenseIndex);
+				m_Lat += m_DenseNodes->dense().lat(m_DenseIndex);
+				m_Lon += m_DenseNodes->dense().lon(m_DenseIndex);
 			}
 		}
 		else {
-			m_Id = m_DenseGroup->dense().id(0);
-			m_Lat = m_DenseGroup->dense().lat(0);
-			m_Lon = m_DenseGroup->dense().lon(0);
+			m_Id = m_DenseNodes->dense().id(0);
+			m_Lat = m_DenseNodes->dense().lat(0);
+			m_Lon = m_DenseNodes->dense().lon(0);
 		}
 
 		m_WGS84Lat = m_Controller->toWGS84Lati(m_Lat);
@@ -92,28 +94,28 @@ namespace osmpbf {
 		if (isNull())
 			return;
 
-		m_DenseIndex = m_Index - m_NodesSize;
+		m_DenseIndex = m_Index - m_PlainNodesSize;
 		if (m_DenseIndex < 0) {
-			m_Id = m_Group->nodes(m_Index).id();
-			m_Lat = m_Group->nodes(m_Index).lat();
-			m_Lon = m_Group->nodes(m_Index).lon();
+			m_Id = m_PlainNodes->nodes(m_Index).id();
+			m_Lat = m_PlainNodes->nodes(m_Index).lat();
+			m_Lon = m_PlainNodes->nodes(m_Index).lon();
 		}
 		else if (m_DenseIndex > 0) {
 			if (m_Controller->denseNodesUnpacked()) {
-				m_Id = m_DenseGroup->dense().id(m_DenseIndex);
-				m_Lat = m_DenseGroup->dense().lat(m_DenseIndex);
-				m_Lon = m_DenseGroup->dense().lon(m_DenseIndex);
+				m_Id = m_DenseNodes->dense().id(m_DenseIndex);
+				m_Lat = m_DenseNodes->dense().lat(m_DenseIndex);
+				m_Lon = m_DenseNodes->dense().lon(m_DenseIndex);
 			}
 			else {
-				m_Id -= m_DenseGroup->dense().id(m_DenseIndex + 1);
-				m_Lat -= m_DenseGroup->dense().lat(m_DenseIndex + 1);
-				m_Lon -= m_DenseGroup->dense().lon(m_DenseIndex + 1);
+				m_Id -= m_DenseNodes->dense().id(m_DenseIndex + 1);
+				m_Lat -= m_DenseNodes->dense().lat(m_DenseIndex + 1);
+				m_Lon -= m_DenseNodes->dense().lon(m_DenseIndex + 1);
 			}
 		}
 		else {
-			m_Id = m_DenseGroup->dense().id(0);
-			m_Lat = m_DenseGroup->dense().lat(0);
-			m_Lon = m_DenseGroup->dense().lon(0);
+			m_Id = m_DenseNodes->dense().id(0);
+			m_Lat = m_DenseNodes->dense().lat(0);
+			m_Lon = m_DenseNodes->dense().lon(0);
 		}
 
 		m_WGS84Lat = m_Controller->toWGS84Lati(m_Lat);
@@ -122,7 +124,7 @@ namespace osmpbf {
 
 	int NodeStreamInputAdaptor::tagsSize() const {
 		return (m_DenseIndex < 0) ?
-			m_Group->nodes(m_Index).keys_size() :
+			m_PlainNodes->nodes(m_Index).keys_size() :
 			m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2 + 1);
 	}
 
@@ -131,8 +133,8 @@ namespace osmpbf {
 			return 0;
 
 		return (m_DenseIndex < 0) ?
-			m_Group->nodes(m_Index).keys(index) :
-			m_DenseGroup->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2) + index * 2);
+			m_PlainNodes->nodes(m_Index).keys(index) :
+			m_DenseNodes->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2) + index * 2);
 	}
 
 	int NodeStreamInputAdaptor::valueId(int index) const {
@@ -140,8 +142,8 @@ namespace osmpbf {
 			return 0;
 
 		return (m_DenseIndex < 0) ?
-			m_Group->nodes(m_Index).vals(index) :
-			m_DenseGroup->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2) + index * 2 + 1);
+			m_PlainNodes->nodes(m_Index).vals(index) :
+			m_DenseNodes->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2) + index * 2 + 1);
 	}
 
 	const std::string & NodeStreamInputAdaptor::key(int index) const {
@@ -155,71 +157,71 @@ namespace osmpbf {
 // PlainNodeInputAdaptor
 
 	PlainNodeInputAdaptor::PlainNodeInputAdaptor() : AbstractNodeInputAdaptor() {}
-	PlainNodeInputAdaptor::PlainNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position) :
-		AbstractNodeInputAdaptor(controller, group, position) {}
+	PlainNodeInputAdaptor::PlainNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const Node & data) :
+		AbstractNodeInputAdaptor(controller), m_Data(&data) {}
 
 	int64_t PlainNodeInputAdaptor::id() {
-		return m_Group->nodes(m_Index).id();
+		return m_Data->id();
 	}
 
 	int64_t PlainNodeInputAdaptor::lati() {
-		return m_Controller->toWGS84Lati(m_Group->nodes(m_Index).lat());
+		return m_Controller->toWGS84Lati(m_Data->lat());
 	}
 
 	int64_t PlainNodeInputAdaptor::loni() {
-		return m_Controller->toWGS84Loni(m_Group->nodes(m_Index).lon());
+		return m_Controller->toWGS84Loni(m_Data->lon());
 	}
 
 	double PlainNodeInputAdaptor::latd() {
-		return m_Controller->toWGS84Latd(m_Group->nodes(m_Index).lat());
+		return m_Controller->toWGS84Latd(m_Data->lat());
 	}
 
 	double PlainNodeInputAdaptor::lond() {
-		return m_Controller->toWGS84Lond(m_Group->nodes(m_Index).lon());
+		return m_Controller->toWGS84Lond(m_Data->lon());
 	}
 
 	int64_t PlainNodeInputAdaptor::rawLat() const {
-		return m_Group->nodes(m_Index).lat();
+		return m_Data->lat();
 	}
 
 	int64_t PlainNodeInputAdaptor::rawLon() const {
-		return m_Group->nodes(m_Index).lon();
+		return m_Data->lon();
 	}
 
 	int PlainNodeInputAdaptor::tagsSize() const {
-		return m_Group->nodes(m_Index).keys_size();
+		return m_Data->keys_size();
 	}
 
 	int PlainNodeInputAdaptor::keyId(int index) const {
-		return m_Group->nodes(m_Index).keys(index);
+		return m_Data->keys(index);
 	}
 
 	int PlainNodeInputAdaptor::valueId(int index) const {
-		return m_Group->nodes(m_Index).vals(index);
+		return m_Data->vals(index);
 	}
 
 	const std::string & PlainNodeInputAdaptor::key(int index) const {
-		return m_Controller->queryStringTable(m_Group->nodes(m_Index).keys(index));
+		return m_Controller->queryStringTable(m_Data->keys(index));
 	}
 
 	const std::string & PlainNodeInputAdaptor::value(int index) const {
-		return m_Controller->queryStringTable(m_Group->nodes(m_Index).vals(index));
+		return m_Controller->queryStringTable(m_Data->vals(index));
 	}
 
 // DenseNodeInputAdaptor
 
 	DenseNodeInputAdaptor::DenseNodeInputAdaptor() : AbstractNodeInputAdaptor(), m_HasCachedId(false), m_HasCachedLat(false), m_HasCachedLon(false) {}
-	DenseNodeInputAdaptor::DenseNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position) :
-		AbstractNodeInputAdaptor(controller, group, position), m_HasCachedId(false), m_HasCachedLat(false), m_HasCachedLon(false) {}
+	DenseNodeInputAdaptor::DenseNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const DenseNodes & data, int position) :
+		AbstractNodeInputAdaptor(controller), m_Data(&data), m_Index(position), m_HasCachedId(false), m_HasCachedLat(false), m_HasCachedLon(false) {}
 
 	int64_t DenseNodeInputAdaptor::id() {
 		if (m_Controller->denseNodesUnpacked())
-			return m_Group->dense().id(m_Group->dense().id(m_Index));
+			return m_Data->id(m_Data->id(m_Index));
 
 		if (!m_HasCachedId) {
-			m_CachedId = m_Group->dense().id(0);
+			m_CachedId = m_Data->id(0);
 			for (int i = 1; i < m_Index+1; i++)
-				m_CachedId += m_Group->dense().id(i);
+				m_CachedId += m_Data->id(i);
 			m_HasCachedId = true;
 		}
 
@@ -228,12 +230,12 @@ namespace osmpbf {
 
 	int64_t DenseNodeInputAdaptor::lati() {
 		if (m_Controller->denseNodesUnpacked())
-			return m_Controller->toWGS84Lati(m_Group->dense().lat(m_Index));
+			return m_Controller->toWGS84Lati(m_Data->lat(m_Index));
 
 		if (!m_HasCachedLat) {
-			m_CachedLat = m_Group->dense().lat(0);
+			m_CachedLat = m_Data->lat(0);
 			for (int i = 1; i < m_Index+1; i++)
-				m_CachedLat += m_Group->dense().lat(i);
+				m_CachedLat += m_Data->lat(i);
 			m_HasCachedLat = true;
 		}
 
@@ -242,12 +244,12 @@ namespace osmpbf {
 
 	int64_t DenseNodeInputAdaptor::loni() {
 		if (m_Controller->denseNodesUnpacked())
-			return m_Controller->toWGS84Loni(m_Group->dense().lon(m_Index));
+			return m_Controller->toWGS84Loni(m_Data->lon(m_Index));
 
 		if (!m_HasCachedLon) {
-			m_CachedLon = m_Group->dense().lon(0);
+			m_CachedLon = m_Data->lon(0);
 			for (int i = 1; i < m_Index+1; i++)
-				m_CachedLon += m_Group->dense().lon(i);
+				m_CachedLon += m_Data->lon(i);
 			m_HasCachedLon = true;
 		}
 
@@ -263,23 +265,23 @@ namespace osmpbf {
 	}
 
 	int64_t DenseNodeInputAdaptor::rawLat() const {
-		return m_Group->dense().lat(m_Index);
+		return m_Data->lat(m_Index);
 	}
 
 	int64_t DenseNodeInputAdaptor::rawLon() const {
-		return m_Group->dense().lon(m_Index);
+		return m_Data->lon(m_Index);
 	}
 
 	int DenseNodeInputAdaptor::tagsSize() const {
-		return (!m_Group->dense().keys_vals_size()) ? 0 : m_Controller->queryDenseNodeKeyValIndex(m_Index * 2 + 1);
+		return (!m_Data->keys_vals_size()) ? 0 : m_Controller->queryDenseNodeKeyValIndex(m_Index * 2 + 1);
 	}
 
 	int DenseNodeInputAdaptor::keyId(int index) const {
-		return (index < 0 || index >= tagsSize()) ? 0 : m_Group->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Index * 2) + index * 2);
+		return (index < 0 || index >= tagsSize()) ? 0 : m_Data->keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Index * 2) + index * 2);
 	}
 
 	int DenseNodeInputAdaptor::valueId(int index) const {
-		return (index < 0 || index >= tagsSize()) ? 0 : m_Group->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Index * 2) + index * 2 + 1);
+		return (index < 0 || index >= tagsSize()) ? 0 : m_Data->keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Index * 2) + index * 2 + 1);
 	}
 
 	const std::string & DenseNodeInputAdaptor::key(int index) const {

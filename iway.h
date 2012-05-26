@@ -7,13 +7,16 @@
 #include "abstractprimitiveadaptor.h"
 #include "fielditerator.h"
 
+class Way;
+
 namespace osmpbf {
 	class PrimitiveBlockInputAdaptor;
+	class PrimitiveBlockOutputAdaptor;
 
 	class WayInputAdaptor : public AbstractPrimitiveInputAdaptor {
 	public:
 		WayInputAdaptor();
-		WayInputAdaptor(PrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position);
+		WayInputAdaptor(PrimitiveBlockInputAdaptor * controller, const Way * data);
 
 		virtual int64_t id();
 
@@ -34,6 +37,9 @@ namespace osmpbf {
 
 		virtual const std::string & key(int index) const;
 		virtual const std::string & value(int index) const;
+
+	protected:
+		const Way * m_Data;
 	};
 
 	class IWay : public RCWrapper<osmpbf::WayInputAdaptor> {
@@ -77,6 +83,7 @@ namespace osmpbf {
 
 	private:
 		int m_WaysSize;
+		int m_Index;
 	};
 
 	class IWayStream : public IWay {
@@ -88,6 +95,7 @@ namespace osmpbf {
 
 		inline void next() { static_cast<WayStreamInputAdaptor *>(m_Private)->next(); }
 		inline void previous() { static_cast<WayStreamInputAdaptor *>(m_Private)->previous(); }
+
 	private:
 		IWayStream();
 		IWayStream(WayInputAdaptor * data);

@@ -6,14 +6,18 @@
 
 #include "abstractprimitiveadaptor.h"
 
+class Node;
+class DenseNodes;
+
 namespace osmpbf {
 	class PrimitiveBlockInputAdaptor;
 
 	class AbstractNodeInputAdaptor : public AbstractPrimitiveInputAdaptor {
 	public:
-		AbstractNodeInputAdaptor() : AbstractPrimitiveInputAdaptor() {}
-		AbstractNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position)
-			: AbstractPrimitiveInputAdaptor(controller, group, position) {}
+		AbstractNodeInputAdaptor()
+			: AbstractPrimitiveInputAdaptor() {}
+		AbstractNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller)
+			: AbstractPrimitiveInputAdaptor(controller) {}
 
 		virtual int64_t lati() = 0;
 		virtual int64_t loni() = 0;
@@ -59,7 +63,7 @@ namespace osmpbf {
 	class PlainNodeInputAdaptor : public AbstractNodeInputAdaptor {
 	public:
 		PlainNodeInputAdaptor();
-		PlainNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position);
+		PlainNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const Node & data);
 
 		virtual int64_t id();
 
@@ -79,12 +83,15 @@ namespace osmpbf {
 
 		virtual const std::string & key(int index) const;
 		virtual const std::string & value(int index) const;
+
+	protected:
+		const Node * m_Data;
 	};
 
 	class DenseNodeInputAdaptor : public AbstractNodeInputAdaptor {
 	public:
 		DenseNodeInputAdaptor();
-		DenseNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, PrimitiveGroup * group, int position);
+		DenseNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const DenseNodes & data, int index);
 
 		virtual int64_t id();
 
@@ -105,7 +112,10 @@ namespace osmpbf {
 		virtual const std::string & key(int index) const;
 		virtual const std::string & value(int index) const;
 
-	public:
+	protected:
+		const DenseNodes * m_Data;
+		int m_Index;
+
 		bool m_HasCachedId;
 		bool m_HasCachedLat;
 		bool m_HasCachedLon;
@@ -123,7 +133,7 @@ namespace osmpbf {
 		void next();
 		void previous();
 
-		virtual bool isNull() const { return !m_Controller || !(m_Group || m_DenseGroup) || (m_Index < 0) || m_Index > m_NodesSize + m_DenseNodesSize - 1; }
+		virtual bool isNull() const { return !m_Controller || !(m_PlainNodes || m_DenseNodes) || (m_Index < 0) || m_Index > m_PlainNodesSize + m_DenseNodesSize - 1; }
 
 		virtual int64_t id() { return m_Id; }
 
@@ -145,10 +155,13 @@ namespace osmpbf {
 		virtual const std::string & value(int index) const;
 
 	private:
-		PrimitiveGroup * m_DenseGroup;
+		PrimitiveGroup * m_PlainNodes;
+		PrimitiveGroup * m_DenseNodes;
 
+		int m_Index;
 		int m_DenseIndex;
-		const int m_NodesSize;
+
+		const int m_PlainNodesSize;
 		const int m_DenseNodesSize;
 
 		int64_t m_Id;
