@@ -3,31 +3,32 @@
 
 #include <cstdint>
 #include <string>
+#include <set>
 
-#include "onode.h"
+// #include "onode.h"
 #include "oway.h"
 
-#include "inode.h"
-#include "iway.h"
+// #include "stringtable.h"
 
 class PrimitiveBlock;
 class PrimitiveGroup;
 
 namespace osmpbf {
+	class IWay;
+	class StringTable;
+
 	class PrimitiveBlockOutputAdaptor {
 	public:
 		PrimitiveBlockOutputAdaptor();
 		virtual ~PrimitiveBlockOutputAdaptor();
 
-		bool isInitialized() const;
-
-		ONode createNode();
-		ONode createNode(INode & templateNode);
+// 		ONode createNode();
+// 		ONode createNode(INode & templateINode);
 
 		int nodesSize();
 
 		OWay createWay();
-		OWay createWay(IWay & templateWay);
+		OWay createWay(const IWay & templateIWay);
 
 		int waysSize();
 
@@ -35,12 +36,23 @@ namespace osmpbf {
 		void setLatOffset(int64_t value);
 		void setLonOffset(int64_t value);
 
-		PrimitiveBlockOutputAdaptor & operator<<(INode & node);
-		PrimitiveBlockOutputAdaptor & operator<<(IWay & way);
+		inline StringTable & stringTable() { return *m_StringTable; }
 
-		bool serialize(std::string & output);
+// 		bool isInitialized() const;
+
+		bool flush(std::string & output);
+
+// 		PrimitiveBlockOutputAdaptor & operator<<(INode & node) { createNode(node); return *this; }
+		inline PrimitiveBlockOutputAdaptor & operator<<(IWay & way) { createWay(way); return *this; }
+
 	private:
 		PrimitiveBlock * m_PrimitiveBlock;
+		StringTable * m_StringTable;
+
+		PrimitiveGroup * m_NodesGroup;
+		PrimitiveGroup * m_DenseNodesGroup;
+		PrimitiveGroup * m_WaysGroup;
+		PrimitiveGroup * m_RelationsGroup;
 
 		void buildStringTable();
 	};

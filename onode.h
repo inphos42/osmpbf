@@ -12,6 +12,7 @@ namespace osmpbf {
 	class PrimitiveBlockOutputAdaptor;
 
 	class AbstractNodeOutputAdaptor : public AbstractPrimitiveOutputAdaptor {
+	public:
 		AbstractNodeOutputAdaptor() : AbstractPrimitiveOutputAdaptor() {}
 		AbstractNodeOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, PrimitiveGroup * group, int position)
 			: AbstractPrimitiveOutputAdaptor(controller, group, position) {}
@@ -25,33 +26,31 @@ namespace osmpbf {
 		virtual NodeType nodeType() const = 0;
 	};
 
-	class ONode {
+	class ONode : public RCWrapper<AbstractNodeOutputAdaptor> {
 	public:
-		ONode();
 		ONode(const ONode & other);
-		ONode(PrimitiveBlockOutputAdaptor * controller, NodeType type = PlainNode);
-		~virtual ONode();
 
 		ONode & operator=(const ONode & other);
 
 		inline int64_t id() const { m_Private->id(); }
 		inline void setId(int64_t value) { m_Private->setId(value); }
 
-		int64_t lati() const;
-		void setLati(int64_t value);
+		inline int64_t lati() const { m_Private->lati(); }
+		inline void setLati(int64_t value) { m_Private->setLati(); }
 
-		int64_t loni() const;
-		void setLoni(int64_t value);
+		inline int64_t loni() const { m_Private->loni(); }
+		inline void setLoni(int64_t value) { m_Private->setLoni(value); }
 
-		std::pair<std::string, std::string> & tag(int index);
+		inline std::string & key(int index) { m_Private->value(index); }
+		inline std::string & value(int index) { m_Private->value(index); }
 
-		void addTag(std::pair<std:string, std::string> & tag);
-		void addTag(std::string key, std::string value);
-		void removeTag(int index);
+		inline void addTag(const std::string & key, const std::string & value) { m_Private->addTag(key, value); }
+		inline void removeTag(int index) { m_Private->removeTag(index); }
 
-		int tagCount() const;
+		inline int tagCount() const;
 	protected:
-		AbstractNodeOutputAdaptor * m_Private;
+		ONode();
+		ONode(PrimitiveBlockOutputAdaptor * controller, NodeType type = PlainNode);
 	};
 }
 

@@ -7,34 +7,87 @@
 
 #include "common.h"
 #include "abstractprimitiveadaptor.h"
+#include "fielditerator.h"
+
+class Way;
+
+#define NULL_REF -1
 
 namespace osmpbf {
 	class PrimitiveBlockOutputAdaptor;
 
-	class OWay {
+	class WayOutputAdaptor : public AbstractPrimitiveOutputAdaptor {
 	public:
-		OWay();
+		WayOutputAdaptor();
+		WayOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, Way * data);
+
+		virtual int64_t id() const;
+		virtual void setId(int64_t value);
+
+		virtual int refsSize() const;
+
+		virtual int64_t ref(int index) const;
+		virtual void setRef(int index, int64_t value);
+
+		virtual void addRef(int64_t ref);
+
+		virtual void setRefs(const DeltaFieldConstForwardIterator<int64_t> & from, const DeltaFieldConstForwardIterator<int64_t> & to);
+		virtual void setRefs(const FieldConstIterator<int64_t> & from, const FieldConstIterator<int64_t> & to);
+
+		virtual void clearRefs();
+
+		virtual int tagsSize() const;
+
+		virtual std::string & key(int index) const;
+		virtual std::string & value(int index) const;
+
+		virtual void addTag(const std::string & key, const std::string & value);
+		virtual void removeTagLater(int index);
+
+		virtual void clearTags();
+
+	protected:
+		Way * m_Data;
+	};
+
+	class OWay : public RCWrapper<WayOutputAdaptor> {
+		friend class PrimitiveBlockOutputAdaptor;
+	public:
 		OWay(const OWay & other);
-		OWay(PrimitiveBlockOutputAdaptor * controller);
 
-		int64_t id() const;
-		void setId(int64_t value);
+		OWay & operator=(const OWay & other);
 
-		int64_t ref(int index) const;
-		void setRef(int index, int64_t value);
+		inline int64_t id() const { return m_Private->id(); }
+		inline void setId(int64_t value) { m_Private->setId(value); }
 
-		void addRef(int64_t ref);
-		void removeRef(int index);
+		inline int refsSize() const { return m_Private->refsSize(); }
 
-		int refsSize() const;
+		inline int64_t ref(int index) const { return m_Private->ref(index); }
+		inline void setRef(int index, int64_t value) { m_Private->setRef(index, value); }
 
-		std::pair<std:string, std::string> & tag(int index);
+		inline void addRef(int64_t ref) { m_Private->addRef(ref); }
+		inline void removeRefLater(int index) { m_Private->setRef(index, NULL_REF); }
 
-		void addTag(std::pair<std::string, std::string> & tag);
-		void addTag(std::string key, std::string value);
-		void removeTag(int index);
+		inline void setRefs(const DeltaFieldConstForwardIterator<int64_t> & from, const DeltaFieldConstForwardIterator<int64_t> & to) {
+			m_Private->setRefs(from, to); }
+		inline void setRefs(const FieldConstIterator<int64_t> & from, const FieldConstIterator<int64_t> & to) {
+			m_Private->setRefs(from, to); }
 
-		int tagsSize() const;
+		virtual void clearRefs() { m_Private->clearRefs(); }
+
+		inline int tagsSize() const { return m_Private->tagsSize(); }
+
+		inline std::string & key(int index) { return m_Private->key(index); }
+		inline std::string & value(int index) { return m_Private->value(index); }
+
+		inline void addTag(const std::string & key, const std::string & value) { m_Private->addTag(key, value); }
+		inline void removeTagLater(int index) { m_Private->removeTagLater(index); }
+
+		inline void clearTags() { m_Private->clearTags(); }
+
+	protected:
+		OWay();
+		OWay(WayOutputAdaptor * data);
 	};
 }
 
