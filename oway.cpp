@@ -44,6 +44,9 @@ namespace osmpbf {
 	}
 
 	void WayOutputAdaptor::setRefs(const DeltaFieldConstForwardIterator<int64_t> & from, const DeltaFieldConstForwardIterator<int64_t> & to) {
+		if (from == to)
+			return;
+
 		clearRefs();
 
 		for (DeltaFieldConstForwardIterator<int64_t> it = from; it != to; ++it)
@@ -51,6 +54,9 @@ namespace osmpbf {
 	}
 
 	void WayOutputAdaptor::setRefs(const FieldConstIterator<int64_t> & from, const FieldConstIterator<int64_t> & to) {
+		if (from == to)
+			return;
+
 		clearRefs();
 
 		for (FieldConstIterator<int64_t> it = from; it != to; ++it)

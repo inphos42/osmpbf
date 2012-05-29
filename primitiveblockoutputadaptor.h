@@ -53,8 +53,6 @@ namespace osmpbf {
 		PrimitiveGroup * m_DenseNodesGroup;
 		PrimitiveGroup * m_WaysGroup;
 		PrimitiveGroup * m_RelationsGroup;
-
-		void buildStringTable();
 	};
 }
 
