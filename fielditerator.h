@@ -44,8 +44,8 @@ namespace osmpbf {
 			return *this;
 		}
 
-		inline bool operator==(const FieldConstIterator<Element> & other) { return (m_Data == other.m_Data); }
-		inline bool operator!=(const FieldConstIterator<Element> & other) { return (m_Data != other.m_Data); }
+		inline bool operator==(const FieldConstIterator<Element> & other) const { return (m_Data == other.m_Data); }
+		inline bool operator!=(const FieldConstIterator<Element> & other) const { return (m_Data != other.m_Data); }
 
 		inline const Element & operator*() const { return *m_Data; }
 
@@ -75,12 +75,8 @@ namespace osmpbf {
 			return *this;
 		}
 
-		inline bool operator==(const DeltaFieldConstForwardIterator<Element> & other) {
-			return (m_Data == other.m_Data) && (m_PreviousSum == other.m_PreviousSum);
-		}
-		inline bool operator!=(const DeltaFieldConstForwardIterator<Element> & other) {
-			return (m_Data != other.m_Data) || (m_PreviousSum != other.m_PreviousSum);
-		}
+		inline bool operator==(const DeltaFieldConstForwardIterator<Element> & other) const { return (m_Data == other.m_Data); }
+		inline bool operator!=(const DeltaFieldConstForwardIterator<Element> & other) const { return (m_Data != other.m_Data); }
 
 		inline const Element operator*() const { return *m_Data + m_PreviousSum; }
 
