@@ -308,11 +308,11 @@ namespace osmpbf {
 		return 0;
 	}
 
-	bool BlobFileOut::writeBlob(BlobDataBuffer & buffer, bool compress) {
+	bool BlobFileOut::writeBlob(const BlobDataBuffer & buffer, bool compress) {
 		return writeBlob(buffer.type, buffer.data, buffer.availableBytes, compress);
 	}
 
-	bool BlobFileOut::writeBlob(BlobDataType type, char * buffer, uint32_t bufferSize, bool compress) {
+	bool BlobFileOut::writeBlob(BlobDataType type, const char * buffer, uint32_t bufferSize, bool compress) {
 		if (type == BLOB_Invalid)
 			return false;
 

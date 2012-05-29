@@ -2,7 +2,13 @@
 
 namespace osmpbf {
 	StringTable::StringTable() : m_IdCounter(1) {}
-	StringTable::~StringTable() {}
+	StringTable::~StringTable() {
+		std::map<int, StringTableEntry *>::const_iterator stringIt = m_Entries.cbegin();
+		while (stringIt != m_Entries.cend()) {
+			delete stringIt->second;
+			++stringIt;
+		}
+	}
 
 	int StringTable::insert(const std::string & value) {
 		std::map<std::string, int>::const_iterator target = m_IdMap.find(value);

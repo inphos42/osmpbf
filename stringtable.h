@@ -27,8 +27,8 @@ namespace osmpbf {
 
 		bool contains(const std::string & value) const;
 
-		inline std::map<int, StringTableEntry *>::const_iterator begin() const { return m_Entries.begin(); }
-		inline std::map<int, StringTableEntry *>::const_iterator end() const { return m_Entries.end(); }
+		inline std::map<int, StringTableEntry *>::const_iterator begin() const { return m_Entries.cbegin(); }
+		inline std::map<int, StringTableEntry *>::const_iterator end() const { return m_Entries.cend(); }
 
 		inline std::string & operator[](int id) { return m_Entries[id]->value; }
 

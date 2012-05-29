@@ -84,8 +84,8 @@ namespace osmpbf {
 
 		virtual uint32_t size() const;
 
-		bool writeBlob(BlobDataBuffer & buffer, bool compress = true);
-		bool writeBlob(BlobDataType type, char * buffer, uint32_t bufferSize, bool compress = true);
+		bool writeBlob(const BlobDataBuffer & buffer, bool compress = true);
+		bool writeBlob(BlobDataType type, const char * buffer, uint32_t bufferSize, bool compress = true);
 	private:
 		BlobFileOut() : AbstractBlobFile() {}
 	};
