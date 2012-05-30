@@ -24,6 +24,16 @@ namespace osmpbf {
 		virtual int64_t id() const;
 		virtual void setId(int64_t value);
 
+		virtual int tagsSize() const;
+
+		virtual std::string & key(int index) const;
+		virtual std::string & value(int index) const;
+
+		virtual void addTag(const std::string & key, const std::string & value);
+		virtual void removeTagLater(int index);
+
+		virtual void clearTags();
+
 		virtual int refsSize() const;
 
 		virtual int64_t ref(int index) const;
@@ -35,16 +45,6 @@ namespace osmpbf {
 		virtual void setRefs(const FieldConstIterator<int64_t> & from, const FieldConstIterator<int64_t> & to);
 
 		virtual void clearRefs();
-
-		virtual int tagsSize() const;
-
-		virtual std::string & key(int index) const;
-		virtual std::string & value(int index) const;
-
-		virtual void addTag(const std::string & key, const std::string & value);
-		virtual void removeTagLater(int index);
-
-		virtual void clearTags();
 
 	protected:
 		Way * m_Data;
@@ -60,6 +60,16 @@ namespace osmpbf {
 		inline int64_t id() const { return m_Private->id(); }
 		inline void setId(int64_t value) { m_Private->setId(value); }
 
+		inline int tagsSize() const { return m_Private->tagsSize(); }
+
+		inline std::string & key(int index) { return m_Private->key(index); }
+		inline std::string & value(int index) { return m_Private->value(index); }
+
+		inline void addTag(const std::string & key, const std::string & value) { m_Private->addTag(key, value); }
+		inline void removeTagLater(int index) { m_Private->removeTagLater(index); }
+
+		inline void clearTags() { m_Private->clearTags(); }
+
 		inline int refsSize() const { return m_Private->refsSize(); }
 
 		inline int64_t ref(int index) const { return m_Private->ref(index); }
@@ -74,16 +84,6 @@ namespace osmpbf {
 			m_Private->setRefs(from, to); }
 
 		virtual void clearRefs() { m_Private->clearRefs(); }
-
-		inline int tagsSize() const { return m_Private->tagsSize(); }
-
-		inline std::string & key(int index) { return m_Private->key(index); }
-		inline std::string & value(int index) { return m_Private->value(index); }
-
-		inline void addTag(const std::string & key, const std::string & value) { m_Private->addTag(key, value); }
-		inline void removeTagLater(int index) { m_Private->removeTagLater(index); }
-
-		inline void clearTags() { m_Private->clearTags(); }
 
 	protected:
 		OWay();

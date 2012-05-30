@@ -27,6 +27,7 @@ set(SOURCES_CPP
 	inode.cpp
 	primitiveblockoutputadaptor.cpp
 	oway.cpp
+	onode.cpp
 	stringtable.cpp
 )
 

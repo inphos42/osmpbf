@@ -5,7 +5,7 @@
 #include <string>
 #include <set>
 
-// #include "onode.h"
+#include "onode.h"
 #include "oway.h"
 
 // #include "stringtable.h"
@@ -14,6 +14,7 @@ class PrimitiveBlock;
 class PrimitiveGroup;
 
 namespace osmpbf {
+	class INode;
 	class IWay;
 	class StringTable;
 
@@ -22,8 +23,9 @@ namespace osmpbf {
 		PrimitiveBlockOutputAdaptor();
 		virtual ~PrimitiveBlockOutputAdaptor();
 
-// 		ONode createNode();
-// 		ONode createNode(INode & templateINode);
+		ONode createNode(NodeType type);
+		ONode createNode(INode & templateINode);
+		ONode createNode(INode & templateINode, NodeType type);
 
 		int nodesSize();
 

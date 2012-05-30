@@ -159,6 +159,9 @@ namespace osmpbf {
 		}
 
 		output = m_PrimitiveBlock->SerializeAsString();
+
+		delete m_PrimitiveBlock;
+		m_PrimitiveBlock = new PrimitiveBlock();
 		return true;
 	}
 

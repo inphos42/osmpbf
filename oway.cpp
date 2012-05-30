@@ -1,7 +1,5 @@
 #include "oway.h"
 
-#include <queue>
-
 #include "primitiveblockoutputadaptor.h"
 #include "stringtable.h"
 
