@@ -5,6 +5,7 @@
 #include <string>
 
 #include "abstractprimitiveadaptor.h"
+#include "common.h"
 
 class Node;
 class DenseNodes;
@@ -27,6 +28,8 @@ namespace osmpbf {
 
 		virtual int64_t rawLat() const = 0;
 		virtual int64_t rawLon() const = 0;
+
+		virtual NodeType type() const = 0;
 	};
 
 	class INode : public RCWrapper<AbstractNodeInputAdaptor> {
@@ -55,6 +58,8 @@ namespace osmpbf {
 		inline const std::string & key(int index) const { return m_Private->key(index); }
 		inline const std::string & value(int index) const { return m_Private->value(index); }
 
+		inline NodeType internalNodeType() const { return m_Private->type(); }
+
 	protected:
 		INode();
 		INode(AbstractNodeInputAdaptor * data);
@@ -65,6 +70,8 @@ namespace osmpbf {
 		PlainNodeInputAdaptor();
 		PlainNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const Node & data);
 
+		virtual bool isNull() const { return AbstractPrimitiveInputAdaptor::isNull() || !m_Data; }
+
 		virtual int64_t id();
 
 		virtual int64_t lati();
@@ -83,6 +90,8 @@ namespace osmpbf {
 
 		virtual const std::string & key(int index) const;
 		virtual const std::string & value(int index) const;
+
+		virtual NodeType type() const { return PlainNode; }
 
 	protected:
 		const Node * m_Data;
@@ -93,6 +102,8 @@ namespace osmpbf {
 		DenseNodeInputAdaptor();
 		DenseNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const DenseNodes & data, int index);
 
+		virtual bool isNull() const;
+
 		virtual int64_t id();
 
 		virtual int64_t lati();
@@ -111,6 +122,8 @@ namespace osmpbf {
 
 		virtual const std::string & key(int index) const;
 		virtual const std::string & value(int index) const;
+
+		virtual NodeType type() const { return DenseNode; }
 
 	protected:
 		const DenseNodes * m_Data;
@@ -153,6 +166,8 @@ namespace osmpbf {
 
 		virtual const std::string & key(int index) const;
 		virtual const std::string & value(int index) const;
+
+		virtual NodeType type() const { return (m_DenseIndex > -1 ? DenseNode : PlainNode); }
 
 	private:
 		PrimitiveGroup * m_PlainNodes;

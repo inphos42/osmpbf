@@ -214,6 +214,10 @@ namespace osmpbf {
 	DenseNodeInputAdaptor::DenseNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const DenseNodes & data, int position) :
 		AbstractNodeInputAdaptor(controller), m_Data(&data), m_Index(position), m_HasCachedId(false), m_HasCachedLat(false), m_HasCachedLon(false) {}
 
+	bool DenseNodeInputAdaptor::isNull() const {
+		return AbstractPrimitiveInputAdaptor::isNull() || !m_Data || (m_Index < 0) || (m_Index > m_Data->id_size());
+	}
+
 	int64_t DenseNodeInputAdaptor::id() {
 		if (m_Controller->denseNodesUnpacked())
 			return m_Data->id(m_Data->id(m_Index));

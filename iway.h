@@ -18,6 +18,8 @@ namespace osmpbf {
 		WayInputAdaptor();
 		WayInputAdaptor(PrimitiveBlockInputAdaptor * controller, const Way * data);
 
+		virtual bool isNull() const { return AbstractPrimitiveInputAdaptor::isNull() || !m_Data; }
+
 		virtual int64_t id();
 
 		virtual int refsSize() const;
