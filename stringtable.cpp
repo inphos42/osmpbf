@@ -44,7 +44,7 @@ namespace osmpbf {
 		if (!id)
 			return;
 
-		std::map<int, StringTableEntry *>::const_iterator entryIt = m_Entries.find(id);
+		std::map<int, StringTableEntry *>::iterator entryIt = m_Entries.find(id);
 		StringTableEntry * entry = entryIt->second;
 
 		entry->references--;
@@ -58,11 +58,11 @@ namespace osmpbf {
 	}
 
 	void StringTable::remove(const std::string & value) {
-		std::map<std::string, int>::const_iterator target = m_IdMap.find(value);
+		std::map<std::string, int>::iterator target = m_IdMap.find(value);
 		if (target == m_IdMap.end())
 			return;
 
-		std::map<int, StringTableEntry *>::const_iterator entryIt = m_Entries.find(target->second);
+		std::map<int, StringTableEntry *>::iterator entryIt = m_Entries.find(target->second);
 		StringTableEntry * entry = entryIt->second;
 
 		entry->references--;
@@ -76,11 +76,11 @@ namespace osmpbf {
 	}
 
 	void StringTable::remove(StringTableEntry * entry) {
-		std::map<std::string, int>::const_iterator target = m_IdMap.find(entry->value);
+		std::map<std::string, int>::iterator target = m_IdMap.find(entry->value);
 		if (target == m_IdMap.end())
 			return;
 
-		std::map<int, StringTableEntry *>::const_iterator entryIt = m_Entries.find(target->second);
+		std::map<int, StringTableEntry *>::iterator entryIt = m_Entries.find(target->second);
 
 		m_FreeIds.push(entryIt->first);
 		m_IdMap.erase(target);
