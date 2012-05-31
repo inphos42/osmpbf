@@ -73,12 +73,45 @@ namespace osmpbf {
 		return m_Data->keys_size();
 	}
 
-	std::string & WayOutputAdaptor::key(int index) const {
+	const std::string & WayOutputAdaptor::key(int index) const {
 		return m_Controller->stringTable()[m_Data->keys(index)];
 	}
 
-	std::string & WayOutputAdaptor::value(int index) const {
+	const std::string & WayOutputAdaptor::value(int index) const {
 		return m_Controller->stringTable()[m_Data->vals(index)];
+	}
+
+	void WayOutputAdaptor::setKey(int index, const std::string & key) {
+		m_Data->set_keys(index, m_Controller->stringTable().insert(key));
+	}
+
+	void WayOutputAdaptor::setValue(int index, const std::string & value) {
+		m_Data->set_vals(index, m_Controller->stringTable().insert(value));
+	}
+
+	void WayOutputAdaptor::setValue(const std::string & key, const std::string & value) {
+		if (!m_Data->keys_size())
+			return;
+
+		uint32_t keyId = m_Controller->stringTable().id(key);
+		uint32_t valueId = m_Controller->stringTable().insert(value);
+
+		bool keyNotFound = true;
+
+		{
+			const uint32_t * keys = m_Data->mutable_keys()->data();
+
+			for (int i = 0; i < m_Data->keys_size(); ++i) {
+				if (keys[i] == keyId) {
+					keyNotFound = false;
+
+					m_Data->set_vals(i, valueId);
+				}
+			}
+		}
+
+		if (keyNotFound)
+			m_Controller->stringTable().remove(valueId);
 	}
 
 	void WayOutputAdaptor::addTag(const std::string & key, const std::string & value) {

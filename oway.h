@@ -26,8 +26,12 @@ namespace osmpbf {
 
 		virtual int tagsSize() const;
 
-		virtual std::string & key(int index) const;
-		virtual std::string & value(int index) const;
+		virtual const std::string & key(int index) const;
+		virtual const std::string & value(int index) const;
+
+		virtual void setKey(int index, const std::string & key);
+		virtual void setValue(int index, const std::string & value);
+		virtual void setValue(const std::string & key, const std::string & value);
 
 		virtual void addTag(const std::string & key, const std::string & value);
 		virtual void removeTagLater(int index);
@@ -62,8 +66,8 @@ namespace osmpbf {
 
 		inline int tagsSize() const { return m_Private->tagsSize(); }
 
-		inline std::string & key(int index) { return m_Private->key(index); }
-		inline std::string & value(int index) { return m_Private->value(index); }
+		inline const std::string & key(int index) { return m_Private->key(index); }
+		inline const std::string & value(int index) { return m_Private->value(index); }
 
 		inline void addTag(const std::string & key, const std::string & value) { m_Private->addTag(key, value); }
 		inline void removeTagLater(int index) { m_Private->removeTagLater(index); }
