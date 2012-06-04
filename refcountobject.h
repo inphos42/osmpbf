@@ -21,11 +21,11 @@ namespace osmpbf {
 		uint32_t m_rc;
 	};
 
-	template<class RCObj>
+	template<class RCClass>
 	class RCWrapper {
 	public:
 		RCWrapper() : m_Private(NULL) {};
-		RCWrapper(RCObj * data) : m_Private(data) { if (m_Private) m_Private->rcInc(); }
+		RCWrapper(RCClass * data) : m_Private(data) { if (m_Private) m_Private->rcInc(); }
 		RCWrapper(const RCWrapper & other) : m_Private(other.m_Private) { if (m_Private) m_Private->rcInc(); }
 		virtual ~RCWrapper() { if (m_Private) m_Private->rcDec(); }
 
@@ -46,7 +46,7 @@ namespace osmpbf {
 		inline bool isNull() const { return !m_Private || m_Private->isNull(); }
 
 	protected:
-		RCObj * m_Private;
+		RCClass * m_Private;
 	};
 }
 
