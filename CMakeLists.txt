@@ -22,9 +22,12 @@ include_directories(
 
 set(SOURCES_CPP
 	blobfile.cpp
+	abstractprimitiveinputadaptor.cpp
 	primitiveblockinputadaptor.cpp
 	iway.cpp
 	inode.cpp
+	irelation.cpp
+	abstractprimitiveoutputadaptor.cpp
 	primitiveblockoutputadaptor.cpp
 	oway.cpp
 	onode.cpp
