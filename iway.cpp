@@ -11,14 +11,12 @@ namespace osmpbf {
 	IWay::IWay(WayInputAdaptor * data) : RCWrapper< WayInputAdaptor >(data) {}
 	IWay::IWay(const IWay & other) : RCWrapper< WayInputAdaptor >(other) {}
 
-	IWay & IWay::operator=(const IWay & other) { RCWrapper::operator=(other); return *this; }
-
 // IWayStream
 
 	IWayStream::IWayStream(PrimitiveBlockInputAdaptor * controller) : IWay(new WayStreamInputAdaptor(controller)) {}
 	IWayStream::IWayStream(const IWayStream & other) : IWay(other) {}
 
-	IWayStream& IWayStream::operator=(IWayStream & other) { IWay::operator=(other); return *this; }
+	IWayStream & IWayStream::operator=(IWayStream & other) { IWay::operator=(other); return *this; }
 
 // WayInputAdaptor
 
@@ -58,30 +56,22 @@ namespace osmpbf {
 		return m_Data->keys_size();
 	}
 
-	int WayInputAdaptor::keyId(int index) const {
+	uint32_t WayInputAdaptor::keyId(int index) const {
 		return m_Data->keys(index);
 	}
 
-	int WayInputAdaptor::valueId(int index) const {
+	uint32_t WayInputAdaptor::valueId(int index) const {
 		return m_Data->vals(index);
-	}
-
-	const std::string & WayInputAdaptor::key(int index) const {
-		return m_Controller->queryStringTable(m_Data->keys(index));
-	}
-
-	const std::string & WayInputAdaptor::value(int index) const {
-		return m_Controller->queryStringTable(m_Data->vals(index));
 	}
 
 // WayStreamInputAdaptor
 
-	WayStreamInputAdaptor::WayStreamInputAdaptor() {}
-	WayStreamInputAdaptor::WayStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller) :
-		WayInputAdaptor(controller, controller->m_WaysGroup ? controller->m_WaysGroup->ways().data()[0] : NULL), m_WaysSize(m_Controller->waysSize()), m_Index(0) {}
+	WayStreamInputAdaptor::WayStreamInputAdaptor() : WayInputAdaptor(), m_Index(0), m_MaxIndex(0) {}
+	WayStreamInputAdaptor::WayStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller)
+		: WayInputAdaptor(controller, controller->m_WaysGroup ? controller->m_WaysGroup->ways().data()[0] : NULL), m_Index(0), m_MaxIndex(m_Controller->waysSize()) {}
 
 	bool WayStreamInputAdaptor::isNull() const {
-		return AbstractPrimitiveInputAdaptor::isNull() || (m_Index > m_WaysSize - 1);
+		return AbstractPrimitiveInputAdaptor::isNull() || (m_Index >= m_MaxIndex);
 	}
 
 	void WayStreamInputAdaptor::next() {

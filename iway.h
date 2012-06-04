@@ -1,10 +1,10 @@
-#ifndef OSMPBF_OSMWAY_H
-#define OSMPBF_OSMWAY_H
+#ifndef OSMPBF_IWAY_H
+#define OSMPBF_IWAY_H
 
 #include <cstdint>
 #include <string>
 
-#include "abstractprimitiveadaptor.h"
+#include "abstractprimitiveinputadaptor.h"
 #include "fielditerator.h"
 
 class Way;
@@ -34,11 +34,8 @@ namespace osmpbf {
 
 		virtual int tagsSize() const;
 
-		virtual int keyId(int index) const;
-		virtual int valueId(int index) const;
-
-		virtual const std::string & key(int index) const;
-		virtual const std::string & value(int index) const;
+		virtual uint32_t keyId(int index) const;
+		virtual uint32_t valueId(int index) const;
 
 	protected:
 		const Way * m_Data;
@@ -49,9 +46,20 @@ namespace osmpbf {
 	public:
 		IWay(const IWay & other);
 
-		IWay & operator=(const IWay & other);
+		inline IWay & operator=(const IWay & other) { RCWrapper::operator=(other); return *this; }
 
 		inline int64_t id() const { return m_Private->id(); }
+
+		inline int tagsSize() const { return m_Private->tagsSize(); }
+
+		inline uint32_t keyId(int index) const { return m_Private->keyId(index); }
+		inline uint32_t valueId(int index) const { return m_Private->valueId(index); }
+
+		inline const std::string & key(int index) const { return m_Private->key(index); }
+		inline const std::string & value(int index) const { return m_Private->value(index); }
+
+		inline const std::string & value(uint32_t key) const { return m_Private->value(key); }
+		inline const std::string & value(const std::string key) const { return m_Private->value(key); }
 
 		inline int64_t ref(int index) const { return m_Private->ref(index); }
 		inline int64_t rawRef(int index) const { return m_Private->rawRef(index); }
@@ -59,14 +67,6 @@ namespace osmpbf {
 
 		inline DeltaFieldConstForwardIterator<int64_t> refBegin() const { return m_Private->refBegin(); }
 		inline DeltaFieldConstForwardIterator<int64_t> refEnd() const { return m_Private->refEnd(); }
-
-		inline int tagsSize() const { return m_Private->tagsSize(); }
-
-		inline int keyId(int index) const { return m_Private->keyId(index); }
-		inline int valueId(int index) const { return m_Private->valueId(index); }
-
-		inline const std::string & key(int index) const { return m_Private->key(index); }
-		inline const std::string & value(int index) const { return m_Private->value(index); }
 
 	protected:
 		IWay();
@@ -84,8 +84,8 @@ namespace osmpbf {
 		void previous();
 
 	private:
-		int m_WaysSize;
 		int m_Index;
+		const int m_MaxIndex;
 	};
 
 	class IWayStream : public IWay {
@@ -98,7 +98,7 @@ namespace osmpbf {
 		inline void next() { static_cast<WayStreamInputAdaptor *>(m_Private)->next(); }
 		inline void previous() { static_cast<WayStreamInputAdaptor *>(m_Private)->previous(); }
 
-	private:
+	protected:
 		IWayStream();
 		IWayStream(WayInputAdaptor * data);
 	};

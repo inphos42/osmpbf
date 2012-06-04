@@ -9,31 +9,31 @@ namespace osmpbf {
 
 // ONode
 
-	ONode::ONode(const ONode & other) : RCWrapper< osmpbf::AbstractNodeOutputAdaptor >(other) {}
-	ONode::ONode() : RCWrapper<AbstractNodeOutputAdaptor>() {}
-	ONode::ONode(AbstractNodeOutputAdaptor * data) : RCWrapper< osmpbf::AbstractNodeOutputAdaptor >(data) {}
+	ONode::ONode(const ONode & other) : RCWrapper<NodeOutputAdaptor>(other) {}
+	ONode::ONode() : RCWrapper<NodeOutputAdaptor>() {}
+	ONode::ONode(NodeOutputAdaptor * data) : RCWrapper<NodeOutputAdaptor>(data) {}
 
 	ONode & ONode::operator=(const ONode & other) { RCWrapper::operator=(other); return *this; }
 
 // PlainNodeOutputAdaptor
 
-	PlainNodeOutputAdaptor::PlainNodeOutputAdaptor() : AbstractNodeOutputAdaptor() {}
-	PlainNodeOutputAdaptor::PlainNodeOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, Node * data) :
-		AbstractNodeOutputAdaptor(controller), m_Data(data) {}
+	NodeOutputAdaptor::NodeOutputAdaptor() : AbstractPrimitiveOutputAdaptor<Node>() {}
+	NodeOutputAdaptor::NodeOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, Node * data) :
+		AbstractPrimitiveOutputAdaptor<Node>(&controller->stringTable(), data) {}
 
-	int64_t PlainNodeOutputAdaptor::id() const {
-		return m_Data->id();
+	int64_t NodeOutputAdaptor::lati() const {
+		return m_Data->lat();
 	}
 
-	void PlainNodeOutputAdaptor::setId(int64_t value) {
-		m_Data->set_id(value);
+	void NodeOutputAdaptor::setLati (int64_t value) {
+		m_Data->set_lat(value);
 	}
 
-// DenseNodeOutputAdaptor
-
-	bool DenseNodeOutputAdaptor::isNull() const {
-		 return AbstractPrimitiveOutputAdaptor::isNULL() || !m_Data || (m_Index < 0) || (m_Index > m_Data->id_size() - 1) || (m_Data->mutable_id()->Get(m_Index) < 0);
+	int64_t NodeOutputAdaptor::loni() const {
+		return m_Data->lon();
 	}
 
-
+	void NodeOutputAdaptor::setLoni (int64_t value) {
+		m_Data->set_lon(value);
+	}
 }

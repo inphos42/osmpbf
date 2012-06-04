@@ -128,7 +128,7 @@ namespace osmpbf {
 			m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2 + 1);
 	}
 
-	int NodeStreamInputAdaptor::keyId(int index) const {
+	uint32_t NodeStreamInputAdaptor::keyId(int index) const {
 		if (index < 0 || index > tagsSize())
 			return 0;
 
@@ -137,21 +137,13 @@ namespace osmpbf {
 			m_DenseNodes->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2) + index * 2);
 	}
 
-	int NodeStreamInputAdaptor::valueId(int index) const {
+	uint32_t NodeStreamInputAdaptor::valueId(int index) const {
 		if (index < 0 || index > tagsSize())
 			return 0;
 
 		return (m_DenseIndex < 0) ?
 			m_PlainNodes->nodes(m_Index).vals(index) :
 			m_DenseNodes->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2) + index * 2 + 1);
-	}
-
-	const std::string & NodeStreamInputAdaptor::key(int index) const {
-		return m_Controller->queryStringTable(keyId(index));
-	}
-
-	const std::string & NodeStreamInputAdaptor::value(int index) const {
-		return m_Controller->queryStringTable(valueId(index));
 	}
 
 // PlainNodeInputAdaptor
@@ -192,20 +184,12 @@ namespace osmpbf {
 		return m_Data->keys_size();
 	}
 
-	int PlainNodeInputAdaptor::keyId(int index) const {
+	uint32_t PlainNodeInputAdaptor::keyId(int index) const {
 		return m_Data->keys(index);
 	}
 
-	int PlainNodeInputAdaptor::valueId(int index) const {
+	uint32_t PlainNodeInputAdaptor::valueId(int index) const {
 		return m_Data->vals(index);
-	}
-
-	const std::string & PlainNodeInputAdaptor::key(int index) const {
-		return m_Controller->queryStringTable(m_Data->keys(index));
-	}
-
-	const std::string & PlainNodeInputAdaptor::value(int index) const {
-		return m_Controller->queryStringTable(m_Data->vals(index));
 	}
 
 // DenseNodeInputAdaptor
@@ -280,19 +264,11 @@ namespace osmpbf {
 		return (!m_Data->keys_vals_size()) ? 0 : m_Controller->queryDenseNodeKeyValIndex(m_Index * 2 + 1);
 	}
 
-	int DenseNodeInputAdaptor::keyId(int index) const {
+	uint32_t DenseNodeInputAdaptor::keyId(int index) const {
 		return (index < 0 || index >= tagsSize()) ? 0 : m_Data->keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Index * 2) + index * 2);
 	}
 
-	int DenseNodeInputAdaptor::valueId(int index) const {
+	uint32_t DenseNodeInputAdaptor::valueId(int index) const {
 		return (index < 0 || index >= tagsSize()) ? 0 : m_Data->keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_Index * 2) + index * 2 + 1);
-	}
-
-	const std::string & DenseNodeInputAdaptor::key(int index) const {
-		return m_Controller->queryStringTable(keyId(index));
-	}
-
-	const std::string & DenseNodeInputAdaptor::value(int index) const {
-		return m_Controller->queryStringTable(valueId(index));
 	}
 }

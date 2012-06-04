@@ -19,15 +19,7 @@ namespace osmpbf {
 
 	WayOutputAdaptor::WayOutputAdaptor() : AbstractPrimitiveOutputAdaptor() {}
 	WayOutputAdaptor::WayOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, Way * data) :
-		AbstractPrimitiveOutputAdaptor(controller), m_Data(data) {}
-
-	int64_t WayOutputAdaptor::id() const {
-		return m_Data->id();
-	}
-
-	void WayOutputAdaptor::setId(int64_t value) {
-		m_Data->set_id(value);
-	}
+		AbstractPrimitiveOutputAdaptor(&controller->stringTable(), data) {}
 
 	int WayOutputAdaptor::refsSize() const {
 		return m_Data->refs_size();
@@ -67,82 +59,5 @@ namespace osmpbf {
 
 	void WayOutputAdaptor::clearRefs() {
 		m_Data->clear_refs();
-	}
-
-	int WayOutputAdaptor::tagsSize() const {
-		return m_Data->keys_size();
-	}
-
-	const std::string & WayOutputAdaptor::key(int index) const {
-		return m_Controller->stringTable()[m_Data->keys(index)];
-	}
-
-	const std::string & WayOutputAdaptor::value(int index) const {
-		return m_Controller->stringTable()[m_Data->vals(index)];
-	}
-
-	void WayOutputAdaptor::setKey(int index, const std::string & key) {
-		m_Data->set_keys(index, m_Controller->stringTable().insert(key));
-	}
-
-	void WayOutputAdaptor::setValue(int index, const std::string & value) {
-		m_Data->set_vals(index, m_Controller->stringTable().insert(value));
-	}
-
-	void WayOutputAdaptor::setValue(const std::string & key, const std::string & value) {
-		if (!m_Data->keys_size())
-			return;
-
-		uint32_t keyId = m_Controller->stringTable().id(key);
-		uint32_t valueId = m_Controller->stringTable().insert(value);
-
-		bool keyNotFound = true;
-
-		{
-			const uint32_t * keys = m_Data->mutable_keys()->data();
-
-			for (int i = 0; i < m_Data->keys_size(); ++i) {
-				if (keys[i] == keyId) {
-					keyNotFound = false;
-
-					m_Data->set_vals(i, valueId);
-				}
-			}
-		}
-
-		if (keyNotFound)
-			m_Controller->stringTable().remove(valueId);
-	}
-
-	void WayOutputAdaptor::addTag(const std::string & key, const std::string & value) {
-		m_Data->add_keys(m_Controller->stringTable().insert(key));
-		m_Data->add_vals(m_Controller->stringTable().insert(value));
-	}
-
-	void WayOutputAdaptor::removeTagLater(int index) {
-		m_Controller->stringTable().remove(m_Data->keys(index));
-		m_Controller->stringTable().remove(m_Data->vals(index));
-
-		m_Data->set_keys(index, 0);
-		m_Data->set_vals(index, 0);
-	}
-
-	void WayOutputAdaptor::clearTags() {
-		FieldConstIterator<uint32_t> begin, end;
-
-		begin = m_Data->keys().data();
-		end = m_Data->keys().data() + m_Data->keys_size();
-
-		for (FieldConstIterator<uint32_t> it = begin; it != end; ++it)
-			m_Controller->stringTable().remove(*it);
-
-		begin = m_Data->vals().data();
-		end = m_Data->vals().data() + m_Data->vals_size();
-
-		for (FieldConstIterator<uint32_t> it = begin; it != end; ++it)
-			m_Controller->stringTable().remove(*it);
-
-		m_Data->clear_keys();
-		m_Data->clear_vals();
 	}
 }

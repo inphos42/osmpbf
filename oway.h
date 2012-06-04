@@ -6,7 +6,7 @@
 #include <utility>
 
 #include "common.h"
-#include "abstractprimitiveadaptor.h"
+#include "abstractprimitiveoutputadaptor.h"
 #include "fielditerator.h"
 
 class Way;
@@ -16,27 +16,10 @@ class Way;
 namespace osmpbf {
 	class PrimitiveBlockOutputAdaptor;
 
-	class WayOutputAdaptor : public AbstractPrimitiveOutputAdaptor {
+	class WayOutputAdaptor : public AbstractPrimitiveOutputAdaptor<Way> {
 	public:
 		WayOutputAdaptor();
 		WayOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, Way * data);
-
-		virtual int64_t id() const;
-		virtual void setId(int64_t value);
-
-		virtual int tagsSize() const;
-
-		virtual const std::string & key(int index) const;
-		virtual const std::string & value(int index) const;
-
-		virtual void setKey(int index, const std::string & key);
-		virtual void setValue(int index, const std::string & value);
-		virtual void setValue(const std::string & key, const std::string & value);
-
-		virtual void addTag(const std::string & key, const std::string & value);
-		virtual void removeTagLater(int index);
-
-		virtual void clearTags();
 
 		virtual int refsSize() const;
 
@@ -49,9 +32,6 @@ namespace osmpbf {
 		virtual void setRefs(const FieldConstIterator<int64_t> & from, const FieldConstIterator<int64_t> & to);
 
 		virtual void clearRefs();
-
-	protected:
-		Way * m_Data;
 	};
 
 	class OWay : public RCWrapper<WayOutputAdaptor> {
@@ -66,8 +46,11 @@ namespace osmpbf {
 
 		inline int tagsSize() const { return m_Private->tagsSize(); }
 
-		inline const std::string & key(int index) { return m_Private->key(index); }
-		inline const std::string & value(int index) { return m_Private->value(index); }
+		inline const std::string & key(int index) const { return m_Private->key(index); }
+		inline const std::string & value(int index) const { return m_Private->value(index); }
+
+		inline void setKey(int index, const std::string & key) { m_Private->setKey(index, key); }
+		inline void setValue(int index, const std::string & value) { m_Private->setValue(index, value);}
 
 		inline void addTag(const std::string & key, const std::string & value) { m_Private->addTag(key, value); }
 		inline void removeTagLater(int index) { m_Private->removeTagLater(index); }

@@ -2,7 +2,7 @@
 #define OSMPBF_STRINGTABLE_H
 
 #include <map>
-#include <queue>
+#include <deque>
 #include <string>
 #include <cstdint>
 
@@ -19,7 +19,7 @@ namespace osmpbf {
 		StringTable();
 		virtual ~StringTable();
 
-		int insert(const std::string & value);
+		uint32_t insert(const std::string & value);
 
 		void remove(uint32_t id);
 		void remove(const std::string & value);
@@ -27,16 +27,21 @@ namespace osmpbf {
 
 		bool contains(const std::string & value) const;
 
-		inline std::map<int, StringTableEntry *>::const_iterator begin() const { return m_Entries.cbegin(); }
-		inline std::map<int, StringTableEntry *>::const_iterator end() const { return m_Entries.cend(); }
+		void clear();
 
-		inline std::string & operator[](int id) { return m_Entries[id]->value; }
+		uint32_t id(const std::string & value) const;
+
+		inline std::map<uint32_t, StringTableEntry *>::const_iterator begin() const { return m_Entries.cbegin(); }
+		inline std::map<uint32_t, StringTableEntry *>::const_iterator end() const { return m_Entries.cend(); }
+
+		inline const std::string & query(uint32_t id) const { return m_Entries.at(id)->value; }
+		inline const std::string & operator[](uint32_t id) const { return query(id); }
 
 		inline uint32_t maxId() const { return m_IdCounter; }
 	protected:
-		std::map<int, StringTableEntry *> m_Entries;
-		std::map<std::string, int> m_IdMap;
-		std::queue<int> m_FreeIds;
+		std::map<uint32_t, StringTableEntry *> m_Entries;
+		std::map<std::string, uint32_t> m_IdMap;
+		std::deque<uint32_t> m_FreeIds;
 
 		uint32_t m_IdCounter;
 	private:

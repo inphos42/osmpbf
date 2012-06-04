@@ -4,11 +4,12 @@
 #include <cstdint>
 #include <string>
 
-#include "abstractprimitiveadaptor.h"
+#include "abstractprimitiveinputadaptor.h"
 #include "common.h"
 
 class Node;
 class DenseNodes;
+class PrimitiveGroup;
 
 namespace osmpbf {
 	class PrimitiveBlockInputAdaptor;
@@ -41,6 +42,17 @@ namespace osmpbf {
 
 		inline int64_t id() const { return m_Private->id(); }
 
+		inline int tagsSize() const { return m_Private->tagsSize(); }
+
+		inline uint32_t keyId(int index) const { return m_Private->keyId(index); }
+		inline uint32_t valueId(int index) const { return m_Private->valueId(index); }
+
+		inline const std::string & key(int index) const { return m_Private->key(index); }
+		inline const std::string & value(int index) const { return m_Private->value(index); }
+
+		inline const std::string & value(uint32_t key) const { return m_Private->value(key); }
+		inline const std::string & value(const std::string & key) const { return m_Private->value(key); }
+
 		inline int64_t lati() const { return m_Private->lati(); }
 		inline int64_t loni() const { return m_Private->loni(); }
 
@@ -49,14 +61,6 @@ namespace osmpbf {
 
 		inline int64_t rawLat() const { return m_Private->rawLat(); }
 		inline int64_t rawLon() const { return m_Private->rawLon(); }
-
-		inline int tagsSize() const { return m_Private->tagsSize(); }
-
-		inline int keyId(int index) const { return m_Private->keyId(index); }
-		inline int valueId(int index) const { return m_Private->valueId(index); }
-
-		inline const std::string & key(int index) const { return m_Private->key(index); }
-		inline const std::string & value(int index) const { return m_Private->value(index); }
 
 		inline NodeType internalNodeType() const { return m_Private->type(); }
 
@@ -85,11 +89,8 @@ namespace osmpbf {
 
 		virtual int tagsSize() const;
 
-		virtual int keyId(int index) const;
-		virtual int valueId(int index) const;
-
-		virtual const std::string & key(int index) const;
-		virtual const std::string & value(int index) const;
+		virtual uint32_t keyId(int index) const;
+		virtual uint32_t valueId(int index) const;
 
 		virtual NodeType type() const { return PlainNode; }
 
@@ -117,11 +118,8 @@ namespace osmpbf {
 
 		virtual int tagsSize() const;
 
-		virtual int keyId(int index) const;
-		virtual int valueId(int index) const;
-
-		virtual const std::string & key(int index) const;
-		virtual const std::string & value(int index) const;
+		virtual uint32_t keyId(int index) const;
+		virtual uint32_t valueId(int index) const;
 
 		virtual NodeType type() const { return DenseNode; }
 
@@ -146,7 +144,7 @@ namespace osmpbf {
 		void next();
 		void previous();
 
-		virtual bool isNull() const { return !m_Controller || !(m_PlainNodes || m_DenseNodes) || (m_Index < 0) || m_Index > m_PlainNodesSize + m_DenseNodesSize - 1; }
+		virtual bool isNull() const { return !m_Controller || !(m_PlainNodes || m_DenseNodes) || (m_Index < 0) || m_Index >= m_PlainNodesSize + m_DenseNodesSize; }
 
 		virtual int64_t id() { return m_Id; }
 
@@ -161,11 +159,8 @@ namespace osmpbf {
 
 		virtual int tagsSize() const;
 
-		virtual int keyId(int index) const;
-		virtual int valueId(int index) const;
-
-		virtual const std::string & key(int index) const;
-		virtual const std::string & value(int index) const;
+		virtual uint32_t keyId(int index) const;
+		virtual uint32_t valueId(int index) const;
 
 		virtual NodeType type() const { return (m_DenseIndex > -1 ? DenseNode : PlainNode); }
 
