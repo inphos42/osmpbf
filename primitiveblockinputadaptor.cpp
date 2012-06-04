@@ -5,6 +5,10 @@
 #include "osmformat.pb.h"
 #include "blobfile.h"
 
+#include "inode.h"
+#include "iway.h"
+#include "irelation.h"
+
 namespace osmpbf {
 
 // PrimitiveBlockInputAdaptor
@@ -94,10 +98,15 @@ namespace osmpbf {
 	}
 
 	int PrimitiveBlockInputAdaptor::waysSize() const {
-		if (m_WaysGroup)
-			return m_WaysGroup->ways_size();
-		else
-			return 0;
+		return m_WaysGroup ? m_WaysGroup->ways_size() : 0;
+	}
+
+	IRelation PrimitiveBlockInputAdaptor::getRelationAt(int position) const {
+		return IRelation(new RelationInputAdaptor(const_cast<PrimitiveBlockInputAdaptor *>(this), m_RelationsGroup->relations().data()[position]));
+	}
+
+	int PrimitiveBlockInputAdaptor::realtionsSize() const {
+		return m_RelationsGroup ? m_RelationsGroup->relations_size() : 0;
 	}
 
 	int32_t PrimitiveBlockInputAdaptor::granularity() const {
@@ -176,4 +185,9 @@ namespace osmpbf {
 	IWayStream PrimitiveBlockInputAdaptor::getWayStream() {
 		return IWayStream(this);
 	}
+
+	IRelationStream PrimitiveBlockInputAdaptor::getRelationStream() {
+		return IRelationStream(this);
+	}
+
 }

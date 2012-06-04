@@ -4,15 +4,18 @@
 #include <cstdint>
 #include <string>
 
-#include "abstractprimitiveadaptor.h"
-
-#include "inode.h"
-#include "iway.h"
-
 class PrimitiveBlock;
 class PrimitiveGroup;
 
 namespace osmpbf {
+	class INode;
+	class IWay;
+	class IRelation;
+
+	class INodeStream;
+	class IWayStream;
+	class IRelationStream;
+
 	class PrimitiveBlockInputAdaptor {
 	public:
 		PrimitiveBlockInputAdaptor(char * rawData, uint32_t length, bool unpackDense = false);
@@ -27,8 +30,12 @@ namespace osmpbf {
 		IWay getWayAt(int position) const;
 		int waysSize() const;
 
+		IRelation getRelationAt(int position) const;
+		int realtionsSize() const;
+
 		INodeStream getNodeStream();
 		IWayStream getWayStream();
+		IRelationStream getRelationStream();
 
 		bool isNull() const {
 			return !(m_PrimitiveBlock && (
@@ -65,8 +72,12 @@ namespace osmpbf {
 		friend class PlainNodeInputAdaptor;
 		friend class DenseNodeInputAdaptor;
 		friend class NodeStreamInputAdaptor;
+
 		friend class WayInputAdaptor;
 		friend class WayStreamInputAdaptor;
+
+		friend class RelationInputAdaptor;
+		friend class RelationStreamInputAdaptor;
 
 		PrimitiveBlock * m_PrimitiveBlock;
 
