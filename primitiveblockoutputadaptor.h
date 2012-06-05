@@ -41,9 +41,7 @@ namespace osmpbf {
 
 		inline StringTable & stringTable() { return *m_StringTable; }
 
-// 		bool isInitialized() const;
-
-		bool flush(std::string & output);
+		bool flush(std::string & buffer);
 
 		PrimitiveBlockOutputAdaptor & operator<<(INode & node);
 		PrimitiveBlockOutputAdaptor & operator<<(IWay & way);
@@ -59,6 +57,7 @@ namespace osmpbf {
 
 		uint32_t * prepareStringTable();
 		void prepareNodes(PrimitiveGroup * nodesGroup, uint32_t * stringIdTable);
+		void init();
 	};
 }
 

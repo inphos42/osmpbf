@@ -80,14 +80,14 @@ namespace osmpbf {
 		return result;
 	}
 
-	int PrimitiveBlockOutputAdaptor::nodesSize (NodeType type) const {
+	int PrimitiveBlockOutputAdaptor::nodesSize(NodeType type) const {
 		switch (type) {
 		case PlainNode:
 			return m_PlainNodesGroup ? m_PlainNodesGroup->nodes_size() : 0;
 		case DenseNode:
 			return m_DenseNodesGroup ? m_DenseNodesGroup->nodes_size() : 0;
 		default:
-			return -1;
+			return 0;
 		}
 	}
 
@@ -232,18 +232,22 @@ namespace osmpbf {
 	}
 
 	void PrimitiveBlockOutputAdaptor::prepareNodes(PrimitiveGroup * nodesGroup, uint32_t * stringIdTable) {
+		int32_t granularity = m_PrimitiveBlock->has_granularity() ? m_PrimitiveBlock->granularity() : 1;
+		int64_t latOffset = m_PrimitiveBlock->has_lat_offset() ? m_PrimitiveBlock->lat_offset() : 0;
+		int64_t lonOffset = m_PrimitiveBlock->has_lon_offset() ? m_PrimitiveBlock->lon_offset() : 1;
+
 		google::protobuf::RepeatedPtrField<Node>::iterator nodeIt = nodesGroup->mutable_nodes()->begin();
 		while (nodeIt != nodesGroup->mutable_nodes()->end()) {
 			// calculate coordinates
-			nodeIt->set_lat((nodeIt->lat() - m_PrimitiveBlock->lat_offset()) / m_PrimitiveBlock->granularity());
-			nodeIt->set_lon((nodeIt->lon() - m_PrimitiveBlock->lon_offset()) / m_PrimitiveBlock->granularity());
+			nodeIt->set_lat((nodeIt->lat() - latOffset) / granularity);
+			nodeIt->set_lon((nodeIt->lon() - lonOffset) / granularity);
 
 			cleanUpTags<Node>(*nodeIt, stringIdTable);
 			++nodeIt;
 		}
 	}
 
-	bool PrimitiveBlockOutputAdaptor::flush(std::string & output) {
+	bool PrimitiveBlockOutputAdaptor::flush(std::string & buffer) {
 		if (!m_PrimitiveBlock->IsInitialized())
 			return false;
 
@@ -269,11 +273,9 @@ namespace osmpbf {
 				prevLat = nodeIt->lat();
 				prevLon = nodeIt->lon();
 
-				const uint32_t * keys = nodeIt->keys().data();
-				const uint32_t * vals = nodeIt->vals().data();
 				for (int i = 0; i < nodeIt->keys_size(); ++i) {
-					m_DenseNodesGroup->mutable_dense()->add_keys_vals(keys[i]);
-					m_DenseNodesGroup->mutable_dense()->add_keys_vals(vals[i]);
+					m_DenseNodesGroup->mutable_dense()->add_keys_vals(nodeIt->keys(i));
+					m_DenseNodesGroup->mutable_dense()->add_keys_vals(nodeIt->vals(i));
 				}
 				m_DenseNodesGroup->mutable_dense()->add_keys_vals(0);
 
@@ -300,7 +302,9 @@ namespace osmpbf {
 
 		delete[] stringIdTable;
 
-		output = m_PrimitiveBlock->SerializeAsString();
+		assert(m_PrimitiveBlock->IsInitialized());
+
+		m_PrimitiveBlock->SerializeToString(&buffer);
 
 		delete m_PrimitiveBlock;
 		m_PrimitiveBlock = new PrimitiveBlock();
@@ -309,6 +313,9 @@ namespace osmpbf {
 		m_DenseNodesGroup = NULL;
 		m_WaysGroup = NULL;
 		m_RelationsGroup = NULL;
+
+		// add empty string table cache entry
+		m_PrimitiveBlock->mutable_stringtable()->add_s(std::string());
 
 		return true;
 	}
