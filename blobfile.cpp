@@ -52,44 +52,46 @@ namespace osmpbf {
 		return true;
 	}
 
-	uint32_t deflateData(const char * source, uint32_t sourceSize, char * dest, uint32_t destSize) {
+	uint32_t deflateData(const char * source, uint32_t sourceSize, char * & dest, uint32_t & destSize) {
 		int ret;
 		z_stream stream;
 
 		stream.zalloc = Z_NULL;
 		stream.zfree = Z_NULL;
 		stream.opaque = Z_NULL;
+
+		ret = deflateInit(&stream, Z_BEST_COMPRESSION);
+		assert(ret != Z_STREAM_ERROR);
+
+		destSize = deflateBound(&stream, sourceSize);
+		dest = new char[destSize];
+
 		stream.avail_in = sourceSize;
 		stream.next_in = (Bytef *)source;
 		stream.avail_out = destSize;
 		stream.next_out = (Bytef *)dest;
 
-		ret = deflateInit(&stream, Z_BEST_COMPRESSION);
-		assert(ret != Z_STREAM_ERROR);
-
 		ret = deflate(&stream, Z_FINISH);
 
 		assert(ret != Z_STREAM_ERROR);
 
+		deflateEnd(&stream);
 		switch (ret) {
 		case Z_NEED_DICT:
 			std::cerr << "ERROR: zlib - Z_NEED_DICT" << std::endl;
-			deflateEnd(&stream);
 			return 0;
 		case Z_DATA_ERROR:
 			std::cerr << "ERROR: zlib - Z_DATA_ERROR" << std::endl;
-			deflateEnd(&stream);
 			return 0;
 		case Z_MEM_ERROR:
 			std::cerr << "ERROR: zlib - Z_MEM_ERROR" << std::endl;
-			deflateEnd(&stream);
 			return 0;
+		case Z_STREAM_END:
+			return stream.total_out;
 		default:
-			break;
+			std::cerr << "ERROR: zlib - input not compressable" << std::endl;
+			return 0;
 		}
-
-		deflateEnd(&stream);
-		return stream.total_out;
 	}
 
 	AbstractBlobFile::AbstractBlobFile(std::string fileName) : m_FileName(fileName), m_FileDescriptor(-1) {
@@ -150,7 +152,7 @@ namespace osmpbf {
 	}
 
 	BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize) {
-		if (m_FilePos > m_FileSize - 1)
+		if (m_FilePos >= m_FileSize)
 			return BLOB_Invalid;
 
 		if (m_VerboseOutput) std::cout << "== blob ==" << std::endl;
@@ -320,19 +322,20 @@ namespace osmpbf {
 		Blob * blob = new Blob();
 
 		if (compress) {
-			char * zlibBuffer = new char[bufferSize];
-			uint32_t zlibBufferSize = bufferSize;
+			char * zlibBuffer = NULL;
+			uint32_t zlibBufferSize = 0;
+			uint32_t zlibDataAvailable = 0;
 
 			if (m_VerboseOutput) std::cout << "compressing data ... ";
-			zlibBufferSize = deflateData(buffer, bufferSize, zlibBuffer, zlibBufferSize);
+			zlibDataAvailable = deflateData(buffer, bufferSize, zlibBuffer, zlibBufferSize);
 			if (m_VerboseOutput) std::cout << "done" << std::endl;
 
 			blob->set_raw_size(bufferSize);
-			blob->set_zlib_data((void *)zlibBuffer, zlibBufferSize);
+			blob->set_zlib_data((void *)zlibBuffer, zlibDataAvailable);
 			delete[] zlibBuffer;
 		}
 		else {
-			if (m_VerboseOutput) std::cout << " <no compression requested>:" << std::endl;
+			if (m_VerboseOutput) std::cout << " <no compression requested>" << std::endl;
 			blob->set_raw((void *)buffer, bufferSize);
 		}
 
