@@ -9,6 +9,8 @@
 #include "iway.h"
 #include "irelation.h"
 
+#include "assert.h"
+
 namespace osmpbf {
 
 // PrimitiveBlockInputAdaptor
@@ -60,6 +62,8 @@ namespace osmpbf {
 		}
 
 		std::cerr << "ERROR: invalid OSM primitive block" << std::endl;
+		if (!m_PrimitiveBlock->has_stringtable())
+			std::cerr << "no stringtable field found" << std::endl;
 
 		delete m_PrimitiveBlock;
 		m_PrimitiveBlock = NULL;
@@ -168,6 +172,8 @@ namespace osmpbf {
 
 			i++;
 		}
+
+		assert(keyvalPos == m_DenseNodesGroup->dense().id_size());
 	}
 
 	const std::string & PrimitiveBlockInputAdaptor::queryStringTable(int id) const {
@@ -189,5 +195,4 @@ namespace osmpbf {
 	IRelationStream PrimitiveBlockInputAdaptor::getRelationStream() {
 		return IRelationStream(this);
 	}
-
 }
