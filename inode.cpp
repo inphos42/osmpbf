@@ -123,27 +123,30 @@ namespace osmpbf {
 	}
 
 	int NodeStreamInputAdaptor::tagsSize() const {
-		return (m_DenseIndex < 0) ?
-			m_PlainNodes->nodes(m_Index).keys_size() :
-			m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2 + 1);
+		if (m_DenseIndex < 0)
+			return m_PlainNodes->nodes(m_Index).keys_size();
+		else
+			return m_DenseNodes->dense().keys_vals_size() ? m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2 + 1) : 0;
 	}
 
 	uint32_t NodeStreamInputAdaptor::keyId(int index) const {
 		if (index < 0 || index > tagsSize())
 			return 0;
 
-		return (m_DenseIndex < 0) ?
-			m_PlainNodes->nodes(m_Index).keys(index) :
-			m_DenseNodes->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2) + index * 2);
+		if (m_DenseIndex < 0)
+			return m_PlainNodes->nodes(m_Index).keys(index);
+		else
+			return m_DenseNodes->dense().keys_vals_size() ? m_DenseNodes->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2) + index * 2) : 0;
 	}
 
 	uint32_t NodeStreamInputAdaptor::valueId(int index) const {
 		if (index < 0 || index > tagsSize())
 			return 0;
 
-		return (m_DenseIndex < 0) ?
-			m_PlainNodes->nodes(m_Index).vals(index) :
-			m_DenseNodes->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2) + index * 2 + 1);
+		if (m_DenseIndex < 0)
+			return m_PlainNodes->nodes(m_Index).vals(index);
+		else
+			return m_DenseNodes->dense().keys_vals_size() ? m_DenseNodes->dense().keys_vals(m_Controller->queryDenseNodeKeyValIndex(m_DenseIndex * 2) + index * 2 + 1) : 0;
 	}
 
 // PlainNodeInputAdaptor
