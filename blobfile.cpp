@@ -94,7 +94,7 @@ namespace osmpbf {
 		}
 	}
 
-	AbstractBlobFile::AbstractBlobFile(std::string fileName) : m_FileName(fileName), m_FileDescriptor(-1) {
+	AbstractBlobFile::AbstractBlobFile(const std::string & fileName) : m_FileName(fileName), m_FileDescriptor(-1) {
 		GOOGLE_PROTOBUF_VERIFY_VERSION;
 	}
 

@@ -10,7 +10,7 @@ namespace osmpbf {
 	class AbstractBlobFile {
 	public:
 		AbstractBlobFile() : m_FileDescriptor(-1), m_VerboseOutput(false) {}
-		AbstractBlobFile(std::string fileName);
+		AbstractBlobFile(const std::string & fileName);
 		virtual ~AbstractBlobFile() {}
 
 		virtual bool open() = 0;
@@ -48,7 +48,7 @@ namespace osmpbf {
 
 	class BlobFileIn : public AbstractBlobFile {
 	public:
-		BlobFileIn(std::string fileName) : AbstractBlobFile(fileName), m_FileData(NULL) {}
+		BlobFileIn(const std::string & fileName) : AbstractBlobFile(fileName), m_FileData(NULL) {}
 		virtual ~BlobFileIn() { close(); }
 
 		virtual bool open();
@@ -61,19 +61,21 @@ namespace osmpbf {
 
 		void readBlob(BlobDataBuffer & buffer);
 		BlobDataType readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize);
-	private:
+
+	protected:
 		char * m_FileData;
 		uint32_t m_FilePos;
 		uint32_t m_FileSize;
 
-		BlobFileIn() : AbstractBlobFile() {}
-
 		inline void * fileData() { return (void *) &(m_FileData[m_FilePos]); }
+
+	private:
+		BlobFileIn() : AbstractBlobFile() {}
 	};
 
 	class BlobFileOut : public AbstractBlobFile {
 	public:
-		BlobFileOut(std::string fileName) : AbstractBlobFile(fileName) {}
+		BlobFileOut(const std::string & fileName) : AbstractBlobFile(fileName) {}
 		virtual ~BlobFileOut() { close(); }
 
 		virtual bool open();
