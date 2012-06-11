@@ -40,12 +40,12 @@ namespace osmpbf {
 		IMemberStream(const IMemberStream & other);
 
 		IMemberStream & operator=(const IMemberStream & other) {
-			RCWrapper::operator=(other);
+			RCWrapper<MemberStreamInputAdaptor>::operator=(other);
 			m_Controller = other.m_Controller;
 			return *this;
 		}
 
-		virtual bool isNull() const { return !m_Controller || RCWrapper::isNull(); }
+		virtual bool isNull() const { return !m_Controller || RCWrapper<MemberStreamInputAdaptor>::isNull(); }
 
 		inline int64_t id() const { return m_Private->id(); }
 
@@ -91,7 +91,7 @@ namespace osmpbf {
 	public:
 		IRelation(const IRelation & other);
 
-		inline IRelation & operator=(const IRelation & other) { RCWrapper::operator=(other); return *this; }
+		inline IRelation & operator=(const IRelation & other) { RCWrapper<RelationInputAdaptor>::operator=(other); return *this; }
 
 		inline int64_t id() const { return m_Private->id(); }
 

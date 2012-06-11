@@ -7,11 +7,11 @@ namespace osmpbf {
 
 // INode
 
-	INode::INode() : RCWrapper< AbstractNodeInputAdaptor >() {}
-	INode::INode(const INode & other) : RCWrapper< AbstractNodeInputAdaptor >(other) {}
-	INode::INode(AbstractNodeInputAdaptor * data) : RCWrapper< AbstractNodeInputAdaptor >(data) {}
+	INode::INode() : RCWrapper<AbstractNodeInputAdaptor>() {}
+	INode::INode(const INode & other) : RCWrapper<AbstractNodeInputAdaptor>(other) {}
+	INode::INode(AbstractNodeInputAdaptor * data) : RCWrapper<AbstractNodeInputAdaptor>(data) {}
 
-	INode & INode::operator=(const INode & other) { RCWrapper::operator=(other); return *this; }
+	INode & INode::operator=(const INode & other) { RCWrapper<AbstractNodeInputAdaptor>::operator=(other); return *this; }
 
 // INodeStream
 

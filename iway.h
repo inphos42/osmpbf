@@ -41,12 +41,12 @@ namespace osmpbf {
 		const Way * m_Data;
 	};
 
-	class IWay : public RCWrapper<osmpbf::WayInputAdaptor> {
+	class IWay : public RCWrapper<WayInputAdaptor> {
 		friend class PrimitiveBlockInputAdaptor;
 	public:
 		IWay(const IWay & other);
 
-		inline IWay & operator=(const IWay & other) { RCWrapper::operator=(other); return *this; }
+		inline IWay & operator=(const IWay & other) { RCWrapper<WayInputAdaptor>::operator=(other); return *this; }
 
 		inline int64_t id() const { return m_Private->id(); }
 

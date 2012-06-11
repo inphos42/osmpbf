@@ -13,7 +13,7 @@ namespace osmpbf {
 	ONode::ONode() : RCWrapper<NodeOutputAdaptor>() {}
 	ONode::ONode(NodeOutputAdaptor * data) : RCWrapper<NodeOutputAdaptor>(data) {}
 
-	ONode & ONode::operator=(const ONode & other) { RCWrapper::operator=(other); return *this; }
+	ONode & ONode::operator=(const ONode & other) { RCWrapper<NodeOutputAdaptor>::operator=(other); return *this; }
 
 // PlainNodeOutputAdaptor
 

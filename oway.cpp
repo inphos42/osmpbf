@@ -13,13 +13,13 @@ namespace osmpbf {
 	OWay::OWay() : RCWrapper<WayOutputAdaptor>() {}
 	OWay::OWay(WayOutputAdaptor * data): RCWrapper<WayOutputAdaptor>(data) {}
 
-	OWay & OWay::operator=(const OWay & other) { RCWrapper::operator=(other); return *this; }
+	OWay & OWay::operator=(const OWay & other) { RCWrapper<WayOutputAdaptor>::operator=(other); return *this; }
 
 // WayOutputAdaptor
 
-	WayOutputAdaptor::WayOutputAdaptor() : AbstractPrimitiveOutputAdaptor() {}
+	WayOutputAdaptor::WayOutputAdaptor() : AbstractPrimitiveOutputAdaptor<Way>() {}
 	WayOutputAdaptor::WayOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, Way * data) :
-		AbstractPrimitiveOutputAdaptor(&controller->stringTable(), data) {}
+		AbstractPrimitiveOutputAdaptor<Way>(&controller->stringTable(), data) {}
 
 	int WayOutputAdaptor::refsSize() const {
 		return m_Data->refs_size();
