@@ -11,8 +11,6 @@
 
 class Way;
 
-#define NULL_REF -1
-
 namespace osmpbf {
 	class PrimitiveBlockOutputAdaptor;
 
@@ -63,7 +61,7 @@ namespace osmpbf {
 		inline void setRef(int index, int64_t value) { m_Private->setRef(index, value); }
 
 		inline void addRef(int64_t ref) { m_Private->addRef(ref); }
-		inline void removeRefLater(int index) { m_Private->setRef(index, NULL_REF); }
+		inline void removeRefLater(int index) { m_Private->setRef(index, NULL_PRIMITIVE_ID); }
 
 		inline void setRefs(const DeltaFieldConstForwardIterator<int64_t> & from, const DeltaFieldConstForwardIterator<int64_t> & to) {
 			m_Private->setRefs(from, to); }

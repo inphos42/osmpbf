@@ -50,7 +50,7 @@ namespace osmpbf {
 
 // RelationStreamInputAdaptor
 
-	RelationStreamInputAdaptor::RelationStreamInputAdaptor() : RelationInputAdaptor(), m_MaxIndex(0), m_Index(-1) {}
+	RelationStreamInputAdaptor::RelationStreamInputAdaptor() : RelationInputAdaptor(), m_Index(-1), m_MaxIndex(0) {}
 	RelationStreamInputAdaptor::RelationStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller)
 		: RelationInputAdaptor(controller, controller->m_RelationsGroup ? controller->m_RelationsGroup->relations().data()[0] : NULL), m_MaxIndex(m_Controller->realtionsSize()) {}
 
@@ -67,7 +67,6 @@ namespace osmpbf {
 		m_Index--;
 		m_Data = m_Controller->m_RelationsGroup->relations().data()[m_Index];
 	}
-
 
 // MemberStreamInputAdaptor
 
