@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(osmpbf)
 
-set(DEBUG_FLAGS "-Wall")
+set(DEBUG_FLAGS " ${DEBUG_FLAGS} -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${DEBUG_FLAGS}")
@@ -19,7 +19,6 @@ if(CMAKE_CROSSCOMPILING)
 	set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 	set(PROTOBUF_INCLUDE_DIRS ${ANDROID_EXT_PATH_ROOT}/include)
-# 	set(PROTOBUF_LIBRARIES ${ANDROID_EXT_PATH_ROOT}/lib/libprotobuf.a)
 else(CMAKE_CROSSCOMPILING)
 	find_package(Protobuf)
 endif(CMAKE_CROSSCOMPILING)

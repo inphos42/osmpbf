@@ -43,13 +43,4 @@ namespace osmpbf {
 	};
 }
 
-class Node;
-class Way;
-
-namespace osmpbf {
-	template class AbstractPrimitiveOutputAdaptor<Way>;
-	template class AbstractPrimitiveOutputAdaptor<Node>;
-}
-// #include "abstractprimitiveoutputadaptor.tcc"
-
 #endif // OSMPBF_ABSTRACTPRIMITIVEOUTPUTADAPTOR_H

@@ -1,7 +1,15 @@
 #include "abstractprimitiveoutputadaptor.h"
-#include "stringtable.h"
 
 #include "osmformat.pb.h"
+
+namespace osmpbf {
+	template class AbstractPrimitiveOutputAdaptor< ::Way >;
+	template class AbstractPrimitiveOutputAdaptor< ::Node >;
+	template class AbstractPrimitiveOutputAdaptor< ::Relation >;
+}
+
+#include "common.h"
+#include "stringtable.h"
 
 namespace osmpbf {
 	template<class PrimitiveType>
@@ -46,10 +54,8 @@ namespace osmpbf {
 
 		uint32_t keyId = m_StringTable->id(key);
 
-		const uint32_t * keys = m_Data->mutable_keys()->data();
-
 		for (int i = 0; i < m_Data->keys_size(); ++i) {
-			if (keys[i] == keyId)
+			if (m_Data->keys(i) == keyId)
 				setValue(i, value);
 		}
 	}
@@ -65,21 +71,17 @@ namespace osmpbf {
 		m_StringTable->remove(m_Data->keys(index));
 		m_StringTable->remove(m_Data->vals(index));
 
-		m_Data->set_keys(index, 0);
-		m_Data->set_vals(index, 0);
+		m_Data->set_keys(index, NULL_STRING_ID);
+		m_Data->set_vals(index, NULL_STRING_ID);
 	}
 
 	template<class PrimitiveType>
 	void AbstractPrimitiveOutputAdaptor<PrimitiveType>::clearTags() {
-		const uint32_t * data = m_Data->keys().data();
+		for (int i = 0; i < m_Data->keys_size(); ++i)
+			m_StringTable->remove(m_Data->keys(i));
 
 		for (int i = 0; i < m_Data->keys_size(); ++i)
-			m_StringTable->remove(data[i]);
-
-		data = m_Data->vals().data();
-
-		for (int i = 0; i < m_Data->keys_size(); ++i)
-			m_StringTable->remove(data[i]);
+			m_StringTable->remove(m_Data->vals(i));
 
 		m_Data->clear_keys();
 		m_Data->clear_vals();
