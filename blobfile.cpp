@@ -151,43 +151,34 @@ namespace osmpbf {
 		buffer.type = readBlob(buffer.data, buffer.totalBytes, buffer.availableBytes);
 	}
 
-	BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize) {
-		if (m_FilePos >= m_FileSize)
-			return BLOB_Invalid;
-
-		if (m_VerboseOutput) std::cout << "== blob ==" << std::endl;
-		BlobDataType blobDataType = BLOB_Invalid;
+	void BlobFileIn::readBlobHeader(uint32_t & blobLength, BlobDataType & blobDataType) {
+		blobDataType = BLOB_Invalid;
 
 		if (m_VerboseOutput) std::cout << "checking blob header ..." << std::endl;
 
-		uint32_t blobLength;
 		uint32_t headerLength = ntohl(* (uint32_t *) fileData());
 
 		if (m_VerboseOutput) std::cout << "header length : " << headerLength << " B" << std::endl;
 
 		if (!headerLength)
-			return BLOB_Invalid;
+			return;
 
 		m_FilePos += 4;
 
 		if (m_VerboseOutput) std::cout << "parsing blob header ..." << std::endl;
-		{
-			BlobHeader * blobHeader = new BlobHeader();
 
-			if (!blobHeader->ParseFromArray(fileData(), headerLength)) {
-				std::cerr << "ERROR: invalid blob header structure" << std::endl;
+		BlobHeader * blobHeader = new BlobHeader();
 
-				if (!blobHeader->has_type())
-					std::cerr << "> no \"type\" field found" << std::endl;
+		if (!blobHeader->ParseFromArray(fileData(), headerLength)) {
+			std::cerr << "ERROR: invalid blob header structure" << std::endl;
 
-				if (!blobHeader->has_datasize())
-					std::cerr << "> no \"datasize\" field found" << std::endl;
+			if (!blobHeader->has_type())
+				std::cerr << "> no \"type\" field found" << std::endl;
 
-				delete blobHeader;
-
-				return BLOB_Invalid;
-			}
-
+			if (!blobHeader->has_datasize())
+				std::cerr << "> no \"datasize\" field found" << std::endl;
+		}
+		else {
 			m_FilePos += headerLength;
 
 			if (m_VerboseOutput) std::cout << "type : " << blobHeader->type() << std::endl;
@@ -199,8 +190,21 @@ namespace osmpbf {
 				blobDataType = BLOB_OSMData;
 
 			blobLength = blobHeader->datasize();
-			delete blobHeader;
 		}
+
+		delete blobHeader;
+	}
+
+	BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize) {
+		if (m_FilePos >= m_FileSize)
+			return BLOB_Invalid;
+
+		if (m_VerboseOutput) std::cout << "== blob ==" << std::endl;
+
+		uint32_t blobLength;
+		BlobDataType blobDataType;
+
+		readBlobHeader(blobLength, blobDataType);
 
 		if (blobDataType && blobLength) {
 			if (m_VerboseOutput) std::cout << "parsing blob ..." << std::endl;
@@ -263,15 +267,36 @@ namespace osmpbf {
 			return blobDataType;
 		}
 
-		std::cerr << "ERROR: ";
 		if (!blobDataType)
-			std::cerr << "invalid blob type";
-		if (!availableDataSize)
-			std::cerr << "invalid blob size";
-		std::cerr << std::endl;
+			std::cerr << "ERROR: invalid blob type" << std::endl;
+		if (!blobLength)
+			std::cerr << "ERROR: invalid blob size" << std::endl;
 
 		return BLOB_Invalid;
 	}
+
+	bool BlobFileIn::skipBlob() {
+		if (m_FilePos >= m_FileSize)
+			return false;
+
+		if (m_VerboseOutput) std::cout << "== blob ==" << std::endl;
+
+		uint32_t blobLength;
+		BlobDataType blobDataType;
+
+		readBlobHeader(blobLength, blobDataType);
+		if (blobLength) {
+			if (m_VerboseOutput) std::cout << "skipping blob" << std::endl;
+
+			m_FilePos += blobLength;
+			return true;
+		}
+		else {
+			std::cerr << "ERROR: invalid blob size" << std::endl;
+			return false;
+		}
+	}
+
 
 	bool BlobFileOut::open() {
 		if (m_VerboseOutput) std::cout << "opening/creating File " << m_FileName << " ...";
@@ -297,17 +322,6 @@ namespace osmpbf {
 
 	uint32_t BlobFileOut::position() const {
 		return ::lseek(m_FileDescriptor, 0, SEEK_CUR);
-	}
-
-	// TODO test this
-	uint32_t BlobFileOut::size() const {
-		struct stat stFileInfo;
-		if (fstat(m_FileDescriptor, &stFileInfo) == 0) {
-			if (stFileInfo.st_size <= INT32_MAX)
-				return uint32_t(stFileInfo.st_size);
-		}
-
-		return 0;
 	}
 
 	bool BlobFileOut::writeBlob(const BlobDataBuffer & buffer, bool compress) {
@@ -391,6 +405,10 @@ namespace osmpbf {
 		::lseek(m_FileDescriptor, blobPosition, SEEK_SET);
 		::write(m_FileDescriptor, (void *) serializedBlobBuffer.data(), serializedBlobBuffer.length());
 		if (m_VerboseOutput) std::cout << "done" << std::endl;
+
+		uint32_t pos = position();
+		if (m_CurrentSize < pos)
+			m_CurrentSize = pos;
 
 		return true;
 	}

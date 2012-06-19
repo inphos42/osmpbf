@@ -4,9 +4,9 @@
 #include <cstdint>
 #include <string>
 
-namespace osmpbf {
-	enum BlobDataType {BLOB_Invalid = 0, BLOB_OSMHeader = 1, BLOB_OSMData = 2};
+#include "blobdata.h"
 
+namespace osmpbf {
 	class AbstractBlobFile {
 	public:
 		AbstractBlobFile() : m_FileDescriptor(-1), m_VerboseOutput(false) {}
@@ -28,24 +28,6 @@ namespace osmpbf {
 		bool m_VerboseOutput;
 	};
 
-	struct BlobDataBuffer {
-		BlobDataType type;
-		char * data;
-		uint32_t availableBytes;
-		uint32_t totalBytes;
-
-		inline void clear() {
-			if (data)
-				delete[] data;
-			data = NULL;
-			availableBytes = 0;
-			totalBytes = 0;
-		}
-
-		BlobDataBuffer() : type(BLOB_Invalid), data(NULL), availableBytes(0), totalBytes(0) {}
-		~BlobDataBuffer() { clear(); }
-	};
-
 	class BlobFileIn : public AbstractBlobFile {
 	public:
 		BlobFileIn(const std::string & fileName) : AbstractBlobFile(fileName), m_FileData(NULL) {}
@@ -62,10 +44,14 @@ namespace osmpbf {
 		void readBlob(BlobDataBuffer & buffer);
 		BlobDataType readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize);
 
+		bool skipBlob();
+
 	protected:
 		char * m_FileData;
 		uint32_t m_FilePos;
 		uint32_t m_FileSize;
+
+		void readBlobHeader(uint32_t & blobLength, BlobDataType & blobDataType);
 
 		inline void * fileData() { return (void *) &(m_FileData[m_FilePos]); }
 
@@ -75,7 +61,7 @@ namespace osmpbf {
 
 	class BlobFileOut : public AbstractBlobFile {
 	public:
-		BlobFileOut(const std::string & fileName) : AbstractBlobFile(fileName) {}
+		BlobFileOut(const std::string & fileName) : AbstractBlobFile(fileName), m_CurrentSize(0) {}
 		virtual ~BlobFileOut() { close(); }
 
 		virtual bool open();
@@ -84,10 +70,14 @@ namespace osmpbf {
 		virtual void seek(uint32_t position);
 		virtual uint32_t position() const;
 
-		virtual uint32_t size() const;
+		virtual uint32_t size() const { return m_CurrentSize; }
 
 		bool writeBlob(const BlobDataBuffer & buffer, bool compress = true);
 		bool writeBlob(BlobDataType type, const char * buffer, uint32_t bufferSize, bool compress = true);
+
+	protected:
+		uint32_t m_CurrentSize;
+
 	private:
 		BlobFileOut() : AbstractBlobFile() {}
 	};
