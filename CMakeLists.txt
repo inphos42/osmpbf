@@ -37,6 +37,7 @@ include_directories(
 
 set(SOURCES_CPP
 	blobfile.cpp
+	osmfile.cpp
 	abstractprimitiveinputadaptor.cpp
 	primitiveblockinputadaptor.cpp
 	iway.cpp
