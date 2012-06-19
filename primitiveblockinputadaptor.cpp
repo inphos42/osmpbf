@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "osmformat.pb.h"
-#include "blobfile.h"
 
 #include "inode.h"
 #include "iway.h"
@@ -15,6 +14,18 @@ namespace osmpbf {
 
 // PrimitiveBlockInputAdaptor
 
+	PrimitiveBlockInputAdaptor::PrimitiveBlockInputAdaptor() :
+		m_PrimitiveBlock(NULL),
+		m_PlainNodesGroup(NULL),
+		m_DenseNodesGroup(NULL),
+		m_WaysGroup(NULL),
+		m_RelationsGroup(NULL),
+		m_DenseNodesUnpacked(false),
+		m_DenseNodeKeyValIndex(NULL)
+	{
+		GOOGLE_PROTOBUF_VERIFY_VERSION;
+	}
+
 	PrimitiveBlockInputAdaptor::PrimitiveBlockInputAdaptor(char * rawData, uint32_t length, bool unpackDense) :
 		m_PlainNodesGroup(NULL),
 		m_DenseNodesGroup(NULL),
@@ -24,6 +35,25 @@ namespace osmpbf {
 		m_DenseNodeKeyValIndex(NULL)
 	{
 		GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+		parseData(rawData, length, unpackDense);
+	}
+
+	PrimitiveBlockInputAdaptor::~PrimitiveBlockInputAdaptor() {
+		delete m_PrimitiveBlock;
+		delete[] m_DenseNodeKeyValIndex;
+	}
+
+	void PrimitiveBlockInputAdaptor::parseData(char * rawData, uint32_t length, bool unpackDense) {
+		delete m_PrimitiveBlock;
+		delete[] m_DenseNodeKeyValIndex;
+
+		m_PlainNodesGroup = NULL;
+		m_DenseNodesGroup = NULL;
+		m_WaysGroup = NULL;
+		m_RelationsGroup = NULL;
+		m_DenseNodesUnpacked = false;
+		m_DenseNodeKeyValIndex = NULL;
 
 		m_PrimitiveBlock = new PrimitiveBlock();
 
@@ -67,11 +97,6 @@ namespace osmpbf {
 
 		delete m_PrimitiveBlock;
 		m_PrimitiveBlock = NULL;
-	}
-
-	PrimitiveBlockInputAdaptor::~PrimitiveBlockInputAdaptor() {
-		delete m_PrimitiveBlock;
-		delete[] m_DenseNodeKeyValIndex;
 	}
 
 	INode PrimitiveBlockInputAdaptor::getNodeAt(int position) const {
