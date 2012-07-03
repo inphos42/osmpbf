@@ -27,6 +27,7 @@ namespace osmpbf {
 	}
 
 	PrimitiveBlockInputAdaptor::PrimitiveBlockInputAdaptor(char * rawData, uint32_t length, bool unpackDense) :
+		m_PrimitiveBlock(NULL),
 		m_PlainNodesGroup(NULL),
 		m_DenseNodesGroup(NULL),
 		m_WaysGroup(NULL),
