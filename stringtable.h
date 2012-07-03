@@ -37,6 +37,8 @@ namespace osmpbf {
 		inline const std::string & query(uint32_t id) const { return m_Entries.at(id)->value; }
 		inline const std::string & operator[](uint32_t id) const { return query(id); }
 
+		inline std::size_t size() const { return m_Entries.size(); }
+
 		inline uint32_t maxId() const { return m_IdCounter; }
 	protected:
 		std::map<uint32_t, StringTableEntry *> m_Entries;
