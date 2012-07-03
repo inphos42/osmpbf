@@ -7,9 +7,13 @@
 #include "abstractprimitiveinputadaptor.h"
 #include "common.h"
 
-class Node;
-class DenseNodes;
-class PrimitiveGroup;
+namespace crosby {
+namespace binary {
+	class Node;
+	class DenseNodes;
+	class PrimitiveGroup;
+}
+}
 
 namespace osmpbf {
 	class PrimitiveBlockInputAdaptor;
@@ -72,7 +76,7 @@ namespace osmpbf {
 	class PlainNodeInputAdaptor : public AbstractNodeInputAdaptor {
 	public:
 		PlainNodeInputAdaptor();
-		PlainNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const Node & data);
+		PlainNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Node & data);
 
 		virtual bool isNull() const { return AbstractPrimitiveInputAdaptor::isNull() || !m_Data; }
 
@@ -95,13 +99,13 @@ namespace osmpbf {
 		virtual NodeType type() const { return PlainNode; }
 
 	protected:
-		const Node * m_Data;
+		const crosby::binary::Node * m_Data;
 	};
 
 	class DenseNodeInputAdaptor : public AbstractNodeInputAdaptor {
 	public:
 		DenseNodeInputAdaptor();
-		DenseNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const DenseNodes & data, int index);
+		DenseNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::DenseNodes & data, int index);
 
 		virtual bool isNull() const;
 
@@ -124,7 +128,7 @@ namespace osmpbf {
 		virtual NodeType type() const { return DenseNode; }
 
 	protected:
-		const DenseNodes * m_Data;
+		const crosby::binary::DenseNodes * m_Data;
 		int m_Index;
 
 		bool m_HasCachedId;
@@ -165,8 +169,8 @@ namespace osmpbf {
 		virtual NodeType type() const { return (m_DenseIndex > -1 ? DenseNode : PlainNode); }
 
 	private:
-		PrimitiveGroup * m_PlainNodes;
-		PrimitiveGroup * m_DenseNodes;
+		crosby::binary::PrimitiveGroup * m_PlainNodes;
+		crosby::binary::PrimitiveGroup * m_DenseNodes;
 
 		int m_Index;
 		int m_DenseIndex;

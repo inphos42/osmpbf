@@ -3,9 +3,9 @@
 #include "osmformat.pb.h"
 
 namespace osmpbf {
-	template class AbstractPrimitiveOutputAdaptor< ::Way >;
-	template class AbstractPrimitiveOutputAdaptor< ::Node >;
-	template class AbstractPrimitiveOutputAdaptor< ::Relation >;
+	template class AbstractPrimitiveOutputAdaptor< crosby::binary::Way >;
+	template class AbstractPrimitiveOutputAdaptor< crosby::binary::Node >;
+	template class AbstractPrimitiveOutputAdaptor< crosby::binary::Relation >;
 }
 
 #include "common.h"

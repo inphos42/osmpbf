@@ -83,7 +83,7 @@ namespace osmpbf {
 			return false;
 		}
 
-		m_FileHeader = new HeaderBlock;
+		m_FileHeader = new crosby::binary::HeaderBlock;
 
 		if (!m_FileHeader->ParseFromArray(m_DataBuffer.data, m_DataBuffer.availableBytes)) {
 			std::cerr << "ERROR: invalid OSM header" << std::endl;

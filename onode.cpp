@@ -17,9 +17,9 @@ namespace osmpbf {
 
 // PlainNodeOutputAdaptor
 
-	NodeOutputAdaptor::NodeOutputAdaptor() : AbstractPrimitiveOutputAdaptor<Node>() {}
-	NodeOutputAdaptor::NodeOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, Node * data) :
-		AbstractPrimitiveOutputAdaptor<Node>(&controller->stringTable(), data) {}
+	NodeOutputAdaptor::NodeOutputAdaptor() : AbstractPrimitiveOutputAdaptor< crosby::binary::Node >() {}
+	NodeOutputAdaptor::NodeOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, crosby::binary::Node * data) :
+		AbstractPrimitiveOutputAdaptor< crosby::binary::Node >(&controller->stringTable(), data) {}
 
 	int64_t NodeOutputAdaptor::lati() const {
 		return m_Data->lat();

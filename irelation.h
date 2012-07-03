@@ -8,13 +8,17 @@
 #include "abstractprimitiveinputadaptor.h"
 #include "fielditerator.h"
 
-class Relation;
+namespace crosby {
+namespace binary {
+	class Relation;
+}
+}
 
 namespace osmpbf {
 	class MemberStreamInputAdaptor : public RefCountObject {
 	public:
 		MemberStreamInputAdaptor();
-		MemberStreamInputAdaptor(const Relation * data);
+		MemberStreamInputAdaptor(const crosby::binary::Relation * data);
 
 		bool isNull() const { return !m_Data || m_Index >= m_MaxIndex; }
 
@@ -26,7 +30,7 @@ namespace osmpbf {
 		void previous();
 
 	protected:
-		const Relation * m_Data;
+		const crosby::binary::Relation * m_Data;
 
 		int m_Index;
 		const int m_MaxIndex;
@@ -59,7 +63,7 @@ namespace osmpbf {
 
 	protected:
 		IMemberStream();
-		IMemberStream(PrimitiveBlockInputAdaptor * controller, const Relation * data);
+		IMemberStream(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Relation * data);
 
 		PrimitiveBlockInputAdaptor * m_Controller;
 	};
@@ -67,7 +71,7 @@ namespace osmpbf {
 	class RelationInputAdaptor : public AbstractPrimitiveInputAdaptor {
 	public:
 		RelationInputAdaptor();
-		RelationInputAdaptor(PrimitiveBlockInputAdaptor * controller, const Relation * data);
+		RelationInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Relation * data);
 
 		virtual bool isNull() const { return !m_Controller || !m_Data; }
 
@@ -83,7 +87,7 @@ namespace osmpbf {
 		virtual IMemberStream getMemberStream() const { return IMemberStream(m_Controller, m_Data); }
 
 	protected:
-		const Relation * m_Data;
+		const crosby::binary::Relation * m_Data;
 	};
 
 	class IRelation : public RCWrapper<RelationInputAdaptor> {

@@ -17,9 +17,9 @@ namespace osmpbf {
 
 // WayOutputAdaptor
 
-	WayOutputAdaptor::WayOutputAdaptor() : AbstractPrimitiveOutputAdaptor<Way>() {}
-	WayOutputAdaptor::WayOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, Way * data) :
-		AbstractPrimitiveOutputAdaptor<Way>(&controller->stringTable(), data) {}
+	WayOutputAdaptor::WayOutputAdaptor() : AbstractPrimitiveOutputAdaptor< crosby::binary::Way >() {}
+	WayOutputAdaptor::WayOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, crosby::binary::Way * data) :
+		AbstractPrimitiveOutputAdaptor< crosby::binary::Way >(&controller->stringTable(), data) {}
 
 	int WayOutputAdaptor::refsSize() const {
 		return m_Data->refs_size();

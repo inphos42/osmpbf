@@ -19,7 +19,7 @@ namespace osmpbf {
 		GOOGLE_PROTOBUF_VERIFY_VERSION;
 
 		m_StringTable = new StringTable();
-		m_PrimitiveBlock = new PrimitiveBlock();
+		m_PrimitiveBlock = new crosby::binary::PrimitiveBlock();
 
 		// add empty string table cache entry
 		m_PrimitiveBlock->mutable_stringtable()->add_s(std::string());
@@ -52,7 +52,7 @@ namespace osmpbf {
 	}
 
 	ONode PrimitiveBlockOutputAdaptor::createNode(INode & templateINode, NodeType type) {
-		PrimitiveGroup * targetGroup;
+		crosby::binary::PrimitiveGroup * targetGroup;
 		switch (type) {
 		case DenseNode:
 			if (!m_DenseNodesGroup)
@@ -231,18 +231,18 @@ namespace osmpbf {
 		return stringIdTable;
 	}
 
-	void PrimitiveBlockOutputAdaptor::prepareNodes(PrimitiveGroup * nodesGroup, uint32_t * stringIdTable) {
+	void PrimitiveBlockOutputAdaptor::prepareNodes(crosby::binary::PrimitiveGroup * nodesGroup, uint32_t * stringIdTable) {
 		int32_t granularity = m_PrimitiveBlock->has_granularity() ? m_PrimitiveBlock->granularity() : 1;
 		int64_t latOffset = m_PrimitiveBlock->has_lat_offset() ? m_PrimitiveBlock->lat_offset() : 0;
 		int64_t lonOffset = m_PrimitiveBlock->has_lon_offset() ? m_PrimitiveBlock->lon_offset() : 1;
 
-		google::protobuf::RepeatedPtrField<Node>::iterator nodeIt = nodesGroup->mutable_nodes()->begin();
+		google::protobuf::RepeatedPtrField<crosby::binary::Node>::iterator nodeIt = nodesGroup->mutable_nodes()->begin();
 		while (nodeIt != nodesGroup->mutable_nodes()->end()) {
 			// calculate coordinates
 			nodeIt->set_lat((nodeIt->lat() - latOffset) / granularity);
 			nodeIt->set_lon((nodeIt->lon() - lonOffset) / granularity);
 
-			cleanUpTags<Node>(*nodeIt, stringIdTable);
+			cleanUpTags<crosby::binary::Node>(*nodeIt, stringIdTable);
 			++nodeIt;
 		}
 	}
@@ -263,7 +263,7 @@ namespace osmpbf {
 			prepareNodes(m_DenseNodesGroup, stringIdTable);
 
 			int64_t prevLat = 0, prevLon = 0, prevId = 0;
-			google::protobuf::RepeatedPtrField<Node>::const_iterator nodeIt = m_DenseNodesGroup->nodes().begin();
+			google::protobuf::RepeatedPtrField<crosby::binary::Node>::const_iterator nodeIt = m_DenseNodesGroup->nodes().begin();
 			while (nodeIt != m_DenseNodesGroup->nodes().end()) {
 				m_DenseNodesGroup->mutable_dense()->add_id(nodeIt->id() - prevId);
 				m_DenseNodesGroup->mutable_dense()->add_lat(nodeIt->lat() - prevLat);
@@ -287,14 +287,14 @@ namespace osmpbf {
 
 		// prepare ways
 		if (m_WaysGroup) {
-			google::protobuf::RepeatedPtrField<Way>::iterator wayIt = m_WaysGroup->mutable_ways()->begin();
+			google::protobuf::RepeatedPtrField<crosby::binary::Way>::iterator wayIt = m_WaysGroup->mutable_ways()->begin();
 			int realSize;
 			while (wayIt != m_WaysGroup->mutable_ways()->end()) {
 				// encode and clean refs
 				realSize = deltaEncodeClean<int64_t>(wayIt->mutable_refs()->mutable_data(), wayIt->mutable_refs()->mutable_data() + wayIt->refs_size(), -1);
 				wayIt->mutable_refs()->Truncate(realSize);
 
-				cleanUpTags<Way>(*wayIt, stringIdTable);
+				cleanUpTags<crosby::binary::Way>(*wayIt, stringIdTable);
 
 				++wayIt;
 			}
@@ -307,7 +307,7 @@ namespace osmpbf {
 		m_PrimitiveBlock->SerializeToString(&buffer);
 
 		delete m_PrimitiveBlock;
-		m_PrimitiveBlock = new PrimitiveBlock();
+		m_PrimitiveBlock = new crosby::binary::PrimitiveBlock();
 
 		m_PlainNodesGroup = NULL;
 		m_DenseNodesGroup = NULL;

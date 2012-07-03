@@ -7,16 +7,20 @@
 
 #include "abstractprimitiveoutputadaptor.h"
 
-class Node;
-class DenseNodes;
+namespace crosby {
+namespace binary {
+	class Node;
+	class DenseNodes;
+}
+}
 
 namespace osmpbf {
 	class PrimitiveBlockOutputAdaptor;
 
-	class NodeOutputAdaptor : public AbstractPrimitiveOutputAdaptor<Node> {
+	class NodeOutputAdaptor : public AbstractPrimitiveOutputAdaptor< crosby::binary::Node > {
 	public:
 		NodeOutputAdaptor();
-		NodeOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, Node * data);
+		NodeOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, crosby::binary::Node * data);
 
 		virtual int64_t lati() const;
 		virtual void setLati(int64_t value);

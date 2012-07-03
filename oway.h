@@ -9,15 +9,19 @@
 #include "abstractprimitiveoutputadaptor.h"
 #include "fielditerator.h"
 
-class Way;
+namespace crosby {
+namespace binary {
+	class Way;
+}
+}
 
 namespace osmpbf {
 	class PrimitiveBlockOutputAdaptor;
 
-	class WayOutputAdaptor : public AbstractPrimitiveOutputAdaptor<Way> {
+	class WayOutputAdaptor : public AbstractPrimitiveOutputAdaptor< crosby::binary::Way > {
 	public:
 		WayOutputAdaptor();
-		WayOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, Way * data);
+		WayOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, crosby::binary::Way * data);
 
 		virtual int refsSize() const;
 

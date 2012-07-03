@@ -152,7 +152,7 @@ namespace osmpbf {
 // PlainNodeInputAdaptor
 
 	PlainNodeInputAdaptor::PlainNodeInputAdaptor() : AbstractNodeInputAdaptor() {}
-	PlainNodeInputAdaptor::PlainNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const Node & data) :
+	PlainNodeInputAdaptor::PlainNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Node & data) :
 		AbstractNodeInputAdaptor(controller), m_Data(&data) {}
 
 	int64_t PlainNodeInputAdaptor::id() {
@@ -198,7 +198,7 @@ namespace osmpbf {
 // DenseNodeInputAdaptor
 
 	DenseNodeInputAdaptor::DenseNodeInputAdaptor() : AbstractNodeInputAdaptor(), m_HasCachedId(false), m_HasCachedLat(false), m_HasCachedLon(false) {}
-	DenseNodeInputAdaptor::DenseNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const DenseNodes & data, int position) :
+	DenseNodeInputAdaptor::DenseNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::DenseNodes & data, int position) :
 		AbstractNodeInputAdaptor(controller), m_Data(&data), m_Index(position), m_HasCachedId(false), m_HasCachedLat(false), m_HasCachedLon(false) {}
 
 	bool DenseNodeInputAdaptor::isNull() const {

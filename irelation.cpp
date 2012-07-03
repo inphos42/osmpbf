@@ -19,13 +19,13 @@ namespace osmpbf {
 // IMemberStream
 
 	IMemberStream::IMemberStream(const IMemberStream & other) : RCWrapper<MemberStreamInputAdaptor>(other) {}
-	IMemberStream::IMemberStream(PrimitiveBlockInputAdaptor * controller, const Relation * data)
+	IMemberStream::IMemberStream(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Relation * data)
 		: RCWrapper<MemberStreamInputAdaptor>(new MemberStreamInputAdaptor(data)), m_Controller(controller) {}
 
 // RelationInputAdaptor
 
 	RelationInputAdaptor::RelationInputAdaptor() : AbstractPrimitiveInputAdaptor() {}
-	RelationInputAdaptor::RelationInputAdaptor(PrimitiveBlockInputAdaptor * controller, const Relation * data)
+	RelationInputAdaptor::RelationInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Relation * data)
 		: AbstractPrimitiveInputAdaptor(controller) {}
 
 	int64_t RelationInputAdaptor::id() {
@@ -72,7 +72,7 @@ namespace osmpbf {
 
 	MemberStreamInputAdaptor::MemberStreamInputAdaptor() : m_Data(NULL), m_Index(0), m_MaxIndex(0), m_CachedId(0) {}
 
-	MemberStreamInputAdaptor::MemberStreamInputAdaptor(const Relation * data) : m_Data(data), m_Index(0), m_MaxIndex(data ? data->memids_size() : 0), m_CachedId(0) {}
+	MemberStreamInputAdaptor::MemberStreamInputAdaptor(const crosby::binary::Relation * data) : m_Data(data), m_Index(0), m_MaxIndex(data ? data->memids_size() : 0), m_CachedId(0) {}
 
 	PrimitiveType MemberStreamInputAdaptor::type() const {
 		return PrimitiveType(m_Data->types(m_Index));

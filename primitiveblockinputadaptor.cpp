@@ -56,12 +56,12 @@ namespace osmpbf {
 		m_DenseNodesUnpacked = false;
 		m_DenseNodeKeyValIndex = NULL;
 
-		m_PrimitiveBlock = new PrimitiveBlock();
+		m_PrimitiveBlock = new crosby::binary::PrimitiveBlock();
 
 		if (m_PrimitiveBlock->ParseFromArray((void*)rawData, length)) {
 			// we assume each primitive block has one primitive group for each primitive type
 			// populate group refs
-			PrimitiveGroup ** primGroups = m_PrimitiveBlock->mutable_primitivegroup()->mutable_data();
+			crosby::binary::PrimitiveGroup ** primGroups = m_PrimitiveBlock->mutable_primitivegroup()->mutable_data();
 
 			for (int i = 0; i < m_PrimitiveBlock->primitivegroup_size(); ++i) {
 				if (primGroups[i]->nodes_size()) {

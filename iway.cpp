@@ -21,7 +21,7 @@ namespace osmpbf {
 // WayInputAdaptor
 
 	WayInputAdaptor::WayInputAdaptor() : AbstractPrimitiveInputAdaptor() {}
-	WayInputAdaptor::WayInputAdaptor(PrimitiveBlockInputAdaptor * controller, const Way * data)
+	WayInputAdaptor::WayInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Way * data)
 		: AbstractPrimitiveInputAdaptor(controller), m_Data(data) {}
 
 	int64_t WayInputAdaptor::id() {

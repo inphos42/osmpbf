@@ -4,8 +4,12 @@
 #include <cstdint>
 #include <string>
 
-class PrimitiveBlock;
-class PrimitiveGroup;
+namespace crosby {
+namespace binary {
+	class PrimitiveBlock;
+	class PrimitiveGroup;
+}
+}
 
 namespace osmpbf {
 	class INode;
@@ -82,12 +86,12 @@ namespace osmpbf {
 		friend class RelationInputAdaptor;
 		friend class RelationStreamInputAdaptor;
 
-		PrimitiveBlock * m_PrimitiveBlock;
+		crosby::binary::PrimitiveBlock * m_PrimitiveBlock;
 
-		PrimitiveGroup * m_PlainNodesGroup;
-		PrimitiveGroup * m_DenseNodesGroup;
-		PrimitiveGroup * m_WaysGroup;
-		PrimitiveGroup * m_RelationsGroup;
+		crosby::binary::PrimitiveGroup * m_PlainNodesGroup;
+		crosby::binary::PrimitiveGroup * m_DenseNodesGroup;
+		crosby::binary::PrimitiveGroup * m_WaysGroup;
+		crosby::binary::PrimitiveGroup * m_RelationsGroup;
 
 		bool m_DenseNodesUnpacked;
 		int * m_DenseNodeKeyValIndex;

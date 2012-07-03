@@ -7,16 +7,19 @@
 #include "abstractprimitiveinputadaptor.h"
 #include "fielditerator.h"
 
-class Way;
+namespace crosby {
+namespace binary {
+	class Way;
+}
+}
 
 namespace osmpbf {
 	class PrimitiveBlockInputAdaptor;
-	class PrimitiveBlockOutputAdaptor;
 
 	class WayInputAdaptor : public AbstractPrimitiveInputAdaptor {
 	public:
 		WayInputAdaptor();
-		WayInputAdaptor(PrimitiveBlockInputAdaptor * controller, const Way * data);
+		WayInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Way * data);
 
 		virtual bool isNull() const { return AbstractPrimitiveInputAdaptor::isNull() || !m_Data; }
 
@@ -38,7 +41,7 @@ namespace osmpbf {
 		virtual uint32_t valueId(int index) const;
 
 	protected:
-		const Way * m_Data;
+		const crosby::binary::Way * m_Data;
 	};
 
 	class IWay : public RCWrapper<WayInputAdaptor> {

@@ -7,8 +7,12 @@
 
 #include "common.h"
 
-class PrimitiveBlock;
-class PrimitiveGroup;
+namespace crosby {
+namespace binary {
+	class PrimitiveBlock;
+	class PrimitiveGroup;
+}
+}
 
 namespace osmpbf {
 	class INode;
@@ -47,16 +51,16 @@ namespace osmpbf {
 		PrimitiveBlockOutputAdaptor & operator<<(IWay & way);
 
 	private:
-		PrimitiveBlock * m_PrimitiveBlock;
+		crosby::binary::PrimitiveBlock * m_PrimitiveBlock;
 		StringTable * m_StringTable;
 
-		PrimitiveGroup * m_PlainNodesGroup;
-		PrimitiveGroup * m_DenseNodesGroup;
-		PrimitiveGroup * m_WaysGroup;
-		PrimitiveGroup * m_RelationsGroup;
+		crosby::binary::PrimitiveGroup * m_PlainNodesGroup;
+		crosby::binary::PrimitiveGroup * m_DenseNodesGroup;
+		crosby::binary::PrimitiveGroup * m_WaysGroup;
+		crosby::binary::PrimitiveGroup * m_RelationsGroup;
 
 		uint32_t * prepareStringTable();
-		void prepareNodes(PrimitiveGroup * nodesGroup, uint32_t * stringIdTable);
+		void prepareNodes(crosby::binary::PrimitiveGroup * nodesGroup, uint32_t * stringIdTable);
 		void init();
 	};
 }

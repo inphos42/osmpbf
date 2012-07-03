@@ -5,7 +5,11 @@
 
 #include "blobdata.h"
 
-class HeaderBlock;
+namespace crosby {
+namespace binary {
+	class HeaderBlock;
+}
+}
 
 namespace osmpbf {
 	class PrimitiveBlockInputAdaptor;
@@ -51,7 +55,7 @@ namespace osmpbf {
 		BlobFileIn * m_FileIn;
 		BlobDataBuffer m_DataBuffer;
 
-		HeaderBlock * m_FileHeader;
+		crosby::binary::HeaderBlock * m_FileHeader;
 
 		uint32_t m_DataOffset;
 
