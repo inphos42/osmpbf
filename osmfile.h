@@ -17,7 +17,6 @@ namespace osmpbf {
 		OSMFileIn(BlobFileIn * fileIn);
 		~OSMFileIn();
 
-
 		bool open();
 		void close();
 
@@ -29,6 +28,9 @@ namespace osmpbf {
 
 		bool parseBlock(PrimitiveBlockInputAdaptor & adaptor);
 		bool skipBlock();
+		bool readBlock();
+
+		const BlobDataBuffer & blockBuffer() const { return m_DataBuffer; }
 
 		bool parserMeetsRequirements() const;
 

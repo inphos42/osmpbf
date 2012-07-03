@@ -70,6 +70,11 @@ namespace osmpbf {
 		return m_FileIn->skipBlob();
 	}
 
+	bool OSMFileIn::readBlock() {
+		m_FileIn->readBlob(m_DataBuffer);
+		return m_DataBuffer.type;
+	}
+
 	bool OSMFileIn::parseHeader() {
 		m_FileIn->readBlob(m_DataBuffer);
 
