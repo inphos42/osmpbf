@@ -35,10 +35,10 @@ namespace osmpbf {
 	}
 
 	void StringTable::remove(uint32_t id) {
-		if (!id)
+		std::map<uint32_t, StringTableEntry *>::iterator entryIt = m_Entries.find(id);
+		if (entryIt == m_Entries.end())
 			return;
 
-		std::map<uint32_t, StringTableEntry *>::iterator entryIt = m_Entries.find(id);
 		StringTableEntry * entry = entryIt->second;
 
 		entry->references--;
