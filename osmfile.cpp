@@ -60,7 +60,7 @@ namespace osmpbf {
 		return m_FileIn->size();
 	}
 
-	bool OSMFileIn::parseBlock(PrimitiveBlockInputAdaptor & adaptor) {
+	bool OSMFileIn::parseNextBlock(PrimitiveBlockInputAdaptor & adaptor) {
 		m_FileIn->readBlob(m_DataBuffer);
 		adaptor.parseData(m_DataBuffer.data, m_DataBuffer.availableBytes);
 		return m_DataBuffer.type;

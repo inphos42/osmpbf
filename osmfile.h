@@ -30,11 +30,13 @@ namespace osmpbf {
 
 		uint32_t totalSize() const;
 
-		bool parseBlock(PrimitiveBlockInputAdaptor & adaptor);
-		bool skipBlock();
 		bool readBlock();
+		bool skipBlock();
+
+		bool parseNextBlock(PrimitiveBlockInputAdaptor & adaptor);
 
 		const BlobDataBuffer & blockBuffer() const { return m_DataBuffer; }
+		void clearBlockBuffer() { m_DataBuffer.clear(); }
 
 		bool parserMeetsRequirements() const;
 
