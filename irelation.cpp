@@ -22,6 +22,10 @@ namespace osmpbf {
 	IMemberStream::IMemberStream(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Relation * data)
 		: RCWrapper<MemberStreamInputAdaptor>(new MemberStreamInputAdaptor(data)), m_Controller(controller) {}
 
+	const std::string & IMemberStream::role() const {
+		return m_Controller->queryStringTable(m_Private->roleId());
+	}
+
 // RelationInputAdaptor
 
 	RelationInputAdaptor::RelationInputAdaptor() : AbstractPrimitiveInputAdaptor() {}
@@ -52,7 +56,7 @@ namespace osmpbf {
 
 	RelationStreamInputAdaptor::RelationStreamInputAdaptor() : RelationInputAdaptor(), m_Index(-1), m_MaxIndex(0) {}
 	RelationStreamInputAdaptor::RelationStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller)
-		: RelationInputAdaptor(controller, controller->m_RelationsGroup ? controller->m_RelationsGroup->relations().data()[0] : NULL), m_MaxIndex(m_Controller->realtionsSize()) {}
+		: RelationInputAdaptor(controller, controller->m_RelationsGroup ? controller->m_RelationsGroup->relations().data()[0] : NULL), m_MaxIndex(m_Controller->relationsSize()) {}
 
 	bool RelationStreamInputAdaptor::isNull() const {
 		return osmpbf::RelationInputAdaptor::isNull() || m_Index >= m_MaxIndex || m_Index < 0;

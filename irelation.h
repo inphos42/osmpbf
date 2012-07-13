@@ -57,7 +57,7 @@ namespace osmpbf {
 
 		inline uint32_t roleId() const { return m_Private->roleId(); }
 
-		inline const std::string & role() const;
+		const std::string & role() const;
 
 		inline void next() const { m_Private->next(); }
 

@@ -135,7 +135,7 @@ namespace osmpbf {
 		return IRelation(new RelationInputAdaptor(const_cast<PrimitiveBlockInputAdaptor *>(this), m_RelationsGroup->relations().data()[position]));
 	}
 
-	int PrimitiveBlockInputAdaptor::realtionsSize() const {
+	int PrimitiveBlockInputAdaptor::relationsSize() const {
 		return m_RelationsGroup ? m_RelationsGroup->relations_size() : 0;
 	}
 

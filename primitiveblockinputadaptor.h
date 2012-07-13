@@ -38,7 +38,7 @@ namespace osmpbf {
 		int waysSize() const;
 
 		IRelation getRelationAt(int position) const;
-		int realtionsSize() const;
+		int relationsSize() const;
 
 		INodeStream getNodeStream();
 		IWayStream getWayStream();
