@@ -20,7 +20,7 @@ namespace osmpbf {
 
 // WayInputAdaptor
 
-	WayInputAdaptor::WayInputAdaptor() : AbstractPrimitiveInputAdaptor() {}
+	WayInputAdaptor::WayInputAdaptor() : AbstractPrimitiveInputAdaptor(), m_Data(NULL) {}
 	WayInputAdaptor::WayInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Way * data)
 		: AbstractPrimitiveInputAdaptor(controller), m_Data(data) {}
 
@@ -71,7 +71,7 @@ namespace osmpbf {
 		: WayInputAdaptor(controller, controller->m_WaysGroup ? controller->m_WaysGroup->ways().data()[0] : NULL), m_Index(0), m_MaxIndex(m_Controller->waysSize()) {}
 
 	bool WayStreamInputAdaptor::isNull() const {
-		return AbstractPrimitiveInputAdaptor::isNull() || (m_Index >= m_MaxIndex);
+		return AbstractPrimitiveInputAdaptor::isNull() || (m_Index >= m_MaxIndex) || (m_Index < 0);
 	}
 
 	void WayStreamInputAdaptor::next() {
