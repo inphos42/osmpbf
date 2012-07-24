@@ -8,8 +8,8 @@ namespace osmpbf {
 // IRelation
 
 	IRelation::IRelation() : RCWrapper<RelationInputAdaptor>() {}
-	IRelation::IRelation(RelationInputAdaptor * data) : RCWrapper<RelationInputAdaptor>(data) {}
-	IRelation::IRelation(const IRelation & other) : RCWrapper<RelationInputAdaptor>(other) {}
+	IRelation::IRelation(RelationInputAdaptor * data) : RCWrapper< RelationInputAdaptor >(data) {}
+	IRelation::IRelation(const IRelation & other) : RCWrapper< RelationInputAdaptor >(other) {}
 
 // IRelationStream
 
@@ -28,9 +28,9 @@ namespace osmpbf {
 
 // RelationInputAdaptor
 
-	RelationInputAdaptor::RelationInputAdaptor() : AbstractPrimitiveInputAdaptor() {}
+	RelationInputAdaptor::RelationInputAdaptor() : AbstractPrimitiveInputAdaptor(), m_Data(NULL) {}
 	RelationInputAdaptor::RelationInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Relation * data)
-		: AbstractPrimitiveInputAdaptor(controller) {}
+		: AbstractPrimitiveInputAdaptor(controller), m_Data(data) {}
 
 	int64_t RelationInputAdaptor::id() {
 		return m_Data->id();
@@ -54,12 +54,12 @@ namespace osmpbf {
 
 // RelationStreamInputAdaptor
 
-	RelationStreamInputAdaptor::RelationStreamInputAdaptor() : RelationInputAdaptor(), m_Index(-1), m_MaxIndex(0) {}
+	RelationStreamInputAdaptor::RelationStreamInputAdaptor() : RelationInputAdaptor(), m_Index(0), m_MaxIndex(0) {}
 	RelationStreamInputAdaptor::RelationStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller)
-		: RelationInputAdaptor(controller, controller->m_RelationsGroup ? controller->m_RelationsGroup->relations().data()[0] : NULL), m_MaxIndex(m_Controller->relationsSize()) {}
+		: RelationInputAdaptor(controller, controller->m_RelationsGroup ? controller->m_RelationsGroup->relations().data()[0] : NULL), m_Index(0), m_MaxIndex(m_Controller->relationsSize()) {}
 
 	bool RelationStreamInputAdaptor::isNull() const {
-		return osmpbf::RelationInputAdaptor::isNull() || m_Index >= m_MaxIndex || m_Index < 0;
+		return osmpbf::RelationInputAdaptor::isNull() || (m_Index >= m_MaxIndex) || (m_Index < 0);
 	}
 
 	void RelationStreamInputAdaptor::next() {
@@ -75,8 +75,8 @@ namespace osmpbf {
 // MemberStreamInputAdaptor
 
 	MemberStreamInputAdaptor::MemberStreamInputAdaptor() : m_Data(NULL), m_Index(0), m_MaxIndex(0), m_CachedId(0) {}
-
-	MemberStreamInputAdaptor::MemberStreamInputAdaptor(const crosby::binary::Relation * data) : m_Data(data), m_Index(0), m_MaxIndex(data ? data->memids_size() : 0), m_CachedId(0) {}
+	MemberStreamInputAdaptor::MemberStreamInputAdaptor(const crosby::binary::Relation * data) : m_Data(data), m_Index(0),
+		m_MaxIndex(data ? data->memids_size() : 0), m_CachedId(data ?  data->memids(0) : 0) {}
 
 	PrimitiveType MemberStreamInputAdaptor::type() const {
 		return PrimitiveType(m_Data->types(m_Index));
@@ -88,11 +88,19 @@ namespace osmpbf {
 
 	void MemberStreamInputAdaptor::next() {
 		m_Index++;
+
+		if (isNull())
+			return;
+
 		m_CachedId += m_Data->memids(m_Index);
 	}
 
 	void MemberStreamInputAdaptor::previous() {
-		m_CachedId -= m_Data->memids(m_Index);
 		m_Index--;
+
+		if (isNull())
+			return;
+
+		m_CachedId -= m_Data->memids(m_Index + 1);
 	}
 }

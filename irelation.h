@@ -20,7 +20,7 @@ namespace osmpbf {
 		MemberStreamInputAdaptor();
 		MemberStreamInputAdaptor(const crosby::binary::Relation * data);
 
-		bool isNull() const { return !m_Data || m_Index >= m_MaxIndex; }
+		bool isNull() const { return !m_Data || m_Index >= m_MaxIndex || m_Index < 0; }
 
 		int64_t id() const { return m_CachedId; }
 		PrimitiveType type() const;
@@ -38,7 +38,7 @@ namespace osmpbf {
 		int64_t m_CachedId;
 	};
 
-	class IMemberStream : public RCWrapper<MemberStreamInputAdaptor> {
+	class IMemberStream : public RCWrapper< MemberStreamInputAdaptor > {
 		friend class RelationInputAdaptor;
 	public:
 		IMemberStream(const IMemberStream & other);
@@ -49,7 +49,7 @@ namespace osmpbf {
 			return *this;
 		}
 
-		virtual bool isNull() const { return !m_Controller || RCWrapper<MemberStreamInputAdaptor>::isNull(); }
+		virtual bool isNull() const { return !m_Controller || RCWrapper< MemberStreamInputAdaptor >::isNull(); }
 
 		inline int64_t id() const { return m_Private->id(); }
 
