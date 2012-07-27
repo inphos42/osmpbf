@@ -48,6 +48,7 @@ set(SOURCES_CPP
 	oway.cpp
 	onode.cpp
 	stringtable.cpp
+	filter.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${PROTO_SOURCES} ${PROTO_HEADERS} ${SOURCES_CPP})
