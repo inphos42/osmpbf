@@ -18,6 +18,7 @@ namespace osmpbf {
 	class IWay;
 	class INode;
 	class IRelation;
+	class PrimitiveBlockInputAdaptor;
 
 	class AbstractTagFilter {
 	public:
@@ -27,6 +28,8 @@ namespace osmpbf {
 		virtual bool matches(const IWay & way) const = 0;
 		virtual bool matches(const INode & node) const = 0;
 		virtual bool matches(const IRelation & relation) const = 0;
+
+		virtual bool assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi = NULL) = 0;
 	};
 
 	class AbstractMultiTagFilter : public AbstractTagFilter {
@@ -34,8 +37,12 @@ namespace osmpbf {
 		AbstractMultiTagFilter() : AbstractTagFilter() {}
 		virtual ~AbstractMultiTagFilter();
 
+		virtual bool assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi = NULL);
+
+		inline void addChild(AbstractTagFilter * child) { m_Children.push_front(child); }
+
 	protected:
-		typedef std::forward_list<const AbstractTagFilter *> FilterList;
+		typedef std::forward_list<AbstractTagFilter *> FilterList;
 
 		FilterList m_Children;
 	};
@@ -47,8 +54,6 @@ namespace osmpbf {
 		virtual bool matches(const IWay & way) const { return t_matches<IWay>(way); }
 		virtual bool matches(const INode & node) const { return t_matches<INode>(node); }
 		virtual bool matches(const IRelation & relation) const { return t_matches<IRelation>(relation); }
-
-		inline void addChild(const AbstractTagFilter * child) { m_Children.push_front(child); }
 
 	private:
 		template <class OSMInputPrimitive>
@@ -63,8 +68,6 @@ namespace osmpbf {
 		virtual bool matches(const INode & node) const { return t_matches<INode>(node); }
 		virtual bool matches(const IRelation & relation) const { return t_matches<IRelation>(relation); }
 
-		inline void addChild(const AbstractTagFilter * child) { m_Children.push_front(child); }
-
 	private:
 		template <class OSMInputPrimitive>
 		bool t_matches(const OSMInputPrimitive & primitive) const;
@@ -72,22 +75,30 @@ namespace osmpbf {
 
 	class StringTagFilter : public AbstractTagFilter {
 	public:
-		StringTagFilter() {}
 		StringTagFilter(const std::string & key, const std::string & value);
-
-		void setKey(const std::string & key);
-		void setValue(const std::string & value);
 
 		virtual bool matches(const IWay & way) const { return t_matches<IWay>(way); }
 		virtual bool matches(const INode & node) const { return t_matches<INode>(node); }
 		virtual bool matches(const IRelation & relation) const { return t_matches<IRelation>(relation); }
 
+		virtual bool assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi = NULL);
+
+		void setKey(const std::string & key);
+		void setValue(const std::string & value);
+
 	private:
+		StringTagFilter();
+
 		template <class OSMInputPrimitive>
 		bool t_matches(const OSMInputPrimitive & primitive) const;
 
 		std::string m_Key;
 		std::string m_Value;
+
+		int m_KeyId;
+		int m_ValueId;
+
+		bool m_IdsOnly;
 	};
 
 }
