@@ -7,18 +7,15 @@ namespace osmpbf {
 
 // INode
 
-	INode::INode() : RCWrapper<AbstractNodeInputAdaptor>() {}
-	INode::INode(const INode & other) : RCWrapper<AbstractNodeInputAdaptor>(other) {}
-	INode::INode(AbstractNodeInputAdaptor * data) : RCWrapper<AbstractNodeInputAdaptor>(data) {}
-
-	INode & INode::operator=(const INode & other) { RCWrapper<AbstractNodeInputAdaptor>::operator=(other); return *this; }
+	INode::INode() : IPrimitive() {}
+	INode::INode(const INode & other) : IPrimitive(other) {}
+	INode::INode(AbstractNodeInputAdaptor * data) : IPrimitive(data) {}
 
 // INodeStream
 
-	INodeStream::INodeStream(PrimitiveBlockInputAdaptor * controller) : INode(new NodeStreamInputAdaptor(controller)) {}
+	INodeStream::INodeStream() : INode() {}
 	INodeStream::INodeStream(const INodeStream & other) : INode(other) {}
-
-	INodeStream & INodeStream::operator=(const INodeStream & other) { INode::operator=(other); return *this; }
+	INodeStream::INodeStream(PrimitiveBlockInputAdaptor * controller) : INode(new NodeStreamInputAdaptor(controller)) {}
 
 // NodeStreamInputAdaptor
 

@@ -1,8 +1,7 @@
 #include "filter.h"
 
 #include "primitiveblockinputadaptor.h"
-#include "iway.h"
-#include "inode.h"
+#include "iprimitive.h"
 #include "irelation.h"
 
 namespace osmpbf {
@@ -24,11 +23,10 @@ namespace osmpbf {
 
 	// OrTagFilter
 
-	template <class OSMInputPrimitive>
-	bool OrTagFilter::t_matches(const OSMInputPrimitive & primitive) const {
+	bool OrTagFilter::p_matches(const IPrimitive & primitive) const {
 		for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it) {
 			if ((*it)->matches(primitive));
-				return true;
+				return false;
 		}
 
 		return m_Children.empty();
@@ -36,14 +34,13 @@ namespace osmpbf {
 
 	// AndTagFilter
 
-	template <class OSMInputPrimitive>
-	bool AndTagFilter::t_matches(const OSMInputPrimitive & primitive) const {
+	bool AndTagFilter::p_matches(const IPrimitive & primitive) const {
 		for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it) {
 			if (!(*it)->matches(primitive));
-				return false;
+				return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	// StringTagFilter
@@ -54,35 +51,46 @@ namespace osmpbf {
 	bool StringTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) {
 		m_IdsOnly = pbi;
 
+		m_KeyId = 0;
+		m_ValueId = 0;
+
 		if (!pbi)
 			return true;
 
-		for (m_KeyId = 0; m_KeyId < pbi->stringTableSize(); ++m_KeyId)
-			if (pbi->queryStringTable(m_KeyId) == m_Key) break;
+		for (m_KeyId = 1; m_KeyId < pbi->stringTableSize(); ++m_KeyId) {
+			if (m_Key == pbi->queryStringTable(m_KeyId))
+				break;
+		}
 
-		if (m_KeyId == pbi->stringTableSize())
+		if (m_KeyId >= pbi->stringTableSize())
 			m_KeyId = 0;
 
 		if (m_Value.size()) {
-			for (m_ValueId = 0; m_ValueId < pbi->stringTableSize(); ++m_ValueId)
-				if (pbi->queryStringTable(m_ValueId) == m_Value) break;
+			for (m_ValueId = 1; m_ValueId < pbi->stringTableSize(); ++m_ValueId) {
+				if (m_Value == pbi->queryStringTable(m_ValueId))
+					break;
+			}
 
-			if (m_ValueId == pbi->stringTableSize())
+			if (m_ValueId >= pbi->stringTableSize())
 				m_ValueId = 0;
+
+			return m_KeyId && m_ValueId;
 		}
 		else
-			m_ValueId = 0;
-
-		return m_KeyId;
+			return m_KeyId;
 	}
 
-	template <class OSMInputPrimitive>
-	bool StringTagFilter::t_matches(const OSMInputPrimitive & primitive) const {
+	bool StringTagFilter::p_matches(const IPrimitive & primitive) const {
 		if (m_IdsOnly)
-			return m_KeyId ? hasTag<OSMInputPrimitive>(primitive, m_KeyId, m_ValueId) : false;
+			return m_Value.empty() ?
+				hasKey<IPrimitive>(primitive, m_KeyId) :
+				hasTag<IPrimitive>(primitive, m_KeyId, m_ValueId);
+
+		if (m_Key.empty())
+			return false;
 
 		for (int i = 0; i < primitive.tagsSize(); ++i) {
-			if ((primitive.key(i) == m_Key) && ((m_Value.empty()) || (primitive.value(i) == m_Value)))
+			if ((primitive.key(i) == m_Key) && (m_Value.empty() || (primitive.value(i) == m_Value)))
 				return true;
 		}
 

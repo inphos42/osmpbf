@@ -7,16 +7,15 @@ namespace osmpbf {
 
 // IWay
 
-	IWay::IWay() : RCWrapper< WayInputAdaptor >() {};
-	IWay::IWay(WayInputAdaptor * data) : RCWrapper< WayInputAdaptor >(data) {}
-	IWay::IWay(const IWay & other) : RCWrapper< WayInputAdaptor >(other) {}
+	IWay::IWay() : IPrimitive() {};
+	IWay::IWay(const IWay & other) : IPrimitive(other) {}
+	IWay::IWay(WayInputAdaptor * data) : IPrimitive(data) {}
 
 // IWayStream
 
-	IWayStream::IWayStream(PrimitiveBlockInputAdaptor * controller) : IWay(new WayStreamInputAdaptor(controller)) {}
+	IWayStream::IWayStream() : IWay() {}
 	IWayStream::IWayStream(const IWayStream & other) : IWay(other) {}
-
-	IWayStream & IWayStream::operator=(IWayStream & other) { IWay::operator=(other); return *this; }
+	IWayStream::IWayStream(PrimitiveBlockInputAdaptor * controller) : IWay(new WayStreamInputAdaptor(controller)) {}
 
 // WayInputAdaptor
 

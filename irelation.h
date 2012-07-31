@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "abstractprimitiveinputadaptor.h"
+#include "iprimitive.h"
 #include "fielditerator.h"
 
 namespace crosby {
@@ -90,29 +91,16 @@ namespace osmpbf {
 		const crosby::binary::Relation * m_Data;
 	};
 
-	class IRelation : public RCWrapper<RelationInputAdaptor> {
+	class IRelation : public IPrimitive {
 		friend class PrimitiveBlockInputAdaptor;
 	public:
 		IRelation(const IRelation & other);
 
-		inline IRelation & operator=(const IRelation & other) { RCWrapper<RelationInputAdaptor>::operator=(other); return *this; }
+		inline IRelation & operator=(const IRelation & other) { IPrimitive::operator=(other); return *this; }
 
-		inline int64_t id() const { return m_Private->id(); }
+		inline int membersSize() const { return dynamic_cast< RelationInputAdaptor * >(m_Private)->membersSize(); }
 
-		inline int tagsSize() const { return m_Private->tagsSize(); }
-
-		inline uint32_t keyId(int index) const { return m_Private->keyId(index); }
-		inline uint32_t valueId(int index) const { return m_Private->valueId(index); }
-
-		inline const std::string & key(int index) const { return m_Private->key(index); }
-		inline const std::string & value(int index) const { return m_Private->value(index); }
-
-		inline const std::string & value(uint32_t key) const { return m_Private->value(key); }
-		inline const std::string & value(const std::string key) const { return m_Private->value(key); }
-
-		inline int membersSize() const { return m_Private->membersSize(); }
-
-		inline IMemberStream getMemberStream() const { return m_Private->getMemberStream(); }
+		inline IMemberStream getMemberStream() const { return dynamic_cast< RelationInputAdaptor * >(m_Private)->getMemberStream(); }
 
 	protected:
 		IRelation();

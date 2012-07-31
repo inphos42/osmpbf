@@ -5,6 +5,7 @@
 #include <string>
 
 #include "abstractprimitiveinputadaptor.h"
+#include "iprimitive.h"
 #include "fielditerator.h"
 
 namespace crosby {
@@ -25,51 +26,38 @@ namespace osmpbf {
 
 		virtual int64_t id();
 
-		virtual int refsSize() const;
-		virtual int64_t rawRef(int index) const;
-
-		// warning: This methods complexity is O(n). It's here for convenience. You shouldn't
-		//          call this method very often or with a high index parameter.
-		virtual int64_t ref(int index) const;
-
-		DeltaFieldConstForwardIterator<int64_t> refBegin() const;
-		DeltaFieldConstForwardIterator<int64_t> refEnd() const;
-
 		virtual int tagsSize() const;
 
 		virtual uint32_t keyId(int index) const;
 		virtual uint32_t valueId(int index) const;
 
+		int refsSize() const;
+		int64_t rawRef(int index) const;
+
+		// warning: This methods complexity is O(n). It's here for convenience. You shouldn't
+		//          call this method very often or with a high index parameter.
+		int64_t ref(int index) const;
+
+		DeltaFieldConstForwardIterator<int64_t> refBegin() const;
+		DeltaFieldConstForwardIterator<int64_t> refEnd() const;
+
 	protected:
 		const crosby::binary::Way * m_Data;
 	};
 
-	class IWay : public RCWrapper<WayInputAdaptor> {
+	class IWay : public IPrimitive {
 		friend class PrimitiveBlockInputAdaptor;
 	public:
 		IWay(const IWay & other);
 
-		inline IWay & operator=(const IWay & other) { RCWrapper<WayInputAdaptor>::operator=(other); return *this; }
+		inline IWay & operator=(const IWay & other) { IPrimitive::operator=(other); return *this; }
 
-		inline int64_t id() const { return m_Private->id(); }
+		inline int64_t ref(int index) const { return dynamic_cast< WayInputAdaptor * >(m_Private)->ref(index); }
+		inline int64_t rawRef(int index) const { return dynamic_cast< WayInputAdaptor * >(m_Private)->rawRef(index); }
+		inline int refsSize() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refsSize(); }
 
-		inline int tagsSize() const { return m_Private->tagsSize(); }
-
-		inline uint32_t keyId(int index) const { return m_Private->keyId(index); }
-		inline uint32_t valueId(int index) const { return m_Private->valueId(index); }
-
-		inline const std::string & key(int index) const { return m_Private->key(index); }
-		inline const std::string & value(int index) const { return m_Private->value(index); }
-
-		inline const std::string & value(uint32_t key) const { return m_Private->value(key); }
-		inline const std::string & value(const std::string key) const { return m_Private->value(key); }
-
-		inline int64_t ref(int index) const { return m_Private->ref(index); }
-		inline int64_t rawRef(int index) const { return m_Private->rawRef(index); }
-		inline int refsSize() const { return m_Private->refsSize(); }
-
-		inline DeltaFieldConstForwardIterator<int64_t> refBegin() const { return m_Private->refBegin(); }
-		inline DeltaFieldConstForwardIterator<int64_t> refEnd() const { return m_Private->refEnd(); }
+		inline DeltaFieldConstForwardIterator<int64_t> refBegin() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refBegin(); }
+		inline DeltaFieldConstForwardIterator<int64_t> refEnd() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refEnd(); }
 
 	protected:
 		IWay();
@@ -96,10 +84,10 @@ namespace osmpbf {
 		IWayStream(PrimitiveBlockInputAdaptor * controller);
 		IWayStream(const IWayStream & other);
 
-		IWayStream & operator=(IWayStream & other);
+		inline IWayStream & operator=(IWayStream & other) { IWay::operator=(other); return *this; }
 
-		inline void next() { static_cast<WayStreamInputAdaptor *>(m_Private)->next(); }
-		inline void previous() { static_cast<WayStreamInputAdaptor *>(m_Private)->previous(); }
+		inline void next() { dynamic_cast<WayStreamInputAdaptor *>(m_Private)->next(); }
+		inline void previous() { dynamic_cast<WayStreamInputAdaptor *>(m_Private)->previous(); }
 
 	protected:
 		IWayStream();

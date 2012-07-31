@@ -7,9 +7,9 @@ namespace osmpbf {
 
 // IRelation
 
-	IRelation::IRelation() : RCWrapper<RelationInputAdaptor>() {}
-	IRelation::IRelation(RelationInputAdaptor * data) : RCWrapper< RelationInputAdaptor >(data) {}
-	IRelation::IRelation(const IRelation & other) : RCWrapper< RelationInputAdaptor >(other) {}
+	IRelation::IRelation() : IPrimitive() {}
+	IRelation::IRelation(RelationInputAdaptor * data) : IPrimitive(data) {}
+	IRelation::IRelation(const IRelation & other) : IPrimitive(other) {}
 
 // IRelationStream
 

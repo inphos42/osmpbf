@@ -6,6 +6,7 @@
 
 #include "abstractprimitiveinputadaptor.h"
 #include "common.h"
+#include "iprimitive.h"
 
 namespace crosby {
 namespace binary {
@@ -37,36 +38,23 @@ namespace osmpbf {
 		virtual NodeType type() const = 0;
 	};
 
-	class INode : public RCWrapper<AbstractNodeInputAdaptor> {
+	class INode : public IPrimitive {
 		friend class PrimitiveBlockInputAdaptor;
 	public:
 		INode(const INode & other);
 
-		INode & operator=(const INode & other);
+		inline INode & operator=(const INode & other) { IPrimitive::operator=(other); return *this; }
 
-		inline int64_t id() const { return m_Private->id(); }
+		inline int64_t lati() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->lati(); }
+		inline int64_t loni() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->loni(); }
 
-		inline int tagsSize() const { return m_Private->tagsSize(); }
+		inline double latd() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->latd(); }
+		inline double lond() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->lond(); }
 
-		inline uint32_t keyId(int index) const { return m_Private->keyId(index); }
-		inline uint32_t valueId(int index) const { return m_Private->valueId(index); }
+		inline int64_t rawLat() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->rawLat(); }
+		inline int64_t rawLon() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->rawLon(); }
 
-		inline const std::string & key(int index) const { return m_Private->key(index); }
-		inline const std::string & value(int index) const { return m_Private->value(index); }
-
-		inline const std::string & value(uint32_t key) const { return m_Private->value(key); }
-		inline const std::string & value(const std::string & key) const { return m_Private->value(key); }
-
-		inline int64_t lati() const { return m_Private->lati(); }
-		inline int64_t loni() const { return m_Private->loni(); }
-
-		inline double latd() const { return m_Private->latd(); }
-		inline double lond() const { return m_Private->lond(); }
-
-		inline int64_t rawLat() const { return m_Private->rawLat(); }
-		inline int64_t rawLon() const { return m_Private->rawLon(); }
-
-		inline NodeType internalNodeType() const { return m_Private->type(); }
+		inline NodeType internalNodeType() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->type(); }
 
 	protected:
 		INode();
@@ -145,12 +133,14 @@ namespace osmpbf {
 		NodeStreamInputAdaptor();
 		NodeStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller);
 
-		void next();
-		void previous();
-
 		virtual bool isNull() const { return !m_Controller || !(m_PlainNodes || m_DenseNodes) || (m_Index < 0) || m_Index >= m_PlainNodesSize + m_DenseNodesSize; }
 
 		virtual int64_t id() { return m_Id; }
+
+		virtual int tagsSize() const;
+
+		virtual uint32_t keyId(int index) const;
+		virtual uint32_t valueId(int index) const;
 
 		virtual int64_t lati() { return m_WGS84Lat; }
 		virtual int64_t loni() { return m_WGS84Lon; }
@@ -161,12 +151,10 @@ namespace osmpbf {
 		virtual int64_t rawLat() const { return m_Lat; }
 		virtual int64_t rawLon() const { return m_Lon; }
 
-		virtual int tagsSize() const;
-
-		virtual uint32_t keyId(int index) const;
-		virtual uint32_t valueId(int index) const;
-
 		virtual NodeType type() const { return (m_DenseIndex > -1 ? DenseNode : PlainNode); }
+
+		void next();
+		void previous();
 
 	private:
 		crosby::binary::PrimitiveGroup * m_PlainNodes;
@@ -190,10 +178,10 @@ namespace osmpbf {
 		INodeStream(PrimitiveBlockInputAdaptor * controller);
 		INodeStream(const INodeStream & other);
 
-		INodeStream & operator=(const INodeStream & other);
+		inline INodeStream & operator=(const INodeStream & other) { INode::operator=(other); return *this; }
 
-		inline void next() { static_cast<NodeStreamInputAdaptor *>(m_Private)->next(); }
-		inline void previous() { static_cast<NodeStreamInputAdaptor *>(m_Private)->previous(); }
+		inline void next() { dynamic_cast< NodeStreamInputAdaptor * >(m_Private)->next(); }
+		inline void previous() { dynamic_cast< NodeStreamInputAdaptor * >(m_Private)->previous(); }
 	private:
 		INodeStream();
 		INodeStream(AbstractNodeInputAdaptor * data);
