@@ -57,21 +57,23 @@ namespace osmpbf {
 		if (!pbi)
 			return true;
 
-		for (m_KeyId = 1; m_KeyId < pbi->stringTableSize(); ++m_KeyId) {
+		uint32_t stringTableSize = pbi->stringTableSize();
+
+		for (m_KeyId = 1; m_KeyId < stringTableSize; ++m_KeyId) {
 			if (m_Key == pbi->queryStringTable(m_KeyId))
 				break;
 		}
 
-		if (m_KeyId >= pbi->stringTableSize())
+		if (m_KeyId >= stringTableSize)
 			m_KeyId = 0;
 
 		if (m_Value.size()) {
-			for (m_ValueId = 1; m_ValueId < pbi->stringTableSize(); ++m_ValueId) {
+			for (m_ValueId = 1; m_ValueId < stringTableSize; ++m_ValueId) {
 				if (m_Value == pbi->queryStringTable(m_ValueId))
 					break;
 			}
 
-			if (m_ValueId >= pbi->stringTableSize())
+			if (m_ValueId >= stringTableSize)
 				m_ValueId = 0;
 
 			return m_KeyId && m_ValueId;
