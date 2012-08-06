@@ -57,7 +57,7 @@ namespace osmpbf {
 
 		virtual bool assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi = NULL);
 
-		inline void addChild(AbstractTagFilter * child) { m_Children.push_front(child); }
+		inline AbstractTagFilter * addChild(AbstractTagFilter * child) { m_Children.push_front(child); return child; }
 
 	protected:
 		typedef std::forward_list<AbstractTagFilter *> FilterList;
@@ -81,30 +81,76 @@ namespace osmpbf {
 		virtual bool p_matches(const IPrimitive & primitive) const;
 	};
 
-	class StringTagFilter : public AbstractTagFilter {
+	class KeyOnlyTagFilter : public AbstractTagFilter {
+	public:
+		KeyOnlyTagFilter(const std::string & key);
+
+		virtual bool assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi = NULL);
+
+		void setKey(const std::string & key);
+
+		inline const std::string & key() const { return m_Key; }
+
+	protected:
+		virtual bool p_matches(const IPrimitive & primitive) const;
+		bool findKeyId();
+
+		std::string m_Key;
+
+		uint32_t m_KeyId;
+
+		const osmpbf::PrimitiveBlockInputAdaptor * m_PBI;
+	};
+
+	class StringTagFilter : public KeyOnlyTagFilter {
 	public:
 		StringTagFilter(const std::string & key, const std::string & value);
 
 		virtual bool assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi = NULL);
 
-		void setKey(const std::string & key);
 		void setValue(const std::string & value);
 
-		inline const std::string & key() const { return m_Key; }
 		inline const std::string & Value() const { return m_Value; }
 
-	private:
-		StringTagFilter();
+	protected:
+		virtual bool p_matches(const IPrimitive & primitive) const;
+		bool findValueId();
+
+		std::string m_Value;
+
+		uint32_t m_ValueId;
+	};
+
+	class BoolTagFilter : public KeyOnlyTagFilter {
+	public:
+		BoolTagFilter(const std::string & key, bool value);
+
+		void setValue(bool value) { m_Value = value; }
+		inline bool value() const { return m_Value; }
+
+	protected:
+		BoolTagFilter();
 
 		virtual bool p_matches(const IPrimitive & primitive) const;
 
-		std::string m_Key;
-		std::string m_Value;
+		bool m_Value;
+	};
 
-		uint32_t m_KeyId;
+	class IntTagFilter : public KeyOnlyTagFilter {
+	public:
+		IntTagFilter(const std::string & key, int value);
+
+		virtual bool assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi = NULL);
+
+		void setValue(int value);
+		inline int value() const { return m_Value; }
+
+	protected:
+		virtual bool p_matches(const IPrimitive & primitive) const;
+		bool findValueId();
+
+		int m_Value;
 		uint32_t m_ValueId;
-
-		bool m_IdsOnly;
 	};
 
 }
