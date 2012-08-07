@@ -10,7 +10,7 @@ namespace osmpbf {
 
 	AbstractMultiTagFilter::~AbstractMultiTagFilter() {
 		for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it)
-			delete *it;
+			(*it)->rcDec();
 	}
 
 	bool AbstractMultiTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) {
@@ -53,12 +53,16 @@ namespace osmpbf {
 			return !m_PBI || m_KeyId;
 
 		m_PBI = pbi;
-		return findKeyId();
+		if (!pbi) return true;
+
+		m_KeyId = findId(m_Key);
+
+		return m_KeyId;
 	}
 
 	void KeyOnlyTagFilter::setKey(const std::string & key) {
 		m_Key = key;
-		findKeyId();
+		m_KeyId = findId(m_Key);
 	}
 
 	bool KeyOnlyTagFilter::p_matches(const IPrimitive & primitive) const {
@@ -76,23 +80,22 @@ namespace osmpbf {
 		return false;
 	}
 
-	bool KeyOnlyTagFilter::findKeyId() {
-		m_KeyId = 0;
+	uint32_t KeyOnlyTagFilter::findId(const std::string & str) {
+		uint32_t id = 0;
 
-		if (!m_PBI)
-			return true;
+		if (!m_PBI) return 0;
 
 		uint32_t stringTableSize = m_PBI->stringTableSize();
 
-		for (m_KeyId = 1; m_KeyId < stringTableSize; ++m_KeyId) {
-			if (m_Key == m_PBI->queryStringTable(m_KeyId))
+		for (id = 1; id < stringTableSize; ++id) {
+			if (str == m_PBI->queryStringTable(id))
 				break;
 		}
 
-		if (m_KeyId >= stringTableSize)
-			m_KeyId = 0;
+		if (id >= stringTableSize)
+			id = 0;
 
-		return m_KeyId;
+		return id;
 	}
 
 	// StringTagFilter
@@ -105,31 +108,17 @@ namespace osmpbf {
 			return !m_PBI || (m_KeyId && m_ValueId);
 
 		m_PBI = pbi;
-		return findKeyId() && findValueId();
+		if (!pbi) return true;
+
+		m_KeyId = findId(m_Key);
+		m_ValueId = findId(m_Value);
+
+		return m_KeyId && m_ValueId;
 	}
 
 	void StringTagFilter::setValue (const std::string & value) {
 		m_Value = value;
-		findValueId();
-	}
-
-	bool StringTagFilter::findValueId() {
-		m_ValueId = 0;
-
-		if (!m_PBI)
-			return true;
-
-		uint32_t stringTableSize = m_PBI->stringTableSize();
-
-		for (m_ValueId = 1; m_ValueId < stringTableSize; ++m_ValueId) {
-			if (m_Value == m_PBI->queryStringTable(m_ValueId))
-				break;
-		}
-
-		if (m_ValueId >= stringTableSize)
-			m_ValueId = 0;
-
-		return m_ValueId;
+		m_ValueId = findId(m_Value);
 	}
 
 	bool StringTagFilter::p_matches(const IPrimitive & primitive) const {
@@ -145,6 +134,64 @@ namespace osmpbf {
 		}
 
 		return false;
+	}
+
+	// MultiStringTagFilter
+
+	MultiStringTagFilter::MultiStringTagFilter(const std::string & key) : KeyOnlyTagFilter(key) {}
+
+	bool MultiStringTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) {
+		if (m_PBI == pbi)
+			return !m_PBI || (m_KeyId && m_IdSet.size());
+
+		m_PBI = pbi;
+		if (!pbi) return true;
+
+		m_KeyId = findId(m_Key);
+
+		m_IdSet.clear();
+
+		uint32_t valueId = 0;
+		for (std::set< std::string >::const_iterator it = m_ValueSet.cbegin(); it != m_ValueSet.cend(); ++it) {
+			valueId = findId(*it);
+
+			if (valueId)
+				m_IdSet.insert(valueId);
+		}
+
+		return m_KeyId && m_IdSet.size();
+	}
+
+	void MultiStringTagFilter::addValue(const std::string & value) {
+		m_ValueSet.insert(value);
+
+		uint32_t valueId = findId(value);
+
+		if (valueId)
+			m_IdSet.insert(valueId);
+	}
+
+	bool MultiStringTagFilter::p_matches(const IPrimitive & primitive) const {
+		if (m_Key.empty())
+			return false;
+
+		if (m_PBI) {
+			if (!m_KeyId || m_IdSet.empty())
+				return false;
+
+			for (int i = 0; i < primitive.tagsSize(); i++)
+				if (primitive.keyId(i) == m_KeyId && m_IdSet.count(primitive.valueId(i)))
+					return true;
+
+			return false;
+		}
+		else {
+			for (int i = 0; i < primitive.tagsSize(); i++)
+				if (primitive.key(i) == m_Key && m_ValueSet.count(primitive.value(i)))
+					return true;
+
+			return false;
+		}
 	}
 
 	// BoolTagFilter
@@ -188,7 +235,11 @@ namespace osmpbf {
 			return !m_PBI || (m_KeyId && m_ValueId);
 
 		m_PBI = pbi;
-		return findKeyId() && findValueId();
+		if (!pbi) return true;
+
+		m_KeyId = findId(m_Key);
+
+		return m_KeyId && findValueId();
 	}
 
 	bool IntTagFilter::findValueId() {

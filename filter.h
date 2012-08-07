@@ -3,6 +3,9 @@
 
 #include <forward_list>
 #include <string>
+#include <set>
+
+#include "refcountobject.h"
 
 namespace osmpbf {
 
@@ -33,9 +36,9 @@ namespace osmpbf {
 	class IPrimitive;
 	class PrimitiveBlockInputAdaptor;
 
-	class AbstractTagFilter {
+	class AbstractTagFilter : public RefCountObject {
 	public:
-		AbstractTagFilter() : m_Invert(false) {}
+		AbstractTagFilter() : RefCountObject(), m_Invert(false) {}
 		virtual ~AbstractTagFilter() {}
 
 		inline bool matches(const IPrimitive & primitive) const { return m_Invert ? !p_matches(primitive) : p_matches(primitive); }
@@ -57,7 +60,11 @@ namespace osmpbf {
 
 		virtual bool assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi = NULL);
 
-		inline AbstractTagFilter * addChild(AbstractTagFilter * child) { m_Children.push_front(child); return child; }
+		inline AbstractTagFilter * addChild(AbstractTagFilter * child) {
+			m_Children.push_front(child);
+			child->rcInc();
+			return child;
+		}
 
 	protected:
 		typedef std::forward_list<AbstractTagFilter *> FilterList;
@@ -93,7 +100,8 @@ namespace osmpbf {
 
 	protected:
 		virtual bool p_matches(const IPrimitive & primitive) const;
-		bool findKeyId();
+
+		uint32_t findId(const std::string & str);
 
 		std::string m_Key;
 
@@ -114,11 +122,26 @@ namespace osmpbf {
 
 	protected:
 		virtual bool p_matches(const IPrimitive & primitive) const;
-		bool findValueId();
 
 		std::string m_Value;
 
 		uint32_t m_ValueId;
+	};
+
+	class MultiStringTagFilter : public KeyOnlyTagFilter {
+	public:
+		MultiStringTagFilter (const std::string & key);
+
+		virtual bool assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi = NULL);
+
+		void addValue(const std::string & value);
+		void clearValues() { m_IdSet.clear(); m_ValueSet.clear(); }
+
+	protected:
+		virtual bool p_matches(const IPrimitive & primitive) const;
+
+		std::set< uint32_t > m_IdSet;
+		std::set< std::string > m_ValueSet;
 	};
 
 	class BoolTagFilter : public KeyOnlyTagFilter {
@@ -129,8 +152,6 @@ namespace osmpbf {
 		inline bool value() const { return m_Value; }
 
 	protected:
-		BoolTagFilter();
-
 		virtual bool p_matches(const IPrimitive & primitive) const;
 
 		bool m_Value;
