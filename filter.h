@@ -134,11 +134,14 @@ namespace osmpbf {
 
 		virtual bool assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi = NULL);
 
+		void setValues(const std::set< std::string > & values);
 		void addValue(const std::string & value);
 		void clearValues() { m_IdSet.clear(); m_ValueSet.clear(); }
 
 	protected:
 		virtual bool p_matches(const IPrimitive & primitive) const;
+
+		void updateValueIds();
 
 		std::set< uint32_t > m_IdSet;
 		std::set< std::string > m_ValueSet;

@@ -149,17 +149,15 @@ namespace osmpbf {
 
 		m_KeyId = findId(m_Key);
 
-		m_IdSet.clear();
-
-		uint32_t valueId = 0;
-		for (std::set< std::string >::const_iterator it = m_ValueSet.cbegin(); it != m_ValueSet.cend(); ++it) {
-			valueId = findId(*it);
-
-			if (valueId)
-				m_IdSet.insert(valueId);
-		}
+		updateValueIds();
 
 		return m_KeyId && m_IdSet.size();
+	}
+
+	void MultiStringTagFilter::setValues (const std::set< std::string > & values) {
+		m_ValueSet = values;
+
+		updateValueIds();
 	}
 
 	void MultiStringTagFilter::addValue(const std::string & value) {
@@ -191,6 +189,18 @@ namespace osmpbf {
 					return true;
 
 			return false;
+		}
+	}
+
+	void MultiStringTagFilter::updateValueIds() {
+		m_IdSet.clear();
+
+		uint32_t valueId = 0;
+		for (std::set< std::string >::const_iterator it = m_ValueSet.cbegin(); it != m_ValueSet.cend(); ++it) {
+			valueId = findId(*it);
+
+			if (valueId)
+				m_IdSet.insert(valueId);
 		}
 	}
 
