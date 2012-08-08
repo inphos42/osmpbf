@@ -201,7 +201,7 @@ namespace osmpbf {
 		m_LatestMatch = -1;
 
 		if (m_PBI) {
-			if (!m_PBI->isNull())
+			if (m_PBI->isNull())
 				return false;
 
 			checkKeyIdCache();
