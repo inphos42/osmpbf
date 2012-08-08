@@ -190,7 +190,7 @@ namespace osmpbf {
 		std::set< std::string > m_ValueSet;
 	};
 
-	class BoolTagFilter : protected MultiStringTagFilter {
+	class BoolTagFilter : public MultiStringTagFilter {
 	public:
 		BoolTagFilter(const std::string & key, bool value);
 
@@ -198,6 +198,14 @@ namespace osmpbf {
 
 		void setValue(bool value);
 		inline bool value() const { return m_Value; }
+
+	private:
+		void setValues(const std::set< std::string > & values);
+		inline void addValue(const std::string & value) { MultiStringTagFilter::addValue(value); }
+		inline void clearValues() { MultiStringTagFilter::clearValues(); }
+
+		inline MultiStringTagFilter & operator<<(const std::string & value) { MultiStringTagFilter::operator<<(value); return *this; }
+		inline MultiStringTagFilter & operator<<(const char * value) { MultiStringTagFilter::operator<<(value); return *this; }
 
 	protected:
 		bool m_Value;
