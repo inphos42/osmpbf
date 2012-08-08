@@ -70,7 +70,6 @@ namespace osmpbf {
 		virtual ~AbstractMultiTagFilter();
 
 		virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi);
-		virtual bool buildIdCache();
 
 		inline AbstractTagFilter * addChild(AbstractTagFilter * child) {
 			m_Children.push_front(child);
@@ -88,6 +87,8 @@ namespace osmpbf {
 	public:
 		OrTagFilter() : AbstractMultiTagFilter() {}
 
+		virtual bool buildIdCache();
+
 	private:
 		virtual bool p_matches(const IPrimitive & primitive);
 	};
@@ -95,6 +96,8 @@ namespace osmpbf {
 	class AndTagFilter : public AbstractMultiTagFilter {
 	public:
 		AndTagFilter() : AbstractMultiTagFilter() {}
+
+		virtual bool buildIdCache();
 
 	private:
 		virtual bool p_matches(const IPrimitive & primitive);

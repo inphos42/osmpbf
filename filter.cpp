@@ -18,15 +18,15 @@ namespace osmpbf {
 			(*it)->assignInputAdaptor(pbi);
 	}
 
-	bool AbstractMultiTagFilter::buildIdCache() {
-		bool result = true;
+	// OrTagFilter
+
+	bool OrTagFilter::buildIdCache() {
+		bool result = false;
 		for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it)
-			result = result && (*it)->buildIdCache();
+			result = (*it)->buildIdCache() || result;
 
 		return result;
 	}
-
-	// OrTagFilter
 
 	bool OrTagFilter::p_matches(const IPrimitive & primitive) {
 		for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it) {
@@ -38,6 +38,14 @@ namespace osmpbf {
 	}
 
 	// AndTagFilter
+
+	bool AndTagFilter::buildIdCache() {
+		bool result = true;
+		for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it)
+			result = (*it)->buildIdCache() && result;
+
+		return result;
+	}
 
 	bool AndTagFilter::p_matches(const IPrimitive & primitive) {
 		for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it) {
@@ -293,7 +301,7 @@ namespace osmpbf {
 		if (!m_PBI) return true;
 		if (m_PBI->isNull()) return false;
 
-		return m_KeyId && findValueId();
+		return m_KeyId && m_ValueId;
 	}
 
 	void IntTagFilter::setValue(int value) {
