@@ -138,6 +138,9 @@ namespace osmpbf {
 		void addValue(const std::string & value);
 		void clearValues() { m_IdSet.clear(); m_ValueSet.clear(); }
 
+		inline MultiStringTagFilter & operator<<(const std::string & value) { addValue(value); return *this; }
+		inline MultiStringTagFilter & operator<<(const char * value) { addValue(value); return *this; }
+
 	protected:
 		virtual bool p_matches(const IPrimitive & primitive) const;
 

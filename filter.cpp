@@ -25,22 +25,22 @@ namespace osmpbf {
 
 	bool OrTagFilter::p_matches(const IPrimitive & primitive) const {
 		for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it) {
-			if ((*it)->matches(primitive));
-				return false;
+			if ((*it)->matches(primitive))
+				return true;
 		}
 
-		return m_Children.empty();
+		return false;
 	}
 
 	// AndTagFilter
 
 	bool AndTagFilter::p_matches(const IPrimitive & primitive) const {
 		for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it) {
-			if (!(*it)->matches(primitive));
-				return true;
+			if (!(*it)->matches(primitive))
+				return false;
 		}
 
-		return false;
+		return true;
 	}
 
 	// KeyOnlyTagFilter
@@ -81,10 +81,9 @@ namespace osmpbf {
 	}
 
 	uint32_t KeyOnlyTagFilter::findId(const std::string & str) {
-		uint32_t id = 0;
-
 		if (!m_PBI) return 0;
 
+		uint32_t id = 0;
 		uint32_t stringTableSize = m_PBI->stringTableSize();
 
 		for (id = 1; id < stringTableSize; ++id) {
@@ -145,7 +144,13 @@ namespace osmpbf {
 			return !m_PBI || (m_KeyId && m_IdSet.size());
 
 		m_PBI = pbi;
-		if (!pbi) return true;
+
+		if (!pbi) {
+			m_KeyId = 0;
+			m_IdSet.clear();
+
+			return true;
+		}
 
 		m_KeyId = findId(m_Key);
 
@@ -154,7 +159,7 @@ namespace osmpbf {
 		return m_KeyId && m_IdSet.size();
 	}
 
-	void MultiStringTagFilter::setValues (const std::set< std::string > & values) {
+	void MultiStringTagFilter::setValues(const std::set< std::string > & values) {
 		m_ValueSet = values;
 
 		updateValueIds();
