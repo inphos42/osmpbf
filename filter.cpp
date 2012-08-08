@@ -245,45 +245,38 @@ namespace osmpbf {
 	// BoolTagFilter
 
 	BoolTagFilter::BoolTagFilter(const std::string & key, bool value) :
-		KeyOnlyTagFilter(key), m_Value(value) {}
-
-	bool BoolTagFilter::p_matches (const IPrimitive & primitive) {
-		if (m_Key.empty())
-			return false;
-
-		m_LatestMatch = -1;
-
-		if (m_PBI) {
-			if (m_PBI->isNull())
-				return false;
-
-			checkKeyIdCache();
-		}
-
+		MultiStringTagFilter(key), m_Value(value)
+	{
 		if (m_Value) {
-			for (int i = 0; i < primitive.tagsSize(); ++i) {
-				if (
-					(m_PBI ? (primitive.keyId(i) == m_KeyId) : (primitive.key(i) == m_Key)) &&
-					((primitive.value(i) == "yes") || (primitive.value(i) == "true") || (primitive.value(i) == "1"))
-				) {
-					m_LatestMatch = i;
-					return true;
-				}
-			}
+			addValue("true");
+			addValue("yes");
+			addValue("1");
 		}
 		else {
-			for (int i = 0; i < primitive.tagsSize(); ++i) {
-				if (
-					(m_PBI ? (primitive.keyId(i) == m_KeyId) : (primitive.key(i) == m_Key)) &&
-					((primitive.value(i) == "no") || (primitive.value(i) == "false") || (primitive.value(i) == "0"))
-				) {
-					m_LatestMatch = i;
-					return true;
-				}
-			}
+			addValue("false");
+			addValue("no");
+			addValue("0");
 		}
+	}
 
-		return false;
+	void BoolTagFilter::setValue(bool value) {
+		if (m_Value == value)
+			return;
+
+		m_Value = value;
+
+		clearValues();
+
+		if (m_Value) {
+			addValue("true");
+			addValue("yes");
+			addValue("1");
+		}
+		else {
+			addValue("false");
+			addValue("no");
+			addValue("0");
+		}
 	}
 
 	// IntTagFilter

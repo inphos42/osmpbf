@@ -190,16 +190,16 @@ namespace osmpbf {
 		std::set< std::string > m_ValueSet;
 	};
 
-	class BoolTagFilter : public KeyOnlyTagFilter {
+	class BoolTagFilter : protected MultiStringTagFilter {
 	public:
 		BoolTagFilter(const std::string & key, bool value);
 
-		void setValue(bool value) { m_Value = value; }
+		virtual bool buildIdCache() { return MultiStringTagFilter::buildIdCache(); }
+
+		void setValue(bool value);
 		inline bool value() const { return m_Value; }
 
 	protected:
-		virtual bool p_matches(const IPrimitive & primitive);
-
 		bool m_Value;
 	};
 
