@@ -352,9 +352,8 @@ namespace osmpbf {
 
 		for (int i = 0; i < primitive.tagsSize(); ++i) {
 			if (primitive.key(i) == m_Key) {
-				const std::string & tagValue = m_PBI->queryStringTable(m_ValueId);
 				char * endptr;
-				int intTagValue = strtol(tagValue.c_str(), &endptr, 10);
+				int intTagValue = strtol(primitive.value(i).c_str(), &endptr, 10);
 
 				if ((*endptr == '\0') && (intTagValue == m_Value)) {
 					m_LatestMatch = i;
