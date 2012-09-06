@@ -112,7 +112,7 @@ namespace osmpbf {
 
 		struct stat stFileInfo;
 		if (fstat(m_FileDescriptor, &stFileInfo) == 0) {
-			if (stFileInfo.st_size > INT32_MAX) {
+			if (stFileInfo.st_size > UINT32_MAX) {
 				std::cerr << "ERROR: input file is larger than 4GB" << std::endl;
 				::close(m_FileDescriptor);
 				m_FileDescriptor = -1;
