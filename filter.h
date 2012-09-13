@@ -10,7 +10,7 @@
 namespace osmpbf {
 
 	template<class OSMInputPrimitive>
-	int findTag(const OSMInputPrimitive & primitive, uint32_t keyId, uint32_t valueId) {
+	inline int findTag(const OSMInputPrimitive & primitive, uint32_t keyId, uint32_t valueId) {
 		if (!keyId || !valueId)
 			return -1;
 
@@ -22,7 +22,7 @@ namespace osmpbf {
 	}
 
 	template<class OSMInputPrimitive>
-	int findKey(const OSMInputPrimitive & primitive, uint32_t keyId) {
+	inline int findKey(const OSMInputPrimitive & primitive, uint32_t keyId) {
 		if (!keyId)
 			return -1;
 
@@ -72,8 +72,10 @@ namespace osmpbf {
 		virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi);
 
 		inline AbstractTagFilter * addChild(AbstractTagFilter * child) {
-			m_Children.push_front(child);
-			child->rcInc();
+			if (child) {
+				m_Children.push_front(child);
+				child->rcInc();
+			}
 			return child;
 		}
 
@@ -241,6 +243,22 @@ namespace osmpbf {
 				findValueId();
 		}
 	};
+
+	/** @return needs to deleted after use, @param a,b return value will manage pointer */
+	inline AndTagFilter * newAnd(AbstractTagFilter * a, AbstractTagFilter * b) {
+		AndTagFilter * result = new AndTagFilter();
+		result->addChild(a);
+		result->addChild(b);
+		return result;
+	}
+
+	/** @return needs to deleted after use, @param a,b return value will manage pointer */
+	inline OrTagFilter * newOr(AbstractTagFilter * a, AbstractTagFilter * b) {
+		OrTagFilter * result = new OrTagFilter();
+		result->addChild(a);
+		result->addChild(b);
+		return result;
+	}
 
 }
 

@@ -1,5 +1,7 @@
 #include "filter.h"
 
+#include <cstdint>
+
 #include "primitiveblockinputadaptor.h"
 #include "iprimitive.h"
 #include "irelation.h"
