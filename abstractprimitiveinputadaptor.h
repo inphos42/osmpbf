@@ -4,12 +4,12 @@
 #include <cstdint>
 #include <string>
 
-#include "refcountobject.h"
+#include <generics/refcountobject.h>
 
 namespace osmpbf {
 	class PrimitiveBlockInputAdaptor;
 
-	class AbstractPrimitiveInputAdaptor : public RefCountObject {
+	class AbstractPrimitiveInputAdaptor : public generics::RefCountObject {
 	public:
 		AbstractPrimitiveInputAdaptor()
 			: RefCountObject(), m_Controller(NULL) {}

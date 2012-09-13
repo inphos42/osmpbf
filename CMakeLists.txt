@@ -47,7 +47,6 @@ set(SOURCES_CPP
 	primitiveblockoutputadaptor.cpp
 	oway.cpp
 	onode.cpp
-	stringtable.cpp
 	filter.cpp
 )
 

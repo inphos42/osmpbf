@@ -1,7 +1,6 @@
 #include "oway.h"
 
 #include "primitiveblockoutputadaptor.h"
-#include "stringtable.h"
 
 #include "osmformat.pb.h"
 
@@ -33,23 +32,23 @@ namespace osmpbf {
 		m_Data->set_refs(index, value);
 	}
 
-	void WayOutputAdaptor::setRefs(const DeltaFieldConstForwardIterator<int64_t> & from, const DeltaFieldConstForwardIterator<int64_t> & to) {
+	void WayOutputAdaptor::setRefs(const generics::DeltaFieldConstForwardIterator<int64_t> & from, const generics::DeltaFieldConstForwardIterator<int64_t> & to) {
 		if (from == to)
 			return;
 
 		clearRefs();
 
-		for (DeltaFieldConstForwardIterator<int64_t> it = from; it != to; ++it)
+		for (generics::DeltaFieldConstForwardIterator<int64_t> it = from; it != to; ++it)
 			addRef(*it);
 	}
 
-	void WayOutputAdaptor::setRefs(const FieldConstIterator<int64_t> & from, const FieldConstIterator<int64_t> & to) {
+	void WayOutputAdaptor::setRefs(const generics::FieldConstIterator<int64_t> & from, const generics::FieldConstIterator<int64_t> & to) {
 		if (from == to)
 			return;
 
 		clearRefs();
 
-		for (FieldConstIterator<int64_t> it = from; it != to; ++it)
+		for (generics::FieldConstIterator<int64_t> it = from; it != to; ++it)
 			addRef(*it);
 	}
 

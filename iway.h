@@ -6,7 +6,8 @@
 
 #include "abstractprimitiveinputadaptor.h"
 #include "iprimitive.h"
-#include "fielditerator.h"
+
+#include <generics/fielditerator.h>
 
 namespace crosby {
 namespace binary {
@@ -38,8 +39,8 @@ namespace osmpbf {
 		//          call this method very often or with a high index parameter.
 		int64_t ref(int index) const;
 
-		DeltaFieldConstForwardIterator<int64_t> refBegin() const;
-		DeltaFieldConstForwardIterator<int64_t> refEnd() const;
+		generics::DeltaFieldConstForwardIterator<int64_t> refBegin() const;
+		generics::DeltaFieldConstForwardIterator<int64_t> refEnd() const;
 
 	protected:
 		const crosby::binary::Way * m_Data;
@@ -56,8 +57,8 @@ namespace osmpbf {
 		inline int64_t rawRef(int index) const { return dynamic_cast< WayInputAdaptor * >(m_Private)->rawRef(index); }
 		inline int refsSize() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refsSize(); }
 
-		inline DeltaFieldConstForwardIterator<int64_t> refBegin() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refBegin(); }
-		inline DeltaFieldConstForwardIterator<int64_t> refEnd() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refEnd(); }
+		inline generics::DeltaFieldConstForwardIterator<int64_t> refBegin() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refBegin(); }
+		inline generics::DeltaFieldConstForwardIterator<int64_t> refEnd() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refEnd(); }
 
 	protected:
 		IWay();

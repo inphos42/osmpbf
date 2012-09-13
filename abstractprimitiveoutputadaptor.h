@@ -4,18 +4,19 @@
 #include <cstdint>
 #include <string>
 
-#include "refcountobject.h"
+#include <generics/refcountobject.h>
+
+#include "stringtable_fdw.h"
 
 namespace osmpbf {
-	class StringTable;
 
 	template<class PrimitiveType>
-	class AbstractPrimitiveOutputAdaptor : public RefCountObject {
+	class AbstractPrimitiveOutputAdaptor : public generics::RefCountObject {
 	public:
 		AbstractPrimitiveOutputAdaptor()
-			: RefCountObject(), m_StringTable(NULL), m_Data(NULL) {}
+			: generics::RefCountObject(), m_StringTable(NULL), m_Data(NULL) {}
 		AbstractPrimitiveOutputAdaptor(StringTable * stringTable, PrimitiveType * data)
-			: RefCountObject(), m_StringTable(stringTable), m_Data(data) {}
+			: generics::RefCountObject(), m_StringTable(stringTable), m_Data(data) {}
 
 		virtual bool isNULL() const { return !m_StringTable || !m_Data; }
 

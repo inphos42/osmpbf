@@ -1,7 +1,6 @@
 #include "onode.h"
 
 #include "primitiveblockoutputadaptor.h"
-#include "stringtable.h"
 
 #include "osmformat.pb.h"
 

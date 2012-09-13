@@ -1,0 +1,3 @@
+[submodule "generics"]
+	path = generics
+	url = git://gitosis.funroll-loops.de/generics

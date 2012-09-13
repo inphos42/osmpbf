@@ -5,9 +5,10 @@
 #include <string>
 #include <utility>
 
+#include <generics/fielditerator.h>
+
 #include "common.h"
 #include "abstractprimitiveoutputadaptor.h"
-#include "fielditerator.h"
 
 namespace crosby {
 namespace binary {
@@ -30,13 +31,13 @@ namespace osmpbf {
 
 		virtual void addRef(int64_t ref);
 
-		virtual void setRefs(const DeltaFieldConstForwardIterator<int64_t> & from, const DeltaFieldConstForwardIterator<int64_t> & to);
-		virtual void setRefs(const FieldConstIterator<int64_t> & from, const FieldConstIterator<int64_t> & to);
+		virtual void setRefs(const generics::DeltaFieldConstForwardIterator<int64_t> & from, const generics::DeltaFieldConstForwardIterator<int64_t> & to);
+		virtual void setRefs(const generics::FieldConstIterator<int64_t> & from, const generics::FieldConstIterator<int64_t> & to);
 
 		virtual void clearRefs();
 	};
 
-	class OWay : public RCWrapper<WayOutputAdaptor> {
+	class OWay : public generics::RCWrapper<WayOutputAdaptor> {
 		friend class PrimitiveBlockOutputAdaptor;
 	public:
 		OWay(const OWay & other);
@@ -67,9 +68,9 @@ namespace osmpbf {
 		inline void addRef(int64_t ref) { m_Private->addRef(ref); }
 		inline void removeRefLater(int index) { m_Private->setRef(index, NULL_PRIMITIVE_ID); }
 
-		inline void setRefs(const DeltaFieldConstForwardIterator<int64_t> & from, const DeltaFieldConstForwardIterator<int64_t> & to) {
+		inline void setRefs(const generics::DeltaFieldConstForwardIterator<int64_t> & from, const generics::DeltaFieldConstForwardIterator<int64_t> & to) {
 			m_Private->setRefs(from, to); }
-		inline void setRefs(const FieldConstIterator<int64_t> & from, const FieldConstIterator<int64_t> & to) {
+		inline void setRefs(const generics::FieldConstIterator<int64_t> & from, const generics::FieldConstIterator<int64_t> & to) {
 			m_Private->setRefs(from, to); }
 
 		virtual void clearRefs() { m_Private->clearRefs(); }

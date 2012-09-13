@@ -43,12 +43,12 @@ namespace osmpbf {
 		return m_Data->refs(index);
 	}
 
-	DeltaFieldConstForwardIterator<int64_t> WayInputAdaptor::refBegin() const {
-		return DeltaFieldConstForwardIterator<int64_t>(m_Data->refs().data());
+	generics::DeltaFieldConstForwardIterator<int64_t> WayInputAdaptor::refBegin() const {
+		return generics::DeltaFieldConstForwardIterator<int64_t>(m_Data->refs().data());
 	}
 
-	DeltaFieldConstForwardIterator<int64_t> WayInputAdaptor::refEnd() const {
-		return DeltaFieldConstForwardIterator<int64_t>(m_Data->refs().data() + m_Data->refs_size());
+	generics::DeltaFieldConstForwardIterator<int64_t> WayInputAdaptor::refEnd() const {
+		return generics::DeltaFieldConstForwardIterator<int64_t>(m_Data->refs().data() + m_Data->refs_size());
 	}
 
 	int WayInputAdaptor::tagsSize() const {

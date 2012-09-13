@@ -1,4 +1,5 @@
 #include "abstractprimitiveoutputadaptor.h"
+#include <generics/store.h>
 
 #include "osmformat.pb.h"
 
@@ -9,7 +10,6 @@ namespace osmpbf {
 }
 
 #include "common.h"
-#include "stringtable.h"
 
 namespace osmpbf {
 	template<class PrimitiveType>

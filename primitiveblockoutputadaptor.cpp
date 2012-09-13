@@ -1,8 +1,10 @@
 #include "primitiveblockoutputadaptor.h"
+
+#include <generics/store.h>
+
 #include "osmformat.pb.h"
 #include "iway.h"
 #include "oway.h"
-#include "stringtable.h"
 #include "onode.h"
 #include "inode.h"
 
@@ -217,8 +219,8 @@ namespace osmpbf {
 
 		// build string id table and fill string table output cache
 		int newId = 1;
-		std::map<uint32_t, StringTableEntry *>::const_iterator stringIt = m_StringTable->begin();
-		while (stringIt != m_StringTable->end()) {
+		StringTable::const_iterator stringIt = m_StringTable->cbegin();
+		while (stringIt != m_StringTable->cend()) {
 			stringIdTable[stringIt->first] = newId;
 			m_PrimitiveBlock->mutable_stringtable()->add_s(stringIt->second->value);
 			newId++;

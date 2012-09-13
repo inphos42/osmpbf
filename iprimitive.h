@@ -1,11 +1,12 @@
 #ifndef OSMPBF_IPRIMITIVE
 #define OSMPBF_IPRIMITIVE
 
-#include "refcountobject.h"
+#include <generics/refcountobject.h>
+
 #include "abstractprimitiveinputadaptor.h"
 
 namespace osmpbf {
-	class IPrimitive : public RCWrapper< AbstractPrimitiveInputAdaptor > {
+	class IPrimitive : public generics::RCWrapper< AbstractPrimitiveInputAdaptor > {
 	public:
 		IPrimitive(const IPrimitive & other) : RCWrapper< AbstractPrimitiveInputAdaptor >(other) {}
 

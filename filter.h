@@ -5,7 +5,7 @@
 #include <string>
 #include <set>
 
-#include "refcountobject.h"
+#include <generics/refcountobject.h>
 
 namespace osmpbf {
 
@@ -46,9 +46,9 @@ namespace osmpbf {
 	class IPrimitive;
 	class PrimitiveBlockInputAdaptor;
 
-	class AbstractTagFilter : public RefCountObject {
+	class AbstractTagFilter : public generics::RefCountObject {
 	public:
-		AbstractTagFilter() : RefCountObject(), m_Invert(false) {}
+		AbstractTagFilter() : generics::RefCountObject(), m_Invert(false) {}
 		virtual ~AbstractTagFilter() {}
 
 		inline bool matches(const IPrimitive & primitive) { return m_Invert ? !p_matches(primitive) : p_matches(primitive); }

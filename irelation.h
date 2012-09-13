@@ -7,7 +7,6 @@
 #include "common.h"
 #include "abstractprimitiveinputadaptor.h"
 #include "iprimitive.h"
-#include "fielditerator.h"
 
 namespace crosby {
 namespace binary {
@@ -16,7 +15,7 @@ namespace binary {
 }
 
 namespace osmpbf {
-	class MemberStreamInputAdaptor : public RefCountObject {
+	class MemberStreamInputAdaptor : public generics::RefCountObject {
 	public:
 		MemberStreamInputAdaptor();
 		MemberStreamInputAdaptor(const crosby::binary::Relation * data);
@@ -39,7 +38,7 @@ namespace osmpbf {
 		int64_t m_CachedId;
 	};
 
-	class IMemberStream : public RCWrapper< MemberStreamInputAdaptor > {
+	class IMemberStream : public generics::RCWrapper< MemberStreamInputAdaptor > {
 		friend class RelationInputAdaptor;
 	public:
 		IMemberStream(const IMemberStream & other);

@@ -29,7 +29,7 @@ namespace osmpbf {
 		virtual void setLoni(int64_t value);
 	};
 
-	class ONode : public RCWrapper<NodeOutputAdaptor> {
+	class ONode : public generics::RCWrapper<NodeOutputAdaptor> {
 		friend class PrimitiveBlockOutputAdaptor;
 	public:
 		ONode(const ONode & other);

@@ -3,9 +3,9 @@
 
 #include <cstdint>
 #include <string>
-#include <deque>
 
 #include "common.h"
+#include "stringtable_fdw.h"
 
 namespace crosby {
 namespace binary {
@@ -20,8 +20,6 @@ namespace osmpbf {
 
 	class OWay;
 	class ONode;
-
-	class StringTable;
 
 	class PrimitiveBlockOutputAdaptor {
 	public:
