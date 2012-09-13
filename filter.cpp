@@ -1,6 +1,7 @@
 #include "filter.h"
 
 #include <cstdint>
+#include <cstdlib>
 
 #include "primitiveblockinputadaptor.h"
 #include "iprimitive.h"
