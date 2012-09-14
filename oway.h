@@ -9,6 +9,7 @@
 
 #include "common.h"
 #include "abstractprimitiveoutputadaptor.h"
+#include "oprimitive.h"
 
 namespace crosby {
 namespace binary {
@@ -37,28 +38,12 @@ namespace osmpbf {
 		virtual void clearRefs();
 	};
 
-	class OWay : public generics::RCWrapper<WayOutputAdaptor> {
+	class OWay : public OPrimitive< WayOutputAdaptor > {
 		friend class PrimitiveBlockOutputAdaptor;
 	public:
 		OWay(const OWay & other);
 
 		OWay & operator=(const OWay & other);
-
-		inline int64_t id() const { return m_Private->id(); }
-		inline void setId(int64_t value) { m_Private->setId(value); }
-
-		inline int tagsSize() const { return m_Private->tagsSize(); }
-
-		inline const std::string & key(int index) const { return m_Private->key(index); }
-		inline const std::string & value(int index) const { return m_Private->value(index); }
-
-		inline void setKey(int index, const std::string & key) { m_Private->setKey(index, key); }
-		inline void setValue(int index, const std::string & value) { m_Private->setValue(index, value);}
-
-		inline void addTag(const std::string & key, const std::string & value) { m_Private->addTag(key, value); }
-		inline void removeTagLater(int index) { m_Private->removeTagLater(index); }
-
-		inline void clearTags() { m_Private->clearTags(); }
 
 		inline int refsSize() const { return m_Private->refsSize(); }
 

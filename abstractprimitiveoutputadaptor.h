@@ -18,7 +18,7 @@ namespace osmpbf {
 		AbstractPrimitiveOutputAdaptor(StringTable * stringTable, PrimitiveType * data)
 			: generics::RefCountObject(), m_StringTable(stringTable), m_Data(data) {}
 
-		virtual bool isNULL() const { return !m_StringTable || !m_Data; }
+		virtual bool isNull() const { return !m_StringTable || !m_Data; }
 
 		virtual int64_t id() const;
 

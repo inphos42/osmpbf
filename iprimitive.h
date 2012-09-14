@@ -10,6 +10,8 @@ namespace osmpbf {
 	public:
 		IPrimitive(const IPrimitive & other) : RCWrapper< AbstractPrimitiveInputAdaptor >(other) {}
 
+		inline virtual bool isNull() const { return generics::RCWrapper< AbstractPrimitiveInputAdaptor >::isNull() || m_Private->isNull(); }
+
 		inline IPrimitive & operator=(const IPrimitive & other) { RCWrapper< AbstractPrimitiveInputAdaptor >::operator=(other); return *this; }
 
 		inline int64_t id() const { return m_Private->id(); }

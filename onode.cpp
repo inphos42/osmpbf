@@ -8,11 +8,11 @@ namespace osmpbf {
 
 // ONode
 
-	ONode::ONode(const ONode & other) : RCWrapper<NodeOutputAdaptor>(other) {}
-	ONode::ONode() : RCWrapper<NodeOutputAdaptor>() {}
-	ONode::ONode(NodeOutputAdaptor * data) : RCWrapper<NodeOutputAdaptor>(data) {}
+	ONode::ONode(const ONode & other) : OPrimitive< NodeOutputAdaptor >(other) {}
+	ONode::ONode() : OPrimitive< NodeOutputAdaptor >() {}
+	ONode::ONode(NodeOutputAdaptor * data) : OPrimitive< NodeOutputAdaptor >(data) {}
 
-	ONode & ONode::operator=(const ONode & other) { RCWrapper<NodeOutputAdaptor>::operator=(other); return *this; }
+	ONode & ONode::operator=(const ONode & other) { OPrimitive< NodeOutputAdaptor >::operator=(other); return *this; }
 
 // PlainNodeOutputAdaptor
 

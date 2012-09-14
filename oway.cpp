@@ -8,11 +8,11 @@ namespace osmpbf {
 
 // OWay
 
-	OWay::OWay(const OWay & other) : RCWrapper<WayOutputAdaptor>(other) {}
-	OWay::OWay() : RCWrapper<WayOutputAdaptor>() {}
-	OWay::OWay(WayOutputAdaptor * data): RCWrapper<WayOutputAdaptor>(data) {}
+	OWay::OWay(const OWay & other) : OPrimitive< WayOutputAdaptor >(other) {}
+	OWay::OWay() : OPrimitive< WayOutputAdaptor >() {}
+	OWay::OWay(WayOutputAdaptor * data): OPrimitive< WayOutputAdaptor >(data) {}
 
-	OWay & OWay::operator=(const OWay & other) { RCWrapper<WayOutputAdaptor>::operator=(other); return *this; }
+	OWay & OWay::operator=(const OWay & other) { OPrimitive<WayOutputAdaptor>::operator=(other); return *this; }
 
 // WayOutputAdaptor
 
