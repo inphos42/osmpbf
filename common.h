@@ -5,7 +5,7 @@
 #define NULL_STRING_ID 0
 
 namespace osmpbf {
-	enum NodeType { PlainNode = 0, DenseNode = 1 };
+	enum NodeType { PlainNode = 1, DenseNode = 2 };
 	enum PrimitiveType { NodePrimitive = 0, WayPrimitive = 1, RelationPrimitive = 2 };
 }
 
