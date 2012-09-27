@@ -11,7 +11,7 @@ namespace osmpbf {
 		return m_Controller->queryStringTable(valueId(index));
 	}
 
-	const std::string & AbstractPrimitiveInputAdaptor::value(uint32_t key) const {
+	const std::string & AbstractPrimitiveInputAdaptor::valueByKeyId(uint32_t key) const {
 		for (int i = 0; i < tagsSize(); ++i) {
 			if (keyId(i) == key)
 				return m_Controller->queryStringTable(valueId(i));
@@ -20,7 +20,7 @@ namespace osmpbf {
 		return m_Controller->queryStringTable(0); // return "null" string
 	}
 
-	const std::string & AbstractPrimitiveInputAdaptor::value(const std::string & key) const {
+	const std::string & AbstractPrimitiveInputAdaptor::valueByKey(const std::string & key) const {
 		for (int i = 0; i < tagsSize(); ++i) {
 			if (m_Controller->queryStringTable(keyId(i)) == key)
 				return m_Controller->queryStringTable(valueId(i));

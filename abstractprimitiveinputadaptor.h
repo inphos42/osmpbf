@@ -29,8 +29,8 @@ namespace osmpbf {
 		virtual const std::string & value(int index) const;
 
 		// convenience functions (very slow)
-		virtual const std::string & value(uint32_t key) const;
-		virtual const std::string & value(const std::string & key) const;
+		virtual const std::string & valueByKeyId(uint32_t key) const;
+		virtual const std::string & valueByKey(const std::string & key) const;
 
 	protected:
 		PrimitiveBlockInputAdaptor * m_Controller;

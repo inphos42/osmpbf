@@ -24,8 +24,8 @@ namespace osmpbf {
 		inline const std::string & key(int index) const { return m_Private->key(index); }
 		inline const std::string & value(int index) const { return m_Private->value(index); }
 
-		inline const std::string & value(uint32_t key) const { return m_Private->value(key); }
-		inline const std::string & value(const std::string key) const { return m_Private->value(key); }
+		inline const std::string & valueByKeyId(uint32_t key) const { return m_Private->valueByKeyId(key); }
+		inline const std::string & valueByKey(const std::string key) const { return m_Private->valueByKey(key); }
 
 	protected:
 		IPrimitive() : RCWrapper< AbstractPrimitiveInputAdaptor >() {}
