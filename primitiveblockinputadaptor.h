@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include "common.h"
 
 namespace crosby {
 namespace binary {
@@ -32,7 +33,7 @@ namespace osmpbf {
 		int stringTableSize() const;
 
 		INode getNodeAt(int position) const;
-		int nodesSize() const;
+		int nodesSize(unsigned char type = PlainNode | DenseNode) const;
 
 		IWay getWayAt(int position) const;
 		int waysSize() const;

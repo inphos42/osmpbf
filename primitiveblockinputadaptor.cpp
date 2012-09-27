@@ -65,26 +65,37 @@ namespace osmpbf {
 
 			for (int i = 0; i < m_PrimitiveBlock->primitivegroup_size(); ++i) {
 				if (primGroups[i]->nodes_size()) {
+					if (m_PlainNodesGroup) {
+						std::cerr << "WARNING: second plain nodes group found. using first" << std::endl;
+						break;
+					}
 					m_PlainNodesGroup = primGroups[i];
-					break;
 				}
 
 				if (primGroups[i]->has_dense()) {
+					if (m_DenseNodesGroup) {
+						std::cerr << "WARNING: second dense nodes group found. using first" << std::endl;
+						break;
+					}
 					m_DenseNodesGroup = primGroups[i];
 
 					if (unpackDense) unpackDenseNodes();
-
-					break;
 				}
 
 				if (primGroups[i]->ways_size()) {
+					if (m_WaysGroup) {
+						std::cerr << "WARNING: second ways group found. using first" << std::endl;
+						break;
+					}
 					m_WaysGroup = primGroups[i];
-					break;
 				}
 
 				if (primGroups[i]->relations_size()) {
+					if (m_RelationsGroup) {
+						std::cerr << "WARNING: second relations group found. using first" << std::endl;
+						break;
+					}
 					m_RelationsGroup = primGroups[i];
-					break;
 				}
 			}
 
@@ -111,13 +122,13 @@ namespace osmpbf {
 
 	}
 
-	int PrimitiveBlockInputAdaptor::nodesSize() const {
+	int PrimitiveBlockInputAdaptor::nodesSize(unsigned char type) const {
 		int result = 0;
 
-		if (m_PlainNodesGroup)
+		if (m_PlainNodesGroup && (type & PlainNode))
 			result += m_PlainNodesGroup->nodes_size();
 
-		if (m_DenseNodesGroup)
+		if (m_DenseNodesGroup && (type & DenseNode))
 			result += m_DenseNodesGroup->dense().id_size();
 
 		return result;
