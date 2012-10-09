@@ -151,6 +151,9 @@ namespace osmpbf {
 		buffer.type = readBlob(buffer.data, buffer.totalBytes, buffer.availableBytes);
 	}
 
+	constexpr uint32_t MAX_HEADER_SIZE = 64 << 10;
+	constexpr uint32_t MAX_BODY_SIZE = 32 << 20;
+
 	void BlobFileIn::readBlobHeader(uint32_t & blobLength, BlobDataType & blobDataType) {
 		blobDataType = BLOB_Invalid;
 
@@ -160,8 +163,14 @@ namespace osmpbf {
 
 		if (m_VerboseOutput) std::cout << "header length : " << headerLength << " B" << std::endl;
 
-		if (!headerLength)
+		if (!headerLength || headerLength >= MAX_HEADER_SIZE) {
+			std::cerr << "ERROR: invalid blob header size found:" << headerLength;
+			if (headerLength >= MAX_HEADER_SIZE)
+				std::cerr << " (max: " << MAX_HEADER_SIZE << ')';
+
+			std::cerr << std::endl;
 			return;
+		}
 
 		m_FilePos += 4;
 
@@ -195,17 +204,6 @@ namespace osmpbf {
 		delete blobHeader;
 	}
 
-	inline uint32_t blobSizeMax(BlobDataType type) {
-		switch (type) {
-		case BLOB_OSMHeader:
-			return (64 << 10);
-		case BLOB_OSMData:
-			return (32 << 20);
-		default:
-			return 0;
-		}
-	}
-
 	BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize) {
 		if (m_FilePos >= m_FileSize)
 			return BLOB_Invalid;
@@ -216,6 +214,11 @@ namespace osmpbf {
 		BlobDataType blobDataType;
 
 		readBlobHeader(blobLength, blobDataType);
+
+		if (blobLength >= MAX_BODY_SIZE) {
+			std::cerr << "ERROR: invalid blob size found:" << blobLength << " (max: " << MAX_BODY_SIZE << ')' << std::endl;
+			return BLOB_Invalid;
+		}
 
 		if (blobDataType && blobLength) {
 			if (m_VerboseOutput) std::cout << "parsing blob ..." << std::endl;
@@ -236,15 +239,6 @@ namespace osmpbf {
 				if (m_VerboseOutput) std::cout << "uncompressed size : " << blob->raw_size() << "B ( " << blob->raw_size() / 1024.f << " KiB )" << std::endl;
 
 				std::string * compressedData = blob->release_zlib_data();
-
-				// check blob data size
-				if (blob->raw_size() > blobSizeMax(blobDataType)) {
-					std::cerr << "ERROR: invalid uncompressed blob data size: " << blob->raw_size() << "(max: " << blobSizeMax(blobDataType) << ')' << std::endl;
-
-					delete blob;
-					return BLOB_Invalid;
-				}
-
 				availableDataSize = blob->raw_size();
 
 				delete blob;
@@ -268,15 +262,6 @@ namespace osmpbf {
 				if (m_VerboseOutput) std::cout << "found uncompressed blob data" << std::endl;
 
 				std::string * uncompressedData = blob->release_raw();
-
-				// check blob data size
-				if (uncompressedData->length() > blobSizeMax(blobDataType)) {
-					std::cerr << "ERROR: invalid uncompressed blob data size: " << uncompressedData->length() << "(max: " << blobSizeMax(blobDataType) << ')' << std::endl;
-
-					delete blob;
-					return BLOB_Invalid;
-				}
-
 				availableDataSize = uncompressedData->length();
 
 				delete blob;
