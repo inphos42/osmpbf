@@ -2,6 +2,7 @@
 #define OSMPBF_OSMFILE_H
 
 #include <string>
+#include <vector>
 
 #include "blobdata.h"
 
@@ -38,13 +39,14 @@ namespace osmpbf {
 		const BlobDataBuffer & blockBuffer() const { return m_DataBuffer; }
 		void clearBlockBuffer() { m_DataBuffer.clear(); }
 
-		bool parserMeetsRequirements() const;
+		inline bool parserMeetsRequirements() const { return m_MissingFeatures.empty(); }
 
 		int requiredFeaturesSize() const;
 		int optionalFeaturesSize() const;
 
 		const std::string & requiredFeatures(int index) const;
 		const std::string & optionalFeatures(int index) const;
+		inline bool requiredFeatureMissing(int index) const { return m_MissingFeatures.empty() ? false : m_MissingFeatures.at(index); }
 
 		// bounding box in nanodegrees
 		int64_t minLat() const;
@@ -58,6 +60,7 @@ namespace osmpbf {
 		BlobDataBuffer m_DataBuffer;
 
 		crosby::binary::HeaderBlock * m_FileHeader;
+		std::vector< bool > m_MissingFeatures;
 
 		uint32_t m_DataOffset;
 

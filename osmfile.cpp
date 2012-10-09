@@ -1,6 +1,7 @@
 #include "osmfile.h"
 
 #include <iostream>
+#include <deque>
 
 #include "blobfile.h"
 #include "primitiveblockinputadaptor.h"
@@ -85,6 +86,7 @@ namespace osmpbf {
 
 		m_FileHeader = new crosby::binary::HeaderBlock;
 
+		// parse and check header
 		if (!m_FileHeader->ParseFromArray(m_DataBuffer.data, m_DataBuffer.availableBytes)) {
 			std::cerr << "ERROR: invalid OSM header" << std::endl;
 			delete m_FileHeader;
@@ -93,17 +95,24 @@ namespace osmpbf {
 		}
 
 		m_DataOffset = m_FileIn->position();
-		return true;
-	}
 
-	bool OSMFileIn::parserMeetsRequirements() const {
+		// check requirements
+		bool noneMissing = true;
+		m_MissingFeatures.resize(requiredFeaturesSize(), false);
 		for (int i = 0; i < requiredFeaturesSize(); ++i) {
-			if ((m_FileHeader->required_features(i) != "OsmSchema-V0.6") ||
+			if ((m_FileHeader->required_features(i) != "OsmSchema-V0.6") &&
 				(m_FileHeader->required_features(i) != "DenseNodes"))
-				return false;
+			{
+				std::cerr << "ERROR: missing required feature of input data: \"" << m_FileHeader->required_features(i) << '\"' << std::endl;
+				m_MissingFeatures[i] = true;
+				noneMissing = false;
+			}
 		}
 
-		return true;
+		if (noneMissing)
+			m_MissingFeatures.clear();
+
+		return m_MissingFeatures.empty();
 	}
 
 	int OSMFileIn::requiredFeaturesSize() const {
