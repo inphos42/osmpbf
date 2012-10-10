@@ -36,8 +36,8 @@ namespace osmpbf {
 
 		bool parseNextBlock(PrimitiveBlockInputAdaptor & adaptor);
 
-		const BlobDataBuffer & blockBuffer() const { return m_DataBuffer; }
-		void clearBlockBuffer() { m_DataBuffer.clear(); }
+		inline const BlobDataBuffer & blockBuffer() const { return m_DataBuffer; }
+		inline void clearBlockBuffer() { m_DataBuffer.clear(); }
 
 		inline bool parserMeetsRequirements() const { return m_MissingFeatures.empty(); }
 
