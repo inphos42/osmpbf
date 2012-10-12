@@ -29,7 +29,7 @@ namespace osmpbf {
 
 	int64_t WayInputAdaptor::ref(int index) const {
 		int64_t result = m_Data->refs(0);
-		for (int i = 0; i < index; i++)
+		for (int i = 1; i <= index; i++)
 			result += m_Data->refs(i);
 
 		return result;
