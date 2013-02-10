@@ -5,7 +5,7 @@
 #include <string>
 
 #include "common.h"
-#include "stringtable_fdw.h"
+#include "stringtable_fwd.h"
 
 namespace crosby {
 namespace binary {

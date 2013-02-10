@@ -6,7 +6,7 @@
 
 #include <generics/refcountobject.h>
 
-#include "stringtable_fdw.h"
+#include "stringtable_fwd.h"
 
 namespace osmpbf {
 
