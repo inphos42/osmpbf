@@ -16,7 +16,7 @@ namespace osmpbf {
 		virtual bool open() = 0;
 		virtual void close() = 0;
 
-		virtual void seek(uint32_t position) = 0;
+		virtual void seek(OffsetType position) = 0;
 		virtual OffsetType position() const = 0;
 
 		virtual OffsetType size() const = 0;
@@ -36,7 +36,7 @@ namespace osmpbf {
 		virtual bool open();
 		virtual void close();
 
-		virtual void seek(uint32_t position) { m_FilePos = position; }
+		virtual void seek(OffsetType position) { m_FilePos = position; }
 		virtual OffsetType position() const { return m_FilePos; }
 
 		virtual OffsetType size() const { return m_FileSize; }
@@ -67,7 +67,7 @@ namespace osmpbf {
 		virtual bool open();
 		virtual void close();
 
-		virtual void seek(osmpbf::OffsetType position);
+		virtual void seek(OffsetType position);
 		virtual OffsetType position() const;
 
 		virtual OffsetType size() const { return m_CurrentSize; }
