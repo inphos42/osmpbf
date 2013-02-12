@@ -5,16 +5,14 @@
 #include <cstdint>
 #include <cstring>
 
-#include "typelimits.h"
-
 namespace osmpbf {
 	enum BlobDataType {BLOB_Invalid = 0, BLOB_OSMHeader = 1, BLOB_OSMData = 2};
 
 	struct BlobDataBuffer {
 		BlobDataType type;
 		char * data;
-		OffsetType availableBytes;
-		OffsetType totalBytes;
+		uint32_t availableBytes;
+		uint32_t totalBytes;
 
 		inline void clear() {
 			delete[] data;

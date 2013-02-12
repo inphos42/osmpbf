@@ -6,6 +6,8 @@
 
 #include "blobdata.h"
 
+#include "typelimits.h"
+
 namespace osmpbf {
 	class AbstractBlobFile {
 	public:
@@ -42,7 +44,7 @@ namespace osmpbf {
 		virtual OffsetType size() const { return m_FileSize; }
 
 		void readBlob(BlobDataBuffer & buffer);
-		BlobDataType readBlob(char * & buffer, OffsetType & bufferSize, OffsetType & availableDataSize);
+		BlobDataType readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize);
 
 		bool skipBlob();
 
@@ -51,7 +53,7 @@ namespace osmpbf {
 		OffsetType m_FilePos;
 		OffsetType m_FileSize;
 
-		void readBlobHeader(OffsetType & blobLength, BlobDataType & blobDataType);
+		void readBlobHeader(uint32_t & blobLength, BlobDataType & blobDataType);
 
 		inline void * fileData() { return (void *) &(m_FileData[m_FilePos]); }
 
@@ -73,7 +75,7 @@ namespace osmpbf {
 		virtual OffsetType size() const { return m_CurrentSize; }
 
 		bool writeBlob(const BlobDataBuffer & buffer, bool compress = true);
-		bool writeBlob(BlobDataType type, const char * buffer, OffsetType bufferSize, bool compress = true);
+		bool writeBlob(BlobDataType type, const char * buffer, uint32_t bufferSize, bool compress = true);
 
 	protected:
 		OffsetType m_CurrentSize;

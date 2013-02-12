@@ -12,7 +12,7 @@
 #include "osmblob.pb.h"
 
 namespace osmpbf {
-	bool inflateData(const char * source, OffsetType sourceSize, char * dest, OffsetType destSize) {
+	bool inflateData(const char * source, uint32_t sourceSize, char * dest, uint32_t destSize) {
 		int ret;
 		z_stream stream;
 
@@ -53,7 +53,7 @@ namespace osmpbf {
 		return true;
 	}
 
-	uint32_t deflateData(const char * source, OffsetType sourceSize, char * & dest, OffsetType & destSize) {
+	uint32_t deflateData(const char * source, uint32_t sourceSize, char * & dest, uint32_t & destSize) {
 		int ret;
 		z_stream stream;
 
@@ -155,7 +155,7 @@ namespace osmpbf {
 	constexpr uint32_t MAX_HEADER_SIZE = 64 << 10;
 	constexpr uint32_t MAX_BODY_SIZE = 32 << 20;
 
-	void BlobFileIn::readBlobHeader(osmpbf::OffsetType & blobLength, osmpbf::BlobDataType & blobDataType) {
+	void BlobFileIn::readBlobHeader(uint32_t & blobLength, osmpbf::BlobDataType & blobDataType) {
 		blobDataType = BLOB_Invalid;
 
 		if (m_VerboseOutput) std::cout << "checking blob header ..." << std::endl;
@@ -205,13 +205,13 @@ namespace osmpbf {
 		delete blobHeader;
 	}
 
-	BlobDataType BlobFileIn::readBlob(char*& buffer, osmpbf::OffsetType & bufferSize, osmpbf::OffsetType & availableDataSize) {
+	BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize) {
 		if (m_FilePos >= m_FileSize)
 			return BLOB_Invalid;
 
 		if (m_VerboseOutput) std::cout << "== blob ==" << std::endl;
 
-		OffsetType blobLength;
+		uint32_t blobLength;
 		BlobDataType blobDataType;
 
 		readBlobHeader(blobLength, blobDataType);
@@ -295,7 +295,7 @@ namespace osmpbf {
 
 		if (m_VerboseOutput) std::cout << "== blob ==" << std::endl;
 
-		OffsetType blobLength;
+		uint32_t blobLength;
 		BlobDataType blobDataType;
 
 		readBlobHeader(blobLength, blobDataType);
@@ -342,7 +342,7 @@ namespace osmpbf {
 		return writeBlob(buffer.type, buffer.data, buffer.availableBytes, compress);
 	}
 
-	bool BlobFileOut::writeBlob(osmpbf::BlobDataType type, const char * buffer, osmpbf::OffsetType bufferSize, bool compress) {
+	bool BlobFileOut::writeBlob(osmpbf::BlobDataType type, const char * buffer, uint32_t bufferSize, bool compress) {
 		if (type == BLOB_Invalid)
 			return false;
 
@@ -351,8 +351,8 @@ namespace osmpbf {
 
 		if (compress) {
 			char * zlibBuffer = NULL;
-			OffsetType zlibBufferSize = 0;
-			OffsetType zlibDataAvailable = 0;
+			uint32_t zlibBufferSize = 0;
+			uint32_t zlibDataAvailable = 0;
 
 			if (m_VerboseOutput) std::cout << "compressing data ... ";
 			zlibDataAvailable = deflateData(buffer, bufferSize, zlibBuffer, zlibBufferSize);
@@ -399,28 +399,33 @@ namespace osmpbf {
 
 		if (m_VerboseOutput) std::cout << "writing blob...";
 
-		::lseek(m_FileDescriptor, sizeof(uint32_t), SEEK_CUR); // skip file size BUG:use OffsetType here?
+		// save position and skip header size
+		off_t headerSizePosition = ::lseek(m_FileDescriptor, 0, SEEK_CUR);
+		::lseek(m_FileDescriptor, sizeof(uint32_t), SEEK_CUR);
 
-		uint32_t headerPosition = ::lseek(m_FileDescriptor, 0, SEEK_CUR);
-		if (!blobHeader->SerializeToFileDescriptor(m_FileDescriptor)) { // write header blob
+		// serialize header blob
+		if (!blobHeader->SerializeToFileDescriptor(m_FileDescriptor)) {
 			std::cerr << "error writing blobHeader" << std::endl;
 			delete blobHeader;
 			return false;
 		}
+
+		off_t blobPosition = ::lseek(m_FileDescriptor, 0, SEEK_CUR);
+
+		// write header size
+		uint32_t headerSize = blobHeader->ByteSize();
+		headerSize = htonl(headerSize);
+		::lseek(m_FileDescriptor, headerSizePosition, SEEK_SET);
+		::write(m_FileDescriptor, &headerSize, sizeof(uint32_t));
+		::lseek(m_FileDescriptor, blobPosition, SEEK_SET);
+
 		delete blobHeader;
 
-		uint32_t blobPosition = ::lseek(m_FileDescriptor, 0, SEEK_CUR);
-		uint32_t headerSize = blobPosition - headerPosition;
-
-		headerSize = htonl(headerSize);
-		//BUG:THIS IS UGLY CODE AND IT WILL TOTALY BREAK ON 64BIT
-		::lseek(m_FileDescriptor, headerPosition - sizeof(uint32_t), SEEK_SET);
-		::write(m_FileDescriptor, &headerSize, sizeof(uint32_t)); // write file size
-		::lseek(m_FileDescriptor, blobPosition, SEEK_SET);
+		// write blob
 		::write(m_FileDescriptor, (void *) serializedBlobBuffer.data(), serializedBlobBuffer.length());
 		if (m_VerboseOutput) std::cout << "done" << std::endl;
 
-		uint32_t pos = position();
+		OffsetType pos = position();
 		if (m_CurrentSize < pos)
 			m_CurrentSize = pos;
 

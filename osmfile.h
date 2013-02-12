@@ -6,6 +6,8 @@
 
 #include "blobdata.h"
 
+#include "typelimits.h"
+
 namespace crosby {
 namespace binary {
 	class HeaderBlock;
