@@ -16,15 +16,15 @@ namespace osmpbf {
 
 		inline void clear() {
 			delete[] data;
-			data = nullptr;
+			data = 0;
 			availableBytes = 0;
 			totalBytes = 0;
 			type = BLOB_Invalid;
 		}
 
-		BlobDataBuffer() : type(BLOB_Invalid), data(nullptr), availableBytes(0), totalBytes(0) {}
+		BlobDataBuffer() : type(BLOB_Invalid), data(0), availableBytes(0), totalBytes(0) {}
 		BlobDataBuffer(const BlobDataBuffer & other) :
-			type(BLOB_Invalid), data(nullptr),
+			type(BLOB_Invalid), data(0),
 			availableBytes(other.availableBytes), totalBytes(other.availableBytes)
 		{
 			if (totalBytes) {
