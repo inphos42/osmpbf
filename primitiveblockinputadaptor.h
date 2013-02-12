@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <string>
 #include "common.h"
+#include "typelimits.h"
 
 namespace crosby {
 namespace binary {
@@ -24,10 +25,10 @@ namespace osmpbf {
 	class PrimitiveBlockInputAdaptor {
 	public:
 		PrimitiveBlockInputAdaptor();
-		PrimitiveBlockInputAdaptor(char * rawData, uint32_t length, bool unpackDense = false);
+		PrimitiveBlockInputAdaptor(char * rawData, OffsetType length, bool unpackDense = false);
 		virtual ~PrimitiveBlockInputAdaptor();
 
-		void parseData(char * rawData, uint32_t length, bool unpackDense = false);
+		void parseData(char * rawData, OffsetType length, bool unpackDense = false);
 
 		const std::string & queryStringTable(int id) const;
 		int stringTableSize() const;

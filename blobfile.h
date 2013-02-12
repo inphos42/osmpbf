@@ -17,9 +17,9 @@ namespace osmpbf {
 		virtual void close() = 0;
 
 		virtual void seek(uint32_t position) = 0;
-		virtual uint32_t position() const = 0;
+		virtual OffsetType position() const = 0;
 
-		virtual uint32_t size() const = 0;
+		virtual OffsetType size() const = 0;
 
 		inline void setVerboseOutput(bool value) { m_VerboseOutput = value; }
 	protected:
@@ -37,21 +37,21 @@ namespace osmpbf {
 		virtual void close();
 
 		virtual void seek(uint32_t position) { m_FilePos = position; }
-		virtual uint32_t position() const { return m_FilePos; }
+		virtual OffsetType position() const { return m_FilePos; }
 
-		virtual uint32_t size() const { return m_FileSize; }
+		virtual OffsetType size() const { return m_FileSize; }
 
 		void readBlob(BlobDataBuffer & buffer);
-		BlobDataType readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize);
+		BlobDataType readBlob(char * & buffer, OffsetType & bufferSize, OffsetType & availableDataSize);
 
 		bool skipBlob();
 
 	protected:
 		char * m_FileData;
-		uint32_t m_FilePos;
-		uint32_t m_FileSize;
+		OffsetType m_FilePos;
+		OffsetType m_FileSize;
 
-		void readBlobHeader(uint32_t & blobLength, BlobDataType & blobDataType);
+		void readBlobHeader(OffsetType & blobLength, BlobDataType & blobDataType);
 
 		inline void * fileData() { return (void *) &(m_FileData[m_FilePos]); }
 
@@ -67,16 +67,16 @@ namespace osmpbf {
 		virtual bool open();
 		virtual void close();
 
-		virtual void seek(uint32_t position);
-		virtual uint32_t position() const;
+		virtual void seek(osmpbf::OffsetType position);
+		virtual OffsetType position() const;
 
-		virtual uint32_t size() const { return m_CurrentSize; }
+		virtual OffsetType size() const { return m_CurrentSize; }
 
 		bool writeBlob(const BlobDataBuffer & buffer, bool compress = true);
-		bool writeBlob(BlobDataType type, const char * buffer, uint32_t bufferSize, bool compress = true);
+		bool writeBlob(BlobDataType type, const char * buffer, OffsetType bufferSize, bool compress = true);
 
 	protected:
-		uint32_t m_CurrentSize;
+		OffsetType m_CurrentSize;
 
 	private:
 		BlobFileOut() : AbstractBlobFile() {}

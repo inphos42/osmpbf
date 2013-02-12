@@ -45,19 +45,19 @@ namespace osmpbf {
 		m_DataBuffer.clear();
 	}
 
-	void OSMFileIn::dataSeek(uint32_t position) {
+	void OSMFileIn::dataSeek(osmpbf::OffsetType position) {
 		m_FileIn->seek(m_DataOffset + position);
 	}
 
-	uint32_t OSMFileIn::dataPosition() const {
+	OffsetType OSMFileIn::dataPosition() const {
 		return m_FileIn->position() - m_DataOffset;
 	}
 
-	uint32_t OSMFileIn::dataSize() const {
+	OffsetType OSMFileIn::dataSize() const {
 		return m_FileIn->size() - m_DataOffset;
 	}
 
-	uint32_t OSMFileIn::totalSize() const {
+	OffsetType OSMFileIn::totalSize() const {
 		return m_FileIn->size();
 	}
 

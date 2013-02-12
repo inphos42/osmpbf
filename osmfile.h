@@ -25,11 +25,11 @@ namespace osmpbf {
 		bool open();
 		void close();
 
-		void dataSeek(uint32_t position);
-		uint32_t dataPosition() const;
-		uint32_t dataSize() const;
+		void dataSeek(OffsetType position);
+		OffsetType dataPosition() const;
+		OffsetType dataSize() const;
 
-		uint32_t totalSize() const;
+		OffsetType totalSize() const;
 
 		bool readBlock();
 		bool skipBlock();
@@ -62,7 +62,7 @@ namespace osmpbf {
 		crosby::binary::HeaderBlock * m_FileHeader;
 		std::vector< bool > m_MissingFeatures;
 
-		uint32_t m_DataOffset;
+		OffsetType m_DataOffset;
 
 		bool parseHeader();
 

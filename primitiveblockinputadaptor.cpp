@@ -26,7 +26,7 @@ namespace osmpbf {
 		GOOGLE_PROTOBUF_VERIFY_VERSION;
 	}
 
-	PrimitiveBlockInputAdaptor::PrimitiveBlockInputAdaptor(char * rawData, uint32_t length, bool unpackDense) :
+	PrimitiveBlockInputAdaptor::PrimitiveBlockInputAdaptor(char * rawData, OffsetType length, bool unpackDense) :
 		m_PrimitiveBlock(NULL),
 		m_PlainNodesGroup(NULL),
 		m_DenseNodesGroup(NULL),
@@ -45,7 +45,7 @@ namespace osmpbf {
 		delete[] m_DenseNodeKeyValIndex;
 	}
 
-	void PrimitiveBlockInputAdaptor::parseData(char * rawData, uint32_t length, bool unpackDense) {
+	void PrimitiveBlockInputAdaptor::parseData(char * rawData, OffsetType length, bool unpackDense) {
 		delete m_PrimitiveBlock;
 		delete[] m_DenseNodeKeyValIndex;
 

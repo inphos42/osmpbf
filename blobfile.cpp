@@ -1,6 +1,7 @@
 #include "blobfile.h"
 
 #include <iostream>
+#include <limits>
 #include <netinet/in.h>
 #include <zlib.h>
 
@@ -11,7 +12,7 @@
 #include "osmblob.pb.h"
 
 namespace osmpbf {
-	bool inflateData(const char * source, uint32_t sourceSize, char * dest, uint32_t destSize) {
+	bool inflateData(const char * source, OffsetType sourceSize, char * dest, OffsetType destSize) {
 		int ret;
 		z_stream stream;
 
@@ -52,7 +53,7 @@ namespace osmpbf {
 		return true;
 	}
 
-	uint32_t deflateData(const char * source, uint32_t sourceSize, char * & dest, uint32_t & destSize) {
+	uint32_t deflateData(const char * source, OffsetType sourceSize, char * & dest, OffsetType & destSize) {
 		int ret;
 		z_stream stream;
 
@@ -112,14 +113,14 @@ namespace osmpbf {
 
 		struct stat stFileInfo;
 		if (fstat(m_FileDescriptor, &stFileInfo) == 0) {
-			if (stFileInfo.st_size > UINT32_MAX) {
-				std::cerr << "ERROR: input file is larger than 4GB" << std::endl;
+			if (stFileInfo.st_size > std::numeric_limits<OffsetType>::max()) {
+				std::cerr << "ERROR: input file is larger than" << std::numeric_limits<OffsetType>::max()/0x3FFFFFFF << std::endl;
 				::close(m_FileDescriptor);
 				m_FileDescriptor = -1;
 				return false;
 			}
 
-			m_FileSize = uint32_t(stFileInfo.st_size);
+			m_FileSize = OffsetType(stFileInfo.st_size);
 		}
 
 		m_FileData = (char *) mmap(0, m_FileSize, PROT_READ, MAP_SHARED, m_FileDescriptor, 0);
@@ -154,7 +155,7 @@ namespace osmpbf {
 	constexpr uint32_t MAX_HEADER_SIZE = 64 << 10;
 	constexpr uint32_t MAX_BODY_SIZE = 32 << 20;
 
-	void BlobFileIn::readBlobHeader(uint32_t & blobLength, BlobDataType & blobDataType) {
+	void BlobFileIn::readBlobHeader(osmpbf::OffsetType & blobLength, osmpbf::BlobDataType & blobDataType) {
 		blobDataType = BLOB_Invalid;
 
 		if (m_VerboseOutput) std::cout << "checking blob header ..." << std::endl;
@@ -204,13 +205,13 @@ namespace osmpbf {
 		delete blobHeader;
 	}
 
-	BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize) {
+	BlobDataType BlobFileIn::readBlob(char*& buffer, osmpbf::OffsetType & bufferSize, osmpbf::OffsetType & availableDataSize) {
 		if (m_FilePos >= m_FileSize)
 			return BLOB_Invalid;
 
 		if (m_VerboseOutput) std::cout << "== blob ==" << std::endl;
 
-		uint32_t blobLength;
+		OffsetType blobLength;
 		BlobDataType blobDataType;
 
 		readBlobHeader(blobLength, blobDataType);
@@ -294,7 +295,7 @@ namespace osmpbf {
 
 		if (m_VerboseOutput) std::cout << "== blob ==" << std::endl;
 
-		uint32_t blobLength;
+		OffsetType blobLength;
 		BlobDataType blobDataType;
 
 		readBlobHeader(blobLength, blobDataType);
@@ -329,11 +330,11 @@ namespace osmpbf {
 		}
 	}
 
-	void BlobFileOut::seek(uint32_t position) {
+	void BlobFileOut::seek(OffsetType position) {
 		::lseek(m_FileDescriptor, position, SEEK_SET);
 	}
 
-	uint32_t BlobFileOut::position() const {
+	OffsetType BlobFileOut::position() const {
 		return ::lseek(m_FileDescriptor, 0, SEEK_CUR);
 	}
 
@@ -341,7 +342,7 @@ namespace osmpbf {
 		return writeBlob(buffer.type, buffer.data, buffer.availableBytes, compress);
 	}
 
-	bool BlobFileOut::writeBlob(BlobDataType type, const char * buffer, uint32_t bufferSize, bool compress) {
+	bool BlobFileOut::writeBlob(osmpbf::BlobDataType type, const char * buffer, osmpbf::OffsetType bufferSize, bool compress) {
 		if (type == BLOB_Invalid)
 			return false;
 
@@ -350,8 +351,8 @@ namespace osmpbf {
 
 		if (compress) {
 			char * zlibBuffer = NULL;
-			uint32_t zlibBufferSize = 0;
-			uint32_t zlibDataAvailable = 0;
+			OffsetType zlibBufferSize = 0;
+			OffsetType zlibDataAvailable = 0;
 
 			if (m_VerboseOutput) std::cout << "compressing data ... ";
 			zlibDataAvailable = deflateData(buffer, bufferSize, zlibBuffer, zlibBufferSize);
@@ -398,7 +399,7 @@ namespace osmpbf {
 
 		if (m_VerboseOutput) std::cout << "writing blob...";
 
-		::lseek(m_FileDescriptor, sizeof(uint32_t), SEEK_CUR); // skip file size
+		::lseek(m_FileDescriptor, sizeof(uint32_t), SEEK_CUR); // skip file size BUG:use OffsetType here?
 
 		uint32_t headerPosition = ::lseek(m_FileDescriptor, 0, SEEK_CUR);
 		if (!blobHeader->SerializeToFileDescriptor(m_FileDescriptor)) { // write header blob
@@ -412,7 +413,7 @@ namespace osmpbf {
 		uint32_t headerSize = blobPosition - headerPosition;
 
 		headerSize = htonl(headerSize);
-
+		//BUG:THIS IS UGLY CODE AND IT WILL TOTALY BREAK ON 64BIT
 		::lseek(m_FileDescriptor, headerPosition - sizeof(uint32_t), SEEK_SET);
 		::write(m_FileDescriptor, &headerSize, sizeof(uint32_t)); // write file size
 		::lseek(m_FileDescriptor, blobPosition, SEEK_SET);
