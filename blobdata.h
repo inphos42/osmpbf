@@ -1,9 +1,11 @@
 #ifndef OSMPBF_BLOBDATA_H
 #define OSMPBF_BLOBDATA_H
 
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <typelimits.h>
+
+#include "typelimits.h"
 
 namespace osmpbf {
 	enum BlobDataType {BLOB_Invalid = 0, BLOB_OSMHeader = 1, BLOB_OSMData = 2};
@@ -16,7 +18,7 @@ namespace osmpbf {
 
 		inline void clear() {
 			delete[] data;
-			data = 0;
+			data = NULL;
 			availableBytes = 0;
 			totalBytes = 0;
 			type = BLOB_Invalid;
@@ -24,7 +26,7 @@ namespace osmpbf {
 
 		BlobDataBuffer() : type(BLOB_Invalid), data(0), availableBytes(0), totalBytes(0) {}
 		BlobDataBuffer(const BlobDataBuffer & other) :
-			type(BLOB_Invalid), data(0),
+			type(BLOB_Invalid), data(NULL),
 			availableBytes(other.availableBytes), totalBytes(other.availableBytes)
 		{
 			if (totalBytes) {

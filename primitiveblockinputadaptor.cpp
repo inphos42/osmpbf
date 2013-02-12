@@ -1,5 +1,6 @@
 #include "primitiveblockinputadaptor.h"
 
+#include <cstddef>
 #include <iostream>
 
 #include "osmformat.pb.h"

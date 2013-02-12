@@ -1,7 +1,7 @@
 #ifndef OSMPBF_TYPELIMITS_H
 #define OSMPBF_TYPELIMITS_H
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace osmpbf {
 

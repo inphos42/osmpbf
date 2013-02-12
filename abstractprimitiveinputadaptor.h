@@ -3,7 +3,8 @@
 
 #include <cstdint>
 #include <string>
-#include <typelimits.h>
+
+#include "typelimits.h"
 
 #include <generics/refcountobject.h>
 
