@@ -1,3 +1,23 @@
+/*
+    This file is part of the osmpbf library.
+
+    Copyright(c) 2012-2013 Oliver Groß.
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.
+ */
+
 #include "blobfile.h"
 
 #include <iostream>
@@ -114,7 +134,7 @@ namespace osmpbf {
 		struct stat stFileInfo;
 		if (fstat(m_FileDescriptor, &stFileInfo) == 0) {
 			if (stFileInfo.st_size > std::numeric_limits<OffsetType>::max()) {
-				std::cerr << "ERROR: input file is larger than" << std::numeric_limits<OffsetType>::max()/0x3FFFFFFF << std::endl;
+				std::cerr << "ERROR: input file is larger than " << (std::numeric_limits<OffsetType>::max() >> 30) << " GiB" << std::endl;
 				::close(m_FileDescriptor);
 				m_FileDescriptor = -1;
 				return false;
