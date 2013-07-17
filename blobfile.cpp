@@ -133,8 +133,8 @@ namespace osmpbf {
 
 		struct stat stFileInfo;
 		if (fstat(m_FileDescriptor, &stFileInfo) == 0) {
-			if (stFileInfo.st_size > std::numeric_limits<NegativeOffsetType>::max()) {
-				std::cerr << "ERROR: input file is larger than " << (std::numeric_limits<NegativeOffsetType>::max() >> 30) << " GiB" << std::endl;
+			if (stFileInfo.st_size > std::numeric_limits<SignedOffsetType>::max()) {
+				std::cerr << "ERROR: input file is larger than " << (std::numeric_limits<SignedOffsetType>::max() >> 30) << " GiB" << std::endl;
 				::close(m_FileDescriptor);
 				m_FileDescriptor = -1;
 				return false;
