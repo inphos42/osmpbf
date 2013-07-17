@@ -39,6 +39,7 @@ namespace osmpbf {
 	class PrimitiveBlockInputAdaptor;
 
 	class WayInputAdaptor : public AbstractPrimitiveInputAdaptor {
+		typedef generics::DeltaFieldConstForwardIterator<int64_t> RefIterator;
 	public:
 		WayInputAdaptor();
 		WayInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Way * data);
