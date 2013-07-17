@@ -67,6 +67,9 @@ namespace osmpbf {
 	};
 
 	class IWay : public IPrimitive {
+	public:
+		typedef generics::DeltaFieldConstForwardIterator<int64_t> RefIterator;
+	private:
 		friend class PrimitiveBlockInputAdaptor;
 	public:
 		IWay(const IWay & other);
