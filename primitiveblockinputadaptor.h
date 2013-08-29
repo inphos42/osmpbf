@@ -52,7 +52,8 @@ namespace osmpbf {
 
 		const std::string & queryStringTable(int id) const;
 		int stringTableSize() const;
-
+		uint32_t findString(const std::string & str) const;
+		
 		INode getNodeAt(int position) const;
 		int nodesSize(unsigned char type = PlainNode | DenseNode) const;
 

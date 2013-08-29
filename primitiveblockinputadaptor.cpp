@@ -241,7 +241,26 @@ namespace osmpbf {
 	int PrimitiveBlockInputAdaptor::stringTableSize() const {
 		return m_PrimitiveBlock->stringtable().s_size();
 	}
+	
+	uint32_t PrimitiveBlockInputAdaptor::findString(const std::string & str) const {
+		if (isNull())
+			return 0;
 
+		uint32_t id = 0;
+
+		uint32_t stringTableSize = this->stringTableSize();
+
+		for (id = 1; id < stringTableSize; ++id) {
+			if (str == queryStringTable(id))
+				break;
+		}
+
+		if (id >= stringTableSize)
+			id = 0;
+
+		return id;
+	}
+	
 	INodeStream PrimitiveBlockInputAdaptor::getNodeStream() {
 		return INodeStream(this);
 	}
