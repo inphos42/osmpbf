@@ -214,7 +214,9 @@ namespace osmpbf {
 		std::set< uint32_t > m_IdSet;
 		std::set< std::string > m_ValueSet;
 	};
-
+	
+	
+	/** Check for a @key that matches boolean value @value */
 	class BoolTagFilter : public MultiStringTagFilter {
 	public:
 		BoolTagFilter(const std::string & key, bool value);
