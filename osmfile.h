@@ -56,6 +56,10 @@ namespace osmpbf {
 		bool readBlock();
 		bool skipBlock();
 
+		///@param databuffer copy next block into data buffer, not thread safe
+		bool getNextBlock(BlobDataBuffer & databuffer);
+		
+		///@param adaptor parse next block by @adaptor, not thread-safe
 		bool parseNextBlock(PrimitiveBlockInputAdaptor & adaptor);
 
 		inline const BlobDataBuffer & blockBuffer() const { return m_DataBuffer; }

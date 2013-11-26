@@ -81,10 +81,15 @@ namespace osmpbf {
 		return m_FileIn->size();
 	}
 
+	bool OSMFileIn::getNextBlock(BlobDataBuffer & databuffer) {
+		m_FileIn->readBlob(databuffer);
+		return databuffer.type != BLOB_Invalid;
+	}
+	
 	bool OSMFileIn::parseNextBlock(PrimitiveBlockInputAdaptor & adaptor) {
 		m_FileIn->readBlob(m_DataBuffer);
 		adaptor.parseData(m_DataBuffer.data, m_DataBuffer.availableBytes);
-		return m_DataBuffer.type;
+		return m_DataBuffer.type  != BLOB_Invalid;
 	}
 
 	bool OSMFileIn::skipBlock() {
