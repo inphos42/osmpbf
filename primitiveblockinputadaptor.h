@@ -41,7 +41,13 @@ namespace osmpbf {
 	class INodeStream;
 	class IWayStream;
 	class IRelationStream;
-
+	/** Abstracts access to a primitive block containing primitives (node, way, relations)
+	  * It has to be populated in synced order as OsmFileIn is not thread-safe.
+	  * Use one PrimitiveBlockInputAdaptor per thread as this class is not thread-safe as well
+	  *
+	  *
+	  */
+	
 	class PrimitiveBlockInputAdaptor {
 	public:
 		PrimitiveBlockInputAdaptor();
