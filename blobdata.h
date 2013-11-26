@@ -70,6 +70,22 @@ namespace osmpbf {
 
 			return *this;
 		}
+		
+		BlobDataBuffer & operator=(BlobDataBuffer && other) {
+			clear();
+
+			availableBytes = other.availableBytes;
+			totalBytes = other.totalBytes;
+			type = other.type;
+			data = other.data;
+
+			other.data = NULL;
+			other.availableBytes = 0;
+			other.totalBytes = 0;
+			other.type = BLOB_Invalid;
+
+			return *this;
+		}
 	};
 }
 
