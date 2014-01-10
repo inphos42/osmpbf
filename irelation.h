@@ -69,7 +69,7 @@ namespace osmpbf {
 			return *this;
 		}
 
-		virtual bool isNull() const { return !m_Controller || RCWrapper< MemberStreamInputAdaptor >::isNull(); }
+		virtual bool isNull() const { return !m_Controller || RCWrapper< MemberStreamInputAdaptor >::isNull() || RCWrapper< MemberStreamInputAdaptor >::m_Private->isNull(); }
 
 		inline int64_t id() const { return m_Private->id(); }
 
