@@ -86,6 +86,14 @@ namespace osmpbf {
 		return databuffer.type != BLOB_Invalid;
 	}
 	
+	std::vector<BlobDataBuffer> OSMFileIn::getNextBlocks(uint32_t num) {
+		std::vector<BlobDataBuffer> r(num);
+		uint32_t i = 0;
+		for(; i < num && getNextBlock(r[i]); ++i);
+		r.resize(i);
+		return r;
+	}
+
 	bool OSMFileIn::parseNextBlock(PrimitiveBlockInputAdaptor & adaptor) {
 		m_FileIn->readBlob(m_DataBuffer);
 		adaptor.parseData(m_DataBuffer.data, m_DataBuffer.availableBytes);

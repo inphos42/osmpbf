@@ -59,6 +59,9 @@ namespace osmpbf {
 		///@param databuffer copy next block into data buffer, not thread safe
 		bool getNextBlock(BlobDataBuffer & databuffer);
 		
+		///not thread-safe
+		std::vector<BlobDataBuffer> getNextBlocks(uint32_t num);
+		
 		///@param adaptor parse next block by @adaptor, not thread-safe
 		bool parseNextBlock(PrimitiveBlockInputAdaptor & adaptor);
 
