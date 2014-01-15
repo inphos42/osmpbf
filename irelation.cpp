@@ -96,7 +96,7 @@ namespace osmpbf {
 
 	MemberStreamInputAdaptor::MemberStreamInputAdaptor() : m_Data(NULL), m_Index(0), m_MaxIndex(0), m_CachedId(0) {}
 	MemberStreamInputAdaptor::MemberStreamInputAdaptor(const crosby::binary::Relation * data) : m_Data(data), m_Index(0),
-		m_MaxIndex(data ? data->memids_size() : 0), m_CachedId(data ?  data->memids(0) : 0) {}
+		m_MaxIndex(data ? data->memids_size() : 0), m_CachedId(data && m_MaxIndex > 0 ?  data->memids(0) : 0) {}
 
 	PrimitiveType MemberStreamInputAdaptor::type() const {
 		return PrimitiveType(m_Data->types(m_Index));
