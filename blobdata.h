@@ -53,6 +53,16 @@ namespace osmpbf {
 				type = other.type;
 			}
 		}
+		
+		BlobDataBuffer(BlobDataBuffer && other) :
+			type(other.type), data(other.data),
+			availableBytes(other.availableBytes), totalBytes(other.availableBytes)
+		{
+			other.type = BLOB_Invalid;
+			other.data = 0;
+			other.availableBytes = 0;
+			other.totalBytes = 0;
+		}
 
 		~BlobDataBuffer() { clear(); }
 
