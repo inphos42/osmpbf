@@ -93,7 +93,7 @@ namespace osmpbf {
 		RelationInputAdaptor();
 		RelationInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Relation * data);
 
-		virtual bool isNull() const { return !m_Controller || !m_Data; }
+		virtual bool isNull() const { return AbstractPrimitiveInputAdaptor::isNull() || !m_Data; }
 
 		virtual int64_t id();
 
