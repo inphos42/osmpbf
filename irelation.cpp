@@ -84,12 +84,22 @@ namespace osmpbf {
 
 	void RelationStreamInputAdaptor::next() {
 		m_Index++;
-		m_Data = m_Controller->m_RelationsGroup->relations().data()[m_Index];
+		if (m_Index < m_MaxIndex) {
+			m_Data = m_Controller->m_RelationsGroup->relations().data()[m_Index];
+		}
+		else {
+			m_Data = 0;
+		}
 	}
 
 	void RelationStreamInputAdaptor::previous() {
 		m_Index--;
-		m_Data = m_Controller->m_RelationsGroup->relations().data()[m_Index];
+		if (m_Index >= 0 && m_Index < m_MaxIndex) {
+			m_Data = m_Controller->m_RelationsGroup->relations().data()[m_Index];
+		}
+		else {
+			m_Data = 0;
+		}
 	}
 
 // MemberStreamInputAdaptor
