@@ -25,6 +25,12 @@
 
 namespace osmpbf {
 
+// AbstractNodeInputAdaptor
+
+	PrimitiveType AbstractNodeInputAdaptor::type() const {
+		return osmpbf::PrimitiveType::NodePrimitive;
+	}
+
 // INode
 
 	INode::INode() : IPrimitive() {}

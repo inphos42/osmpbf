@@ -47,6 +47,7 @@ namespace osmpbf {
 		virtual bool isNull() const { return AbstractPrimitiveInputAdaptor::isNull() || !m_Data; }
 
 		virtual int64_t id();
+		virtual osmpbf::PrimitiveType type() const;
 
 		virtual int tagsSize() const;
 

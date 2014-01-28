@@ -25,6 +25,7 @@
 #include <string>
 
 #include "typelimits.h"
+#include "common.h"
 
 #include <generics/refcountobject.h>
 
@@ -41,6 +42,7 @@ namespace osmpbf {
 		virtual bool isNull() const { return !m_Controller; }
 
 		virtual int64_t id() = 0;
+		virtual osmpbf::PrimitiveType type() const = 0; 
 
 		virtual int tagsSize() const = 0;
 

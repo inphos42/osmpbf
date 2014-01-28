@@ -19,7 +19,7 @@
  */
 
 #include "irelation.h"
-
+#include "common.h"
 #include "primitiveblockinputadaptor.h"
 #include "osmformat.pb.h"
 
@@ -55,6 +55,11 @@ namespace osmpbf {
 	int64_t RelationInputAdaptor::id() {
 		return m_Data->id();
 	}
+	
+	PrimitiveType RelationInputAdaptor::type() const {
+		return osmpbf::PrimitiveType::RelationPrimitive;
+	}
+
 
 	int RelationInputAdaptor::tagsSize() const {
 		return m_Data->keys_size();

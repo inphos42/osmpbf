@@ -24,6 +24,7 @@
 #include <generics/refcountobject.h>
 
 #include "abstractprimitiveinputadaptor.h"
+#include "common.h"
 
 namespace osmpbf {
 	class IPrimitive : public generics::RCWrapper< AbstractPrimitiveInputAdaptor > {
@@ -35,6 +36,7 @@ namespace osmpbf {
 		inline IPrimitive & operator=(const IPrimitive & other) { RCWrapper< AbstractPrimitiveInputAdaptor >::operator=(other); return *this; }
 
 		inline int64_t id() const { return m_Private->id(); }
+		inline osmpbf::PrimitiveType type() const { return m_Private->type(); }
 
 		inline int tagsSize() const { return m_Private->tagsSize(); }
 

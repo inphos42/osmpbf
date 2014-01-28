@@ -46,6 +46,8 @@ namespace osmpbf {
 		AbstractNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller)
 			: AbstractPrimitiveInputAdaptor(controller) {}
 
+		virtual osmpbf::PrimitiveType type() const;
+			
 		virtual int64_t lati() = 0;
 		virtual int64_t loni() = 0;
 
@@ -55,7 +57,7 @@ namespace osmpbf {
 		virtual int64_t rawLat() const = 0;
 		virtual int64_t rawLon() const = 0;
 
-		virtual NodeType type() const = 0;
+		virtual NodeType nodeType() const = 0;
 	};
 
 	class INode : public IPrimitive {
@@ -74,7 +76,7 @@ namespace osmpbf {
 		inline int64_t rawLat() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->rawLat(); }
 		inline int64_t rawLon() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->rawLon(); }
 
-		inline NodeType internalNodeType() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->type(); }
+		inline NodeType internalNodeType() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->nodeType(); }
 
 	protected:
 		INode();
@@ -104,7 +106,7 @@ namespace osmpbf {
 		virtual uint32_t keyId(int index) const;
 		virtual uint32_t valueId(int index) const;
 
-		virtual NodeType type() const { return PlainNode; }
+		virtual NodeType nodeType() const { return PlainNode; }
 
 	protected:
 		const crosby::binary::Node * m_Data;
@@ -133,7 +135,7 @@ namespace osmpbf {
 		virtual uint32_t keyId(int index) const;
 		virtual uint32_t valueId(int index) const;
 
-		virtual NodeType type() const { return DenseNode; }
+		virtual NodeType nodeType() const { return DenseNode; }
 
 	protected:
 		const crosby::binary::DenseNodes * m_Data;
@@ -171,7 +173,7 @@ namespace osmpbf {
 		virtual int64_t rawLat() const { return m_Lat; }
 		virtual int64_t rawLon() const { return m_Lon; }
 
-		virtual NodeType type() const { return (m_DenseIndex > -1 ? DenseNode : PlainNode); }
+		virtual NodeType nodeType() const { return (m_DenseIndex > -1 ? DenseNode : PlainNode); }
 
 		void next();
 		void previous();

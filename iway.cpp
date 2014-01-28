@@ -46,6 +46,11 @@ namespace osmpbf {
 	int64_t WayInputAdaptor::id() {
 		return m_Data->id();
 	}
+	
+	PrimitiveType WayInputAdaptor::type() const {
+		return osmpbf::PrimitiveType::WayPrimitive;
+	}
+
 
 	int64_t WayInputAdaptor::ref(int index) const {
 		int64_t result = m_Data->refs(0);

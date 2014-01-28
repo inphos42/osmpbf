@@ -73,7 +73,7 @@ namespace osmpbf {
 
 		inline int64_t id() const { return m_Private->id(); }
 
-		inline PrimitiveType type() const { return m_Private->type(); }
+		inline osmpbf::PrimitiveType type() const { return m_Private->type(); }
 
 		inline uint32_t roleId() const { return m_Private->roleId(); }
 
@@ -96,6 +96,7 @@ namespace osmpbf {
 		virtual bool isNull() const { return AbstractPrimitiveInputAdaptor::isNull() || !m_Data; }
 
 		virtual int64_t id();
+		virtual osmpbf::PrimitiveType type() const;
 
 		virtual int tagsSize() const;
 
