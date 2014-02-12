@@ -20,6 +20,20 @@ cmake_minimum_required(VERSION 2.8)
 
 project(osmpbf)
 
+MACRO(ADD_TARGET_PROPERTIES _target _name)
+	SET(_properties)
+	FOREACH(_prop ${ARGN})
+		SET(_properties "${_properties} ${_prop}")
+	ENDFOREACH(_prop)
+	GET_TARGET_PROPERTY(_old_properties ${_target} ${_name})
+	MESSAGE(STATUS "adding property to ${_target} ${_name}:" ${_properties})
+	IF(NOT _old_properties)
+		# in case it's NOTFOUND
+		SET(_old_properties)
+	ENDIF(NOT _old_properties)
+	SET_TARGET_PROPERTIES(${_target} PROPERTIES ${_name} "${_old_properties} ${_properties}")
+ENDMACRO(ADD_TARGET_PROPERTIES)
+
 set(DEBUG_FLAGS " ${DEBUG_FLAGS} -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
@@ -69,4 +83,14 @@ set(SOURCES_CPP
 )
 
 add_library(${PROJECT_NAME} STATIC ${PROTO_SOURCES} ${PROTO_HEADERS} ${SOURCES_CPP})
+
+add_executable(dumppbf dumppbf.cpp)
+target_link_libraries(dumppbf ${PROJECT_NAME} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES})
+
+add_executable(dumppbf_openmp dumppbf.cpp)
+target_link_libraries(dumppbf_openmp ${PROJECT_NAME} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES})
+add_target_properties(dumppbf_openmp COMPILE_FLAGS "-fopenmp")
+add_target_properties(dumppbf_openmp LINK_FLAGS "-fopenmp")
+
+
 # target_link_libraries(${PROJECT_NAME} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES})
