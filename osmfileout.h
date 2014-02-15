@@ -18,10 +18,27 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OSMPBF_OSMFILE_H
-#define OSMPBF_OSMFILE_H
+#ifndef OSMPBF_OSMFILEOUT_H
+#define OSMPBF_OSMFILEOUT_H
 
-#include "osmfilein.h"
-#include "osmfileout.h"
+#include <string>
+#include <vector>
 
-#endif // OSMPBF_OSMFILE_H
+#include "blobdata.h"
+
+#include "typelimits.h"
+
+namespace crosby {
+	namespace binary {
+		class HeaderBlock;
+	}
+}
+
+namespace osmpbf {
+	class PrimitiveBlockOutputAdaptor;
+	class BlobFileOut;
+
+	class OSMFileOut;
+}
+
+#endif // OSMPBF_OSMFILEOUT_H

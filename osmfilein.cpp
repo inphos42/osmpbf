@@ -81,23 +81,29 @@ namespace osmpbf {
 		return m_FileIn->size();
 	}
 
-	bool OSMFileIn::getNextBlock(BlobDataBuffer & databuffer) {
-		m_FileIn->readBlob(databuffer);
-		return databuffer.type != BLOB_Invalid;
+	bool OSMFileIn::getNextBlock(BlobDataBuffer & buffer) {
+		m_FileIn->readBlob(buffer);
+		return buffer.type != BLOB_Invalid;
 	}
 
-	std::vector<BlobDataBuffer> OSMFileIn::getNextBlocks(uint32_t num) {
-		std::vector<BlobDataBuffer> r(num);
+	bool OSMFileIn::getNextBlocks(BlobDataMultiBuffer & buffers, uint32_t num) {
+		// ensure there is enough space
+		buffers.reserve(num);
+
+		// read (all) buffers
 		uint32_t i = 0;
-		for(; i < num && getNextBlock(r[i]); ++i);
-		r.resize(i);
-		return r;
+		while ((i < num || num < 0) && getNextBlock(buffers[i]))
+			++i;
+
+		// resize buffers and check if all parsing
+		buffers.resize(i);
+		return (i = num) || (num < 0);
 	}
 
 	bool OSMFileIn::parseNextBlock(PrimitiveBlockInputAdaptor & adaptor) {
 		m_FileIn->readBlob(m_DataBuffer);
 		adaptor.parseData(m_DataBuffer.data, m_DataBuffer.availableBytes);
-		return m_DataBuffer.type  != BLOB_Invalid;
+		return m_DataBuffer.type != BLOB_Invalid;
 	}
 
 	bool OSMFileIn::skipBlock() {
@@ -106,7 +112,7 @@ namespace osmpbf {
 
 	bool OSMFileIn::readBlock() {
 		m_FileIn->readBlob(m_DataBuffer);
-		return m_DataBuffer.type;
+		return m_DataBuffer.type != BLOB_Invalid;
 	}
 
 	bool OSMFileIn::parseHeader() {
