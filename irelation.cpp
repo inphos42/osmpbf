@@ -1,7 +1,7 @@
 /*
     This file is part of the osmpbf library.
 
-    Copyright(c) 2012-2013 Oliver Groß.
+    Copyright(c) 2012-2014 Oliver Groß.
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -55,9 +55,9 @@ namespace osmpbf {
 	int64_t RelationInputAdaptor::id() {
 		return m_Data->id();
 	}
-	
+
 	PrimitiveType RelationInputAdaptor::type() const {
-		return osmpbf::PrimitiveType::RelationPrimitive;
+		return PrimitiveType::RelationPrimitive;
 	}
 
 
@@ -84,7 +84,7 @@ namespace osmpbf {
 		: RelationInputAdaptor(controller, controller->m_RelationsGroup ? controller->m_RelationsGroup->relations().data()[0] : NULL), m_Index(0), m_MaxIndex(m_Controller->relationsSize()) {}
 
 	bool RelationStreamInputAdaptor::isNull() const {
-		return osmpbf::RelationInputAdaptor::isNull() || (m_Index >= m_MaxIndex) || (m_Index < 0);
+		return RelationInputAdaptor::isNull() || (m_Index >= m_MaxIndex) || (m_Index < 0);
 	}
 
 	void RelationStreamInputAdaptor::next() {

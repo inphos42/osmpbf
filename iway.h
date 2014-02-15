@@ -1,7 +1,7 @@
 /*
     This file is part of the osmpbf library.
 
-    Copyright(c) 2012-2013 Oliver Groß.
+    Copyright(c) 2012-2014 Oliver Groß.
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public

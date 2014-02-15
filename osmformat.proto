@@ -1,7 +1,7 @@
 /*
     This file is part of the osmpbf library.
 
-    Copyright(c) 2012-2013 Oliver Groß.
+    Copyright(c) 2012-2014 Oliver Groß.
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -19,8 +19,14 @@
  */
 
 package crosby.binary;
+option optimize_for = LITE_RUNTIME;
 
 // option java_package = "crosby.binary";
+
+/*
+    rest of the file is the "OSM Binary file format" definition
+    (osmformat.proto) from https://github.com/scrosby/OSM-binary
+ */
 
 /* OSM Binary file format
 

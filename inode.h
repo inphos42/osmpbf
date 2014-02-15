@@ -1,7 +1,7 @@
 /*
     This file is part of the osmpbf library.
 
-    Copyright(c) 2012-2013 Oliver Groß.
+    Copyright(c) 2012-2014 Oliver Groß.
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -47,7 +47,7 @@ namespace osmpbf {
 			: AbstractPrimitiveInputAdaptor(controller) {}
 
 		virtual osmpbf::PrimitiveType type() const;
-			
+
 		virtual int64_t lati() = 0;
 		virtual int64_t loni() = 0;
 
@@ -155,7 +155,7 @@ namespace osmpbf {
 		NodeStreamInputAdaptor();
 		NodeStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller);
 
-		virtual bool isNull() const { return !m_Controller || !(m_PlainNodes || m_DenseNodes) || (m_Index < 0) || m_Index >= m_PlainNodesSize + m_DenseNodesSize; }
+		virtual bool isNull() const { return AbstractPrimitiveInputAdaptor::isNull() || !(m_PlainNodes || m_DenseNodes) || (m_Index < 0) || m_Index >= m_PlainNodesSize + m_DenseNodesSize; }
 
 		virtual int64_t id() { return m_Id; }
 

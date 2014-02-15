@@ -1,7 +1,7 @@
 /*
     This file is part of the osmpbf library.
 
-    Copyright(c) 2012-2013 Oliver Groß.
+    Copyright(c) 2012-2014 Oliver Groß.
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -41,14 +41,12 @@ namespace osmpbf {
 	class INodeStream;
 	class IWayStream;
 	class IRelationStream;
+
+	class PrimitiveBlockInputAdaptor {
 	/** Abstracts access to a primitive block containing primitives (node, way, relations)
 	  * It has to be populated in synced order as OsmFileIn is not thread-safe.
 	  * Use one PrimitiveBlockInputAdaptor per thread as this class is not thread-safe as well
-	  *
-	  *
 	  */
-	
-	class PrimitiveBlockInputAdaptor {
 	public:
 		PrimitiveBlockInputAdaptor();
 		PrimitiveBlockInputAdaptor(char * rawData, OffsetType length, bool unpackDense = false);

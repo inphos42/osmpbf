@@ -1,7 +1,7 @@
 /*
     This file is part of the osmpbf library.
 
-    Copyright(c) 2012-2013 Oliver Groß.
+    Copyright(c) 2012-2014 Oliver Groß.
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -58,10 +58,10 @@ namespace osmpbf {
 
 		///@param databuffer copy next block into data buffer, not thread safe
 		bool getNextBlock(BlobDataBuffer & databuffer);
-		
+
 		///not thread-safe
 		std::vector<BlobDataBuffer> getNextBlocks(uint32_t num);
-		
+
 		///@param adaptor parse next block by @adaptor, not thread-safe
 		bool parseNextBlock(PrimitiveBlockInputAdaptor & adaptor);
 
