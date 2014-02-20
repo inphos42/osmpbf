@@ -70,7 +70,7 @@ namespace osmpbf {
 		 * copy next blocks into data buffers
 		 * not thread-safe
 		 *
-		 * @param buffers target
+		 * @param buffers target container of buffers
 		 * @param num number of blocks to copy, set to -1 to copy all remaining blocks
 		 */
 		bool getNextBlocks(BlobDataMultiBuffer & buffers, uint32_t num);

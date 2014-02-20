@@ -18,7 +18,7 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "osmfile.h"
+#include "osmfilein.h"
 
 #include <iostream>
 #include <deque>
