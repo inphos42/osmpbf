@@ -21,12 +21,12 @@
 #if defined(__OPENMP)
 #include <omp.h>
 #endif
-#include "osmfile.h"
-#include "inode.h"
-#include "iway.h"
-#include "irelation.h"
-#include "filter.h"
-#include "primitiveblockinputadaptor.h"
+#include <osmpbf/osmfile.h>
+#include <osmpbf/inode.h>
+#include <osmpbf/iway.h>
+#include <osmpbf/irelation.h>
+#include <osmpbf/filter.h>
+#include <osmpbf/primitiveblockinputadaptor.h>
 
 
 inline std::string primitiveTypeToString(osmpbf::PrimitiveType t) {
