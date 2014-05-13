@@ -18,13 +18,12 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "osmfilein.h"
-
 #include <iostream>
 #include <deque>
 
-#include "blobfile.h"
-#include "primitiveblockinputadaptor.h"
+#include <osmpbf/osmfilein.h>
+#include <osmpbf/blobfile.h>
+#include <osmpbf/primitiveblockinputadaptor.h>
 
 #include "osmformat.pb.h"
 

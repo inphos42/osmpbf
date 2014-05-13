@@ -23,8 +23,9 @@
 
 #include <cstdint>
 #include <string>
-#include "common.h"
-#include "typelimits.h"
+
+#include <osmpbf/common.h>
+#include <osmpbf/typelimits.h>
 
 namespace crosby {
 	namespace binary {

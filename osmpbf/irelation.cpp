@@ -18,9 +18,10 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "irelation.h"
-#include "common.h"
-#include "primitiveblockinputadaptor.h"
+#include <osmpbf/irelation.h>
+#include <osmpbf/common.h>
+#include <osmpbf/primitiveblockinputadaptor.h>
+
 #include "osmformat.pb.h"
 
 namespace osmpbf {

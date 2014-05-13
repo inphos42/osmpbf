@@ -27,9 +27,9 @@
 
 #include <generics/fielditerator.h>
 
-#include "common.h"
-#include "abstractprimitiveoutputadaptor.h"
-#include "oprimitive.h"
+#include <osmpbf/common.h>
+#include <osmpbf/abstractprimitiveoutputadaptor.h>
+#include <osmpbf/oprimitive.h>
 
 namespace crosby {
 	namespace binary {

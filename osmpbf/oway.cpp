@@ -18,9 +18,8 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "oway.h"
-
-#include "primitiveblockoutputadaptor.h"
+#include <osmpbf/oway.h>
+#include <osmpbf/primitiveblockoutputadaptor.h>
 
 #include "osmformat.pb.h"
 

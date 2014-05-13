@@ -24,8 +24,8 @@
 #include <cstdint>
 #include <string>
 
-#include "common.h"
-#include "stringtable_fwd.h"
+#include <osmpbf/common.h>
+#include <osmpbf/stringtable_fwd.h>
 
 namespace crosby {
 	namespace binary {

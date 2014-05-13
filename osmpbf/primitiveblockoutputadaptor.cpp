@@ -18,15 +18,15 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "primitiveblockoutputadaptor.h"
-
+#include <osmpbf/primitiveblockoutputadaptor.h>
+#include <osmpbf/iway.h>
+#include <osmpbf/oway.h>
+#include <osmpbf/onode.h>
+#include <osmpbf/inode.h>
 #include <generics/store.h>
 
 #include "osmformat.pb.h"
-#include "iway.h"
-#include "oway.h"
-#include "onode.h"
-#include "inode.h"
+
 
 namespace osmpbf {
 

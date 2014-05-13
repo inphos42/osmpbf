@@ -18,14 +18,13 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "filter.h"
-
 #include <cstdint>
 #include <cstdlib>
 
-#include "primitiveblockinputadaptor.h"
-#include "iprimitive.h"
-#include "irelation.h"
+#include <osmpbf/filter.h>
+#include <osmpbf/primitiveblockinputadaptor.h>
+#include <osmpbf/iprimitive.h>
+#include <osmpbf/irelation.h>
 
 namespace osmpbf {
 

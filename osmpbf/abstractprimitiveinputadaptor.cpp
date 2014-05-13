@@ -18,9 +18,8 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "abstractprimitiveinputadaptor.h"
-
-#include "primitiveblockinputadaptor.h"
+#include <osmpbf/abstractprimitiveinputadaptor.h>
+#include <osmpbf/primitiveblockinputadaptor.h>
 
 namespace osmpbf {
 	const std::string & AbstractPrimitiveInputAdaptor::key(int index) const {

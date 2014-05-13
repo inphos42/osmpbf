@@ -18,9 +18,8 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "onode.h"
-
-#include "primitiveblockoutputadaptor.h"
+#include <osmpbf/onode.h>
+#include <osmpbf/primitiveblockoutputadaptor.h>
 
 #include "osmformat.pb.h"
 

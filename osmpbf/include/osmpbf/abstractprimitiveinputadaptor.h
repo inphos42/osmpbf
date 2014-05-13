@@ -24,8 +24,8 @@
 #include <cstdint>
 #include <string>
 
-#include "typelimits.h"
-#include "common.h"
+#include <osmpbf/typelimits.h>
+#include <osmpbf/common.h>
 
 #include <generics/refcountobject.h>
 

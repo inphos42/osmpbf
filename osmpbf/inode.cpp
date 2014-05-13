@@ -18,9 +18,9 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "inode.h"
+#include <osmpbf/inode.h>
+#include <osmpbf/primitiveblockinputadaptor.h>
 
-#include "primitiveblockinputadaptor.h"
 #include "osmformat.pb.h"
 
 namespace osmpbf {

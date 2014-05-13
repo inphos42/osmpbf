@@ -43,6 +43,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${DEBUG_FLAGS}")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${DEBUG_FLAGS}")
 
 find_package(Protobuf REQUIRED)
+find_package(Threads REQUIRED)
 find_package(ZLIB REQUIRED)
 
 include_directories(
@@ -57,7 +58,7 @@ include_directories(
 set(OSMPBF_LIBRARIES ${osmpbf_BINARY_DIR}/libosmpbf.a)
 
 add_executable(dumppbf dumppbf.cpp)
-target_link_libraries(dumppbf ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES})
+target_link_libraries(dumppbf ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(dumppbf_openmp dumppbf.cpp)
 target_link_libraries(dumppbf_openmp ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES})

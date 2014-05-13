@@ -18,8 +18,9 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "abstractprimitiveoutputadaptor.h"
 #include <generics/store.h>
+
+#include <osmpbf/abstractprimitiveoutputadaptor.h>
 
 #include "osmformat.pb.h"
 
@@ -29,7 +30,7 @@ namespace osmpbf {
 	template class AbstractPrimitiveOutputAdaptor< crosby::binary::Relation >;
 }
 
-#include "common.h"
+#include <osmpbf/common.h>
 
 namespace osmpbf {
 	template<class PrimitiveType>

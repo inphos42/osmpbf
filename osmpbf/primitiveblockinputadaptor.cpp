@@ -18,18 +18,16 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "primitiveblockinputadaptor.h"
-
 #include <cstddef>
 #include <iostream>
+#include <assert.h>
+
+#include <osmpbf/primitiveblockinputadaptor.h>
+#include <osmpbf/inode.h>
+#include <osmpbf/iway.h>
+#include <osmpbf/irelation.h>
 
 #include "osmformat.pb.h"
-
-#include "inode.h"
-#include "iway.h"
-#include "irelation.h"
-
-#include "assert.h"
 
 namespace osmpbf {
 

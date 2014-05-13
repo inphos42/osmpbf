@@ -18,9 +18,9 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "iway.h"
+#include <osmpbf/iway.h>
+#include <osmpbf/primitiveblockinputadaptor.h>
 
-#include "primitiveblockinputadaptor.h"
 #include "osmformat.pb.h"
 
 namespace osmpbf {

@@ -27,6 +27,8 @@ if(CMAKE_CROSSCOMPILING AND ANDROID)
 	set(LIBRARY_OUTPUT_PATH_ROOT "${CMAKE_BINARY_DIR}")
 endif(CMAKE_CROSSCOMPILING AND ANDROID)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/osmpbf/include)
+
 add_subdirectory(osmpbf)
 
 add_subdirectory(examples)

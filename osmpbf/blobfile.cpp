@@ -18,16 +18,17 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "blobfile.h"
-
 #include <iostream>
 #include <limits>
-#include <netinet/in.h>
+
 #include <zlib.h>
 
+#include <netinet/in.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+
+#include <osmpbf/blobfile.h>
 
 #include "osmblob.pb.h"
 
