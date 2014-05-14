@@ -85,12 +85,12 @@ namespace osmpbf {
 		return buffer.type != BLOB_Invalid;
 	}
 
-	bool OSMFileIn::getNextBlocks(BlobDataMultiBuffer & buffers, uint32_t num) {
+	bool OSMFileIn::getNextBlocks(osmpbf::BlobDataMultiBuffer& buffers, int num) {
 		// ensure there is enough space
-		buffers.reserve(num);
+		buffers.resize(num);
 
 		// read (all) buffers
-		uint32_t i = 0;
+		int i = 0;
 		while ((i < num || num < 0) && getNextBlock(buffers[i]))
 			++i;
 
