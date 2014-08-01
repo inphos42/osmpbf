@@ -49,6 +49,7 @@ namespace osmpbf {
 		bool open();
 		void close();
 
+		void reset();
 		void dataSeek(OffsetType position);
 		OffsetType dataPosition() const;
 		OffsetType dataSize() const;

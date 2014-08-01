@@ -64,6 +64,10 @@ namespace osmpbf {
 		m_DataBuffer.clear();
 	}
 
+	void OSMFileIn::reset() {
+		dataSeek(0);
+	}
+
 	void OSMFileIn::dataSeek(osmpbf::OffsetType position) {
 		m_FileIn->seek(m_DataOffset + position);
 	}
