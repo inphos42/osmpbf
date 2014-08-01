@@ -90,13 +90,16 @@ namespace osmpbf {
 	}
 
 	bool OSMFileIn::getNextBlocks(osmpbf::BlobDataMultiBuffer& buffers, int num) {
-		// ensure there is enough space
-		buffers.resize(num);
-
 		// read (all) buffers
 		int i = 0;
-		while ((i < num || num < 0) && getNextBlock(buffers[i]))
-			++i;
+		if ( num < 0) {
+			for(buffers.resize(1); getNextBlock(buffers[i]); ++i) {
+				buffers.resize(i+1);
+			}
+		}
+		else {
+			for(buffers.resize(num); i < num && getNextBlock(buffers[i]); ++i);
+		}
 
 		// resize buffers and check if all parsing
 		buffers.resize(i);
