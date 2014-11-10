@@ -57,12 +57,12 @@ namespace osmpbf {
 		int refsSize() const;
 		int64_t rawRef(int index) const;
 
-		// warning: This methods complexity is O(n). It's here for convenience. You shouldn't
-		//          call this method very often or with a high index parameter.
+		/// warning: This methods complexity is O(n). It's here for convenience. You shouldn't
+		///          call this method very often or with a high index parameter.
 		int64_t ref(int index) const;
 
-		generics::DeltaFieldConstForwardIterator<int64_t> refBegin() const;
-		generics::DeltaFieldConstForwardIterator<int64_t> refEnd() const;
+		RefIterator refBegin() const;
+		RefIterator refEnd() const;
 
 	protected:
 		const crosby::binary::Way * m_Data;
@@ -82,8 +82,8 @@ namespace osmpbf {
 		inline int64_t rawRef(int index) const { return dynamic_cast< WayInputAdaptor * >(m_Private)->rawRef(index); }
 		inline int refsSize() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refsSize(); }
 
-		inline generics::DeltaFieldConstForwardIterator<int64_t> refBegin() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refBegin(); }
-		inline generics::DeltaFieldConstForwardIterator<int64_t> refEnd() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refEnd(); }
+		inline RefIterator refBegin() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refBegin(); }
+		inline RefIterator refEnd() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refEnd(); }
 
 	protected:
 		IWay();
