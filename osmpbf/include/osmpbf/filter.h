@@ -108,6 +108,13 @@ namespace osmpbf {
 			}
 			return child;
 		}
+		
+		template<typename T_ABSTRACT_TAG_FILTER_ITERATOR>
+		inline void addChildren(T_ABSTRACT_TAG_FILTER_ITERATOR begin, const T_ABSTRACT_TAG_FILTER_ITERATOR & end) {
+			for(; begin != end; ++begin) {
+				addChild(*begin);
+			}
+		}
 
 	protected:
 		typedef std::forward_list<AbstractTagFilter *> FilterList;
