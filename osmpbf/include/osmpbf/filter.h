@@ -93,6 +93,23 @@ namespace osmpbf {
 
 		bool m_Invert;
 	};
+	
+	class PrimitiveTypeFilter: public AbstractTagFilter {
+	public:
+		PrimitiveTypeFilter(int primitiveTypes);
+		virtual ~PrimitiveTypeFilter();
+		void setFilteredTypes(int primitiveTypes);
+		inline int filteredTypes() { return m_filteredPrimitives; }
+		
+		virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi);
+		virtual bool buildIdCache();
+		
+	protected:
+		virtual bool p_matches(const IPrimitive & primitive);
+	private:
+		int m_filteredPrimitives;
+		const osmpbf::PrimitiveBlockInputAdaptor * m_PBI;
+	};
 
 	class AbstractMultiTagFilter : public AbstractTagFilter {
 	public:

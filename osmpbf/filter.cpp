@@ -28,6 +28,37 @@
 
 namespace osmpbf {
 
+	//PrimitiveTypeFilter
+	PrimitiveTypeFilter::PrimitiveTypeFilter(int primitiveTypes) : m_filteredPrimitives(primitiveTypes) {}
+	
+	PrimitiveTypeFilter::~PrimitiveTypeFilter() {}
+	
+	void PrimitiveTypeFilter::setFilteredTypes(int primitiveTypes) {
+		m_filteredPrimitives = primitiveTypes;
+	}
+	
+	void PrimitiveTypeFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) {
+		m_PBI = pbi;
+	}
+	
+	bool PrimitiveTypeFilter::buildIdCache() {
+		if (m_PBI) {
+			int availableTypes = NoPrimitive;
+			if (m_PBI->nodesSize())
+				availableTypes |= NodePrimitive;
+			if (m_PBI->waysSize())
+				availableTypes |= WayPrimitive;
+			if (m_PBI->relationsSize())
+				availableTypes |= RelationPrimitive;
+			return availableTypes & m_filteredPrimitives;
+		}
+		return true;
+	}
+	
+	bool PrimitiveTypeFilter::p_matches(const IPrimitive & primitive) {
+		return primitive.type() & m_filteredPrimitives;
+	}
+
 	// AbstractMultiTagFilter
 
 	AbstractMultiTagFilter::~AbstractMultiTagFilter() {
