@@ -27,6 +27,16 @@
 
 #include <generics/refcountobject.h>
 
+/**
+  * TagFilters:
+  *
+  *
+  *
+  * You can create a DAG out of Filters
+  *
+  */
+
+
 namespace osmpbf {
 
 	template<class OSMInputPrimitive>
@@ -216,7 +226,7 @@ namespace osmpbf {
 	};
 
 
-	/** Check for a @key that matches boolean value @value */
+	/** Check for a @key that matches boolean value @value. Evaluates to false if key is not available */
 	class BoolTagFilter : public MultiStringTagFilter {
 	public:
 		BoolTagFilter(const std::string & key, bool value);
