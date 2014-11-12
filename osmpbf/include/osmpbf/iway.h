@@ -28,6 +28,7 @@
 #include "iprimitive.h"
 
 #include <generics/fielditerator.h>
+#include <generics/macros.h>
 
 namespace crosby {
 	namespace binary {
@@ -77,8 +78,10 @@ namespace osmpbf {
 		IWay(const IWay & other);
 
 		inline IWay & operator=(const IWay & other) { IPrimitive::operator=(other); return *this; }
-
-		inline int64_t ref(int index) const { return dynamic_cast< WayInputAdaptor * >(m_Private)->ref(index); }
+		
+		/// warning: This methods complexity is O(n). It's here for convenience. You shouldn't
+		///          call this method very often or with a high index parameter.
+		inline GENERICS_MARK_FUNC_DEPRECATED int64_t ref(int index) const { return dynamic_cast< WayInputAdaptor * >(m_Private)->ref(index); }
 		inline int64_t rawRef(int index) const { return dynamic_cast< WayInputAdaptor * >(m_Private)->rawRef(index); }
 		inline int refsSize() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refsSize(); }
 
