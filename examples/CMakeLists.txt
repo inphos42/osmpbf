@@ -64,3 +64,9 @@ add_executable(dumppbf_openmp dumppbf.cpp)
 target_link_libraries(dumppbf_openmp ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES})
 add_target_properties(dumppbf_openmp COMPILE_FLAGS "-fopenmp")
 add_target_properties(dumppbf_openmp LINK_FLAGS "-fopenmp")
+
+add_executable(dumppbf_parsehelpers dumppbf_parsehelpers.cpp)
+target_link_libraries(dumppbf_parsehelpers ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES})
+add_target_properties(dumppbf_parsehelpers COMPILE_FLAGS "-fopenmp")
+add_target_properties(dumppbf_parsehelpers LINK_FLAGS "-fopenmp")
+
