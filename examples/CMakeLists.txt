@@ -49,7 +49,6 @@ find_package(ZLIB REQUIRED)
 include_directories(
 	${PROTOBUF_INCLUDE_DIRS}
 	${ZLIB_INCLUDE_DIRS}
-
 	${CMAKE_CURRENT_BINARY_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}
@@ -58,15 +57,18 @@ include_directories(
 set(OSMPBF_LIBRARIES ${osmpbf_BINARY_DIR}/libosmpbf.a)
 
 add_executable(dumppbf dumppbf.cpp)
+add_dependencies(dumppbf osmpbf)
 target_link_libraries(dumppbf ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(dumppbf_openmp dumppbf.cpp)
-target_link_libraries(dumppbf_openmp ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES})
+add_dependencies(dumppbf_openmp osmpbf)
+target_link_libraries(dumppbf_openmp ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 add_target_properties(dumppbf_openmp COMPILE_FLAGS "-fopenmp")
 add_target_properties(dumppbf_openmp LINK_FLAGS "-fopenmp")
 
 add_executable(dumppbf_parsehelpers dumppbf_parsehelpers.cpp)
-target_link_libraries(dumppbf_parsehelpers ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES})
+add_dependencies(dumppbf_parsehelpers osmpbf)
+target_link_libraries(dumppbf_parsehelpers ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 add_target_properties(dumppbf_parsehelpers COMPILE_FLAGS "-fopenmp")
 add_target_properties(dumppbf_parsehelpers LINK_FLAGS "-fopenmp")
 
