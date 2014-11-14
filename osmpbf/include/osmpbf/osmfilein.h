@@ -25,7 +25,6 @@
 #include <vector>
 
 #include "blobdata.h"
-
 #include "typelimits.h"
 
 namespace crosby {
@@ -114,6 +113,9 @@ namespace osmpbf {
 		OSMFileIn(const OSMFileIn & other);
 		OSMFileIn & operator=(const OSMFileIn & other);
 	};
+
 }
+
+
 
 #endif // OSMPBF_OSMFILEIN_H

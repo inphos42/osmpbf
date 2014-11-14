@@ -103,7 +103,7 @@ namespace osmpbf {
 
 		// resize buffers and check if all parsing
 		buffers.resize(i);
-		return (i = num) || (num < 0);
+		return (i == num) || (num < 0);
 	}
 
 	bool OSMFileIn::parseNextBlock(PrimitiveBlockInputAdaptor & adaptor) {
