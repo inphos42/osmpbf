@@ -115,7 +115,17 @@ namespace osmpbf {
 		m_MaxIndex(data ? data->memids_size() : 0), m_CachedId(data && m_MaxIndex > 0 ?  data->memids(0) : 0) {}
 
 	PrimitiveType MemberStreamInputAdaptor::type() const {
-		return PrimitiveType(m_Data->types(m_Index));
+		 crosby::binary::Relation_MemberType pbfMemType = m_Data->types(m_Index);
+		 switch (pbfMemType) {
+		 case (crosby::binary::Relation_MemberType::Relation_MemberType_NODE):
+			return PrimitiveType::NodePrimitive;
+		 case (crosby::binary::Relation_MemberType::Relation_MemberType_WAY):
+			return PrimitiveType::WayPrimitive;
+		 case (crosby::binary::Relation_MemberType::Relation_MemberType_RELATION):
+			return PrimitiveType::RelationPrimitive;
+		default:
+			return PrimitiveType::InvalidPrimitive;
+		}
 	}
 
 	uint32_t MemberStreamInputAdaptor::roleId() const {
