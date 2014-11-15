@@ -82,7 +82,7 @@ namespace osmpbf {
 		virtual ~AbstractTagFilter() {}
 
 		inline bool matches(const IPrimitive & primitive) { return m_Invert ? !p_matches(primitive) : p_matches(primitive); }
-
+		///if you associate an pbi with an filter then you have to rebuild the id cache everytime you change the contents of the pbi
 		virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) = 0;
 		virtual bool buildIdCache() = 0;
 
