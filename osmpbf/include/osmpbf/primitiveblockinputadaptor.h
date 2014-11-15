@@ -27,6 +27,8 @@
 #include <osmpbf/common.h>
 #include <osmpbf/typelimits.h>
 
+//TODO:add id to identify a pb within a file (with which we could automatically do the filter update)
+
 namespace crosby {
 	namespace binary {
 		class PrimitiveBlock;
