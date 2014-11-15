@@ -75,16 +75,18 @@ namespace osmpbf {
 
 	bool OrTagFilter::buildIdCache() {
 		bool result = false;
-		for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it)
+		for (FilterList::const_iterator it(m_Children.cbegin()), end(m_Children.cend()); it != end; ++it) {
 			result = (*it)->buildIdCache() || result;
+		}
 
 		return result;
 	}
 
 	bool OrTagFilter::p_matches(const IPrimitive & primitive) {
-		for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it) {
-			if ((*it)->matches(primitive))
+		for (FilterList::const_iterator it(m_Children.cbegin()), end(m_Children.cend()); it != end; ++it) {
+			if ((*it)->matches(primitive)) {
 				return true;
+			}
 		}
 
 		return false;
@@ -94,14 +96,14 @@ namespace osmpbf {
 
 	bool AndTagFilter::buildIdCache() {
 		bool result = true;
-		for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it)
+		for (FilterList::const_iterator it(m_Children.cbegin()), end(m_Children.cend()); it != end; ++it)
 			result = (*it)->buildIdCache() && result;
 
 		return result;
 	}
 
 	bool AndTagFilter::p_matches(const IPrimitive & primitive) {
-		for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it) {
+		for (FilterList::const_iterator it(m_Children.cbegin()), end(m_Children.cend()); it != end; ++it) {
 			if (!(*it)->matches(primitive))
 				return false;
 		}
