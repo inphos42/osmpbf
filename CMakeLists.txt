@@ -31,7 +31,5 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/osmp
 
 add_subdirectory(osmpbf)
 
-add_subdirectory(examples)
-add_dependencies(dumppbf osmpbf)
-add_dependencies(dumppbf_openmp osmpbf)
+add_subdirectory(examples EXCLUDE_FROM_ALL)
 
