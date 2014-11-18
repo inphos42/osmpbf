@@ -24,6 +24,7 @@
 #include <forward_list>
 #include <string>
 #include <set>
+#include <unordered_set>
 
 #include <generics/refcountobject.h>
 
@@ -229,11 +230,21 @@ namespace osmpbf {
 
 	class MultiStringTagFilter : public KeyOnlyTagFilter {
 	public:
+		typedef std::unordered_set<uint32_t> IdSet;
+		typedef std::unordered_set<std::string> ValueSet;
+	public:
 		MultiStringTagFilter (const std::string & key);
+		MultiStringTagFilter(const std::string & key, std::initializer_list<std::string> l);
+		template<typename T_STRING_ITERATOR>
+		MultiStringTagFilter(const std::string & key, const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end);
 
 		virtual bool buildIdCache();
-
-		void setValues(const std::set< std::string > & values);
+		
+		template<typename T_STRING_ITERATOR>
+		void setValues(const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end);
+		inline void setValues(const std::set<std::string> & values) { setValues(values.cbegin(), values.cend());}
+		inline void setValues(const std::unordered_set<std::string> & values) { setValues(values.cbegin(), values.cend());}
+		inline void setValues(std::initializer_list<std::string> l) { setValues(l.begin(), l.end());}
 		void addValue(const std::string & value);
 		void clearValues() { m_IdSet.clear(); m_ValueSet.clear(); }
 
@@ -245,10 +256,9 @@ namespace osmpbf {
 
 		void updateValueIds();
 
-		std::set< uint32_t > m_IdSet;
-		std::set< std::string > m_ValueSet;
+		IdSet m_IdSet;
+		ValueSet m_ValueSet;
 	};
-
 
 	/** Check for a @key that matches boolean value @value. Evaluates to false if key is not available */
 	class BoolTagFilter : public MultiStringTagFilter {
@@ -315,6 +325,24 @@ namespace osmpbf {
 		result->addChild(b);
 		return result;
 	}
+	
+//definitions
+
+template<typename T_STRING_ITERATOR>
+MultiStringTagFilter::MultiStringTagFilter(const std::string & key, const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end) :
+KeyOnlyTagFilter(key),
+m_ValueSet(begin, end)
+{
+	updateValueIds();
+}
+
+
+template<typename T_STRING_ITERATOR>
+void MultiStringTagFilter::setValues(const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end) {
+	m_ValueSet.clear();
+	m_ValueSet.insert(begin, end);
+	updateValueIds();
+}
 
 }
 

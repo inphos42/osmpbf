@@ -230,6 +230,13 @@ namespace osmpbf {
 	// MultiStringTagFilter
 
 	MultiStringTagFilter::MultiStringTagFilter(const std::string & key) : KeyOnlyTagFilter(key) {}
+	
+	MultiStringTagFilter::MultiStringTagFilter(const std::string & key, std::initializer_list<std::string> l) :
+	KeyOnlyTagFilter(key),
+	m_ValueSet(l)
+	{
+		updateValueIds();
+	}
 
 	bool MultiStringTagFilter::buildIdCache() {
 		m_KeyId = findId(m_Key);
@@ -241,11 +248,6 @@ namespace osmpbf {
 		if (m_PBI->isNull()) return false;
 
 		return m_KeyId && m_IdSet.size();
-	}
-
-	void MultiStringTagFilter::setValues(const std::set< std::string > & values) {
-		m_ValueSet = values;
-		updateValueIds();
 	}
 
 	void MultiStringTagFilter::addValue(const std::string & value) {
@@ -297,7 +299,7 @@ namespace osmpbf {
 		m_IdSet.clear();
 
 		uint32_t valueId = 0;
-		for (std::set< std::string >::const_iterator it = m_ValueSet.cbegin(); it != m_ValueSet.cend(); ++it) {
+		for (ValueSet::const_iterator it = m_ValueSet.cbegin(); it != m_ValueSet.cend(); ++it) {
 			valueId = findId(*it);
 
 			if (valueId)
