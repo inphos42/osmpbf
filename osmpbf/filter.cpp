@@ -310,17 +310,14 @@ namespace osmpbf {
 	// BoolTagFilter
 
 	BoolTagFilter::BoolTagFilter(const std::string & key, bool value) :
-		MultiStringTagFilter(key), m_Value(value)
+		MultiStringTagFilter(key),
+		m_Value(value)
 	{
 		if (m_Value) {
-			addValue("true");
-			addValue("yes");
-			addValue("1");
+			MultiStringTagFilter::setValues({"True", "true", "Yes", "yes", "1"});
 		}
 		else {
-			addValue("false");
-			addValue("no");
-			addValue("0");
+			MultiStringTagFilter::setValues({"False", "false", "No", "no", "0"});
 		}
 	}
 
@@ -333,14 +330,10 @@ namespace osmpbf {
 		clearValues();
 
 		if (m_Value) {
-			addValue("true");
-			addValue("yes");
-			addValue("1");
+			MultiStringTagFilter::setValues({"True", "true", "Yes", "yes", "1"});
 		}
 		else {
-			addValue("false");
-			addValue("no");
-			addValue("0");
+			MultiStringTagFilter::setValues({"False", "false", "No", "no", "0"});
 		}
 	}
 
