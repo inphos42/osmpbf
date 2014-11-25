@@ -19,7 +19,7 @@ void parseFileOmp(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_t 
 
 ///@processor (osmpbf::PrimitiveBlockInputAdaptor & pbi)
 ///@threadCount if this is set to zero then this will default to max(omp_get_num_procs(), 1) or max(std::thread::hardware_concurrency(), 1)
-///@readBlobCount number of blobs to read by a blob
+///@readBlobCount number of blobs a single thread fetches to work upon before fetching new blobs
 template<typename TPBI_Processor>
 void parseFileCPPThreads(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_t threadCount = 0, uint32_t readBlobCount = 1);
 
