@@ -20,8 +20,9 @@ void parseFileOmp(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_t 
 ///@processor (osmpbf::PrimitiveBlockInputAdaptor & pbi)
 ///@threadCount if this is set to zero then this will default to max(omp_get_num_procs(), 1) or max(std::thread::hardware_concurrency(), 1)
 ///@readBlobCount number of blobs a single thread fetches to work upon before fetching new blobs
+///@threadPrivateProcessor each thread will hold a copy of processor instead of sharing a single one
 template<typename TPBI_Processor>
-void parseFileCPPThreads(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_t threadCount = 0, uint32_t readBlobCount = 1);
+void parseFileCPPThreads(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_t threadCount = 0, uint32_t readBlobCount = 1, bool threadPrivateProcessor = false);
 
 
 //definitions
@@ -61,13 +62,14 @@ void parseFileOmp(OSMFileIn & inFile, TPBI_Processor processor, uint32_t readBlo
 }
 
 template<typename TPBI_Processor>
-void parseFileCPPThreads(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_t threadCount, uint32_t readBlobCount) {
+void parseFileCPPThreads(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_t threadCount, uint32_t readBlobCount, bool threadPrivateProcessor) {
 	if (!threadCount) {
 		threadCount = std::max<int>(std::thread::hardware_concurrency(), 1);
 	}
 	readBlobCount = std::max<uint32_t>(readBlobCount, 1);
 	std::mutex mtx;
-	auto workFunc = [&inFile, &processor, &mtx, readBlobCount]() {
+	auto workFunc = [&inFile, &processor, &mtx, readBlobCount, threadPrivateProcessor]() {
+		TPBI_Processor * myP = (threadPrivateProcessor? new TPBI_Processor(processor) : &processor);
 		osmpbf::PrimitiveBlockInputAdaptor pbi;
 		std::vector<osmpbf::BlobDataBuffer> dbufs;
 		while (true) {
@@ -80,8 +82,11 @@ void parseFileCPPThreads(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, ui
 			}
 			for(osmpbf::BlobDataBuffer & dbuf : dbufs) {
 				pbi.parseData(dbuf.data, dbuf.availableBytes);
-				processor(pbi);
+				(*myP)(pbi);
 			}
+		}
+		if (threadPrivateProcessor) {
+			delete myP;
 		}
 	};
 	std::vector<std::thread> ts;
