@@ -18,24 +18,38 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include <osmpbf/irelation.h>
+#ifndef OSMPBF_ABSTRACTNODEINPUTADAPTOR_H
+#define OSMPBF_ABSTRACTNODEINPUTADAPTOR_H
+
+#include <osmpbf/abstractprimitiveinputadaptor.h>
 
 namespace osmpbf
 {
 
-// IRelation
+class PrimitiveBlockInputAdaptor;
 
-IRelation::IRelation() : IPrimitive() {}
-IRelation::IRelation(RelationInputAdaptor * data) : IPrimitive(data) {}
-IRelation::IRelation(const IRelation & other) : IPrimitive(other) {}
+class AbstractNodeInputAdaptor : public AbstractPrimitiveInputAdaptor
+{
+public:
+	AbstractNodeInputAdaptor()
+		: AbstractPrimitiveInputAdaptor() {}
+	AbstractNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller)
+		: AbstractPrimitiveInputAdaptor(controller) {}
 
-IRelation & IRelation::operator=(const IRelation & other) { IPrimitive::operator=(other); return *this; }
+	virtual osmpbf::PrimitiveType type() const { return osmpbf::PrimitiveType::NodePrimitive; }
 
-// IRelationStream
+	virtual int64_t lati() = 0;
+	virtual int64_t loni() = 0;
 
-IRelationStream::IRelationStream(PrimitiveBlockInputAdaptor * controller) : IRelation(new RelationStreamInputAdaptor(controller)) {}
-IRelationStream::IRelationStream(const IRelationStream & other) : IRelation(other) {}
+	virtual double latd() = 0;
+	virtual double lond() = 0;
 
-IRelationStream & IRelationStream::operator=(const IRelationStream & other) { IRelation::operator=(other); return *this; }
+	virtual int64_t rawLat() const = 0;
+	virtual int64_t rawLon() const = 0;
+
+	virtual NodeType nodeType() const = 0;
+};
 
 } // namespace osmpbf
+
+#endif // OSMPBF_ABSTRACTNODEINPUTADAPTOR_H

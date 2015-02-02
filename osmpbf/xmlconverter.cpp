@@ -33,7 +33,7 @@ std::ostream & XmlConverter::print(std::ostream & out, const INode & node) {
 
 std::ostream & XmlConverter::print(std::ostream & out, const IWay & way) {
 	out << "<way id=" << way.id() << ">\n";
-	for(osmpbf::IWay::RefIterator refIt(way.refBegin()), refEnd(way.refEnd()); refIt != refEnd; ++refIt) {
+	for(osmpbf::RefIterator refIt(way.refBegin()), refEnd(way.refEnd()); refIt != refEnd; ++refIt) {
 		out << "\t<nd ref=" << *refIt << "/>" << std::endl;
 	}
 	printTags(out, way, "\t");

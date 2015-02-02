@@ -63,10 +63,20 @@ set(SOURCES_CPP
 	irelation.cpp
 	abstractprimitiveoutputadaptor.cpp
 	primitiveblockoutputadaptor.cpp
+	nodestreaminputadaptor.cpp
+	wayinputadaptor.cpp
+	relationinputadaptor.cpp
 	oway.cpp
 	onode.cpp
 	filter.cpp
 	xmlconverter.cpp
+	dataindex.cpp
 )
 
-add_library(${PROJECT_NAME} STATIC ${PROTO_SOURCES} ${PROTO_HEADERS} ${SOURCES_CPP})
+# fetch all include headers
+file(GLOB_RECURSE INCLUDE_HEADERS include/*.h)
+
+add_library(${PROJECT_NAME} STATIC
+	${PROTO_SOURCES} ${PROTO_HEADERS}
+	${SOURCES_CPP} ${INCLUDE_HEADERS}
+)

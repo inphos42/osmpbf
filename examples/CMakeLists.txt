@@ -26,7 +26,7 @@ MACRO(ADD_TARGET_PROPERTIES _target _name)
 		SET(_properties "${_properties} ${_prop}")
 	ENDFOREACH(_prop)
 	GET_TARGET_PROPERTY(_old_properties ${_target} ${_name})
-	MESSAGE(STATUS "adding property to ${_target} ${_name}:" ${_properties})
+	#MESSAGE(STATUS "adding property to ${_target} ${_name}:" ${_properties})
 	IF(NOT _old_properties)
 		# in case it's NOTFOUND
 		SET(_old_properties)
@@ -72,3 +72,6 @@ target_link_libraries(dumppbf_parsehelpers ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES}
 add_target_properties(dumppbf_parsehelpers COMPILE_FLAGS "-fopenmp")
 add_target_properties(dumppbf_parsehelpers LINK_FLAGS "-fopenmp")
 
+add_executable(osmpbf_dump osmpbf_dump.cpp)
+add_dependencies(osmpbf_dump osmpbf)
+target_link_libraries(osmpbf_dump ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})

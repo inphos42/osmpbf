@@ -25,40 +25,44 @@
 #include <string>
 
 #include <osmpbf/typelimits.h>
-#include <osmpbf/common.h>
+#include <osmpbf/common_input.h>
 
 #include <generics/refcountobject.h>
 
-namespace osmpbf {
-	class PrimitiveBlockInputAdaptor;
+namespace osmpbf
+{
 
-	class AbstractPrimitiveInputAdaptor : public generics::RefCountObject {
-	public:
-		AbstractPrimitiveInputAdaptor()
-			: RefCountObject(), m_Controller(NULL) {}
-		AbstractPrimitiveInputAdaptor(PrimitiveBlockInputAdaptor * controller)
-			: RefCountObject(), m_Controller(controller) {}
+class AbstractPrimitiveInputAdaptor : public generics::RefCountObject
+{
+public:
+	AbstractPrimitiveInputAdaptor()
+		: RefCountObject(), m_Controller(nullptr) {}
+	AbstractPrimitiveInputAdaptor(PrimitiveBlockInputAdaptor * controller)
+		: RefCountObject(), m_Controller(controller) {}
 
-		virtual bool isNull() const { return !m_Controller; }
+	virtual bool isNull() const { return !m_Controller; }
 
-		virtual int64_t id() = 0;
-		virtual osmpbf::PrimitiveType type() const = 0;
+	virtual int64_t id() = 0;
+	virtual osmpbf::PrimitiveType type() const = 0;
 
-		virtual int tagsSize() const = 0;
+	virtual int tagsSize() const = 0;
 
-		virtual uint32_t keyId(int index) const = 0;
-		virtual uint32_t valueId(int index) const = 0;
+	virtual uint32_t keyId(int index) const = 0;
+	virtual uint32_t valueId(int index) const = 0;
 
-		virtual const std::string & key(int index) const;
-		virtual const std::string & value(int index) const;
+	virtual const std::string & key(int index) const;
+	virtual const std::string & value(int index) const;
 
-		// convenience functions (very slow)
-		virtual const std::string & valueByKeyId(uint32_t key) const;
-		virtual const std::string & valueByKey(const std::string & key) const;
+	/// convenience function (very slow)
+	virtual const std::string & valueByKeyId(uint32_t key) const;
 
-	protected:
-		PrimitiveBlockInputAdaptor * m_Controller;
-	};
-}
+	/// convenience function (very slow)
+	virtual const std::string & valueByKey(const std::string & key) const;
+
+protected:
+	PrimitiveBlockInputAdaptor * m_Controller;
+};
+
+} // namespace osmpbf
 
 #endif // OSMPBF_ABSTRACTPRIMITIVEADAPTOR_H

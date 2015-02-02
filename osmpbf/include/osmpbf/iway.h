@@ -24,104 +24,53 @@
 #include <cstdint>
 #include <string>
 
-#include "abstractprimitiveinputadaptor.h"
-#include "iprimitive.h"
-
-#include <generics/fielditerator.h>
 #include <generics/macros.h>
 
-namespace crosby {
-	namespace binary {
-		class Way;
-	}
-}
+#include <osmpbf/iprimitive.h>
+#include <osmpbf/pbf_prototypes.h>
+#include <osmpbf/common_input.h>
+#include <osmpbf/wayinputadaptor.h>
 
-namespace osmpbf {
-	class PrimitiveBlockInputAdaptor;
+namespace osmpbf
+{
 
-	class WayInputAdaptor : public AbstractPrimitiveInputAdaptor {
-		typedef generics::DeltaFieldConstForwardIterator<int64_t> RefIterator;
-	public:
-		WayInputAdaptor();
-		WayInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Way * data);
+class IWay : public IPrimitive
+{
+public:
+	explicit IWay(WayInputAdaptor * data);
+	IWay(const IWay & other);
 
-		virtual bool isNull() const { return AbstractPrimitiveInputAdaptor::isNull() || !m_Data; }
+	IWay & operator=(const IWay & other);
 
-		virtual int64_t id();
-		virtual osmpbf::PrimitiveType type() const;
+	/// warning: This methods complexity is O(n). It's here for convenience. You shouldn't
+	///          call this method very often or with a high index parameter.
+	inline GENERICS_MARK_FUNC_DEPRECATED int64_t ref(int index) const { return static_cast< WayInputAdaptor * >(m_Private)->ref(index); }
+	inline int64_t rawRef(int index) const { return static_cast< WayInputAdaptor * >(m_Private)->rawRef(index); }
+	inline int refsSize() const { return static_cast< WayInputAdaptor * >(m_Private)->refsSize(); }
 
-		virtual int tagsSize() const;
+	inline RefIterator refBegin() const { return static_cast< WayInputAdaptor * >(m_Private)->refBegin(); }
+	inline RefIterator refEnd() const { return static_cast< WayInputAdaptor * >(m_Private)->refEnd(); }
 
-		virtual uint32_t keyId(int index) const;
-		virtual uint32_t valueId(int index) const;
+protected:
+	IWay();
+};
 
-		int refsSize() const;
-		int64_t rawRef(int index) const;
+class IWayStream : public IWay
+{
+public:
+	explicit IWayStream(PrimitiveBlockInputAdaptor * controller);
+	IWayStream(const IWayStream & other);
 
-		/// warning: This methods complexity is O(n). It's here for convenience. You shouldn't
-		///          call this method very often or with a high index parameter.
-		int64_t ref(int index) const;
+	IWayStream & operator=(IWayStream & other);
 
-		RefIterator refBegin() const;
-		RefIterator refEnd() const;
+	inline void next() { static_cast<WayStreamInputAdaptor *>(m_Private)->next(); }
+	inline void previous() { static_cast<WayStreamInputAdaptor *>(m_Private)->previous(); }
 
-	protected:
-		const crosby::binary::Way * m_Data;
-	};
+protected:
+	IWayStream();
+	explicit IWayStream(WayInputAdaptor * data) = delete;
+};
 
-	class IWay : public IPrimitive {
-	public:
-		typedef generics::DeltaFieldConstForwardIterator<int64_t> RefIterator;
-	private:
-		friend class PrimitiveBlockInputAdaptor;
-	public:
-		IWay(const IWay & other);
-
-		inline IWay & operator=(const IWay & other) { IPrimitive::operator=(other); return *this; }
-		
-		/// warning: This methods complexity is O(n). It's here for convenience. You shouldn't
-		///          call this method very often or with a high index parameter.
-		inline GENERICS_MARK_FUNC_DEPRECATED int64_t ref(int index) const { return dynamic_cast< WayInputAdaptor * >(m_Private)->ref(index); }
-		inline int64_t rawRef(int index) const { return dynamic_cast< WayInputAdaptor * >(m_Private)->rawRef(index); }
-		inline int refsSize() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refsSize(); }
-
-		inline RefIterator refBegin() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refBegin(); }
-		inline RefIterator refEnd() const { return dynamic_cast< WayInputAdaptor * >(m_Private)->refEnd(); }
-
-	protected:
-		IWay();
-		IWay(WayInputAdaptor * data);
-	};
-
-	class WayStreamInputAdaptor : public WayInputAdaptor {
-	public:
-		WayStreamInputAdaptor();
-		WayStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller);
-
-		virtual bool isNull() const;
-
-		void next();
-		void previous();
-
-	private:
-		int m_Index;
-		const int m_MaxIndex;
-	};
-
-	class IWayStream : public IWay {
-	public:
-		IWayStream(PrimitiveBlockInputAdaptor * controller);
-		IWayStream(const IWayStream & other);
-
-		inline IWayStream & operator=(IWayStream & other) { IWay::operator=(other); return *this; }
-
-		inline void next() { dynamic_cast<WayStreamInputAdaptor *>(m_Private)->next(); }
-		inline void previous() { dynamic_cast<WayStreamInputAdaptor *>(m_Private)->previous(); }
-
-	protected:
-		IWayStream();
-		IWayStream(WayInputAdaptor * data);
-	};
-}
+} // namespace osmpbf
 
 #endif // OSMPBF_OSMWAY_H

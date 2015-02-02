@@ -23,16 +23,17 @@
 
 #include <cstdint>
 
-namespace osmpbf {
+namespace osmpbf
+{
 
 #ifdef __LP64__
-	typedef uint64_t OffsetType;
-	typedef int64_t SignedOffsetType;
+typedef uint64_t OffsetType;
+typedef int64_t SignedOffsetType;
 #else
-	typedef uint32_t OffsetType;
-	typedef int32_t SignedOffsetType;
+typedef uint32_t OffsetType;
+typedef int32_t SignedOffsetType;
 #endif
 
-}
+} // namespace osmpbf
 
 #endif // OSMPBF_TYPELIMITS_H

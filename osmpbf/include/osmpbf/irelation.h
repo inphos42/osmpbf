@@ -21,141 +21,46 @@
 #ifndef OSMPBF_IRELATION_H
 #define OSMPBF_IRELATION_H
 
-#include <cstdint>
-#include <string>
+#include <osmpbf/common_input.h>
+#include <osmpbf/iprimitive.h>
+#include <osmpbf/relationinputadaptor.h>
 
-#include "common.h"
-#include "abstractprimitiveinputadaptor.h"
-#include "iprimitive.h"
+namespace osmpbf
+{
 
-namespace crosby {
-	namespace binary {
-		class Relation;
-	}
-}
+class IRelation : public IPrimitive
+{
+public:
+	explicit IRelation(RelationInputAdaptor * data);
+	IRelation(const IRelation & other);
 
-namespace osmpbf {
-	class MemberStreamInputAdaptor : public generics::RefCountObject {
-	public:
-		MemberStreamInputAdaptor();
-		MemberStreamInputAdaptor(const crosby::binary::Relation * data);
+	IRelation & operator=(const IRelation & other);
 
-		bool isNull() const { return !m_Data || m_Index >= m_MaxIndex || m_Index < 0; }
+	inline int membersSize() const { return static_cast< RelationInputAdaptor * >(m_Private)->membersSize(); }
 
-		int64_t id() const { return m_CachedId; }
-		PrimitiveType type() const;
-		uint32_t roleId() const;
+	inline IMemberStream getMemberStream() const { return static_cast< RelationInputAdaptor * >(m_Private)->getMemberStream(); }
 
-		void next();
-		void previous();
+protected:
+	IRelation();
+};
 
-	protected:
-		const crosby::binary::Relation * m_Data;
 
-		int m_Index;
-		const int m_MaxIndex;
+class IRelationStream : public IRelation
+{
+public:
+	explicit IRelationStream(PrimitiveBlockInputAdaptor * controller);
+	IRelationStream(const IRelationStream & other);
 
-		int64_t m_CachedId;
-	};
+	IRelationStream & operator=(const IRelationStream & other);
 
-	class IMemberStream : public generics::RCWrapper< MemberStreamInputAdaptor > {
-		friend class RelationInputAdaptor;
-	public:
-		IMemberStream(const IMemberStream & other);
+	inline void next() { static_cast<RelationStreamInputAdaptor *>(m_Private)->next(); }
+	inline void previous() { static_cast<RelationStreamInputAdaptor *>(m_Private)->previous(); }
 
-		IMemberStream & operator=(const IMemberStream & other) {
-			RCWrapper<MemberStreamInputAdaptor>::operator=(other);
-			m_Controller = other.m_Controller;
-			return *this;
-		}
+protected:
+	IRelationStream();
+	IRelationStream(RelationInputAdaptor * data);
+};
 
-		virtual bool isNull() const { return !m_Controller || RCWrapper< MemberStreamInputAdaptor >::isNull() || RCWrapper< MemberStreamInputAdaptor >::m_Private->isNull(); }
-
-		inline int64_t id() const { return m_Private->id(); }
-
-		inline osmpbf::PrimitiveType type() const { return m_Private->type(); }
-
-		inline uint32_t roleId() const { return m_Private->roleId(); }
-
-		const std::string & role() const;
-
-		inline void next() const { m_Private->next(); }
-
-	protected:
-		IMemberStream();
-		IMemberStream(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Relation * data);
-
-		PrimitiveBlockInputAdaptor * m_Controller;
-	};
-
-	class RelationInputAdaptor : public AbstractPrimitiveInputAdaptor {
-	public:
-		RelationInputAdaptor();
-		RelationInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Relation * data);
-
-		virtual bool isNull() const { return AbstractPrimitiveInputAdaptor::isNull() || !m_Data; }
-
-		virtual int64_t id();
-		virtual osmpbf::PrimitiveType type() const;
-
-		virtual int tagsSize() const;
-
-		virtual uint32_t keyId(int index) const;
-		virtual uint32_t valueId(int index) const;
-
-		virtual int membersSize() const;
-
-		virtual IMemberStream getMemberStream() const { return IMemberStream(m_Controller, m_Data); }
-
-	protected:
-		const crosby::binary::Relation * m_Data;
-	};
-
-	class IRelation : public IPrimitive {
-		friend class PrimitiveBlockInputAdaptor;
-	public:
-		IRelation(const IRelation & other);
-
-		inline IRelation & operator=(const IRelation & other) { IPrimitive::operator=(other); return *this; }
-
-		inline int membersSize() const { return dynamic_cast< RelationInputAdaptor * >(m_Private)->membersSize(); }
-
-		inline IMemberStream getMemberStream() const { return dynamic_cast< RelationInputAdaptor * >(m_Private)->getMemberStream(); }
-
-	protected:
-		IRelation();
-		IRelation(RelationInputAdaptor * data);
-	};
-
-	class RelationStreamInputAdaptor : public RelationInputAdaptor {
-	public:
-		RelationStreamInputAdaptor();
-		RelationStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller);
-
-		virtual bool isNull() const;
-
-		void next();
-		void previous();
-
-	private:
-		int m_Index;
-		const int m_MaxIndex;
-	};
-
-	class IRelationStream : public IRelation {
-	public:
-		IRelationStream(PrimitiveBlockInputAdaptor * controller);
-		IRelationStream(const IRelationStream & other);
-
-		IRelationStream operator=(const IRelationStream & other) { IRelation::operator=(other); return *this; }
-
-		inline void next() { static_cast<RelationStreamInputAdaptor *>(m_Private)->next(); }
-		inline void previous() { static_cast<RelationStreamInputAdaptor *>(m_Private)->previous(); }
-
-	protected:
-		IRelationStream();
-		IRelationStream(RelationInputAdaptor * data);
-	};
-}
+} // namespace osmpbf
 
 #endif // OSMPBF_IRELATION_H

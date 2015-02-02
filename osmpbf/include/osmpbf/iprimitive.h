@@ -23,36 +23,40 @@
 
 #include <generics/refcountobject.h>
 
-#include "abstractprimitiveinputadaptor.h"
-#include "common.h"
+#include <osmpbf/abstractprimitiveinputadaptor.h>
+#include <osmpbf/common.h>
 
-namespace osmpbf {
-	class IPrimitive : public generics::RCWrapper< AbstractPrimitiveInputAdaptor > {
-	public:
-		IPrimitive(const IPrimitive & other) : RCWrapper< AbstractPrimitiveInputAdaptor >(other) {}
+namespace osmpbf
+{
 
-		inline virtual bool isNull() const { return generics::RCWrapper< AbstractPrimitiveInputAdaptor >::isNull() || m_Private->isNull(); }
+class IPrimitive : public generics::RCWrapper< AbstractPrimitiveInputAdaptor >
+{
+public:
+	IPrimitive(const IPrimitive & other) : RCWrapper< AbstractPrimitiveInputAdaptor >(other) {}
 
-		inline IPrimitive & operator=(const IPrimitive & other) { RCWrapper< AbstractPrimitiveInputAdaptor >::operator=(other); return *this; }
+	inline virtual bool isNull() const { return generics::RCWrapper< AbstractPrimitiveInputAdaptor >::isNull() || m_Private->isNull(); }
 
-		inline int64_t id() const { return m_Private->id(); }
-		inline osmpbf::PrimitiveType type() const { return m_Private->type(); }
+	inline IPrimitive & operator=(const IPrimitive & other) { RCWrapper< AbstractPrimitiveInputAdaptor >::operator=(other); return *this; }
 
-		inline int tagsSize() const { return m_Private->tagsSize(); }
+	inline int64_t id() const { return m_Private->id(); }
+	inline osmpbf::PrimitiveType type() const { return m_Private->type(); }
 
-		inline uint32_t keyId(int index) const { return m_Private->keyId(index); }
-		inline uint32_t valueId(int index) const { return m_Private->valueId(index); }
+	inline int tagsSize() const { return m_Private->tagsSize(); }
 
-		inline const std::string & key(int index) const { return m_Private->key(index); }
-		inline const std::string & value(int index) const { return m_Private->value(index); }
+	inline uint32_t keyId(int index) const { return m_Private->keyId(index); }
+	inline uint32_t valueId(int index) const { return m_Private->valueId(index); }
 
-		inline const std::string & valueByKeyId(uint32_t key) const { return m_Private->valueByKeyId(key); }
-		inline const std::string & valueByKey(const std::string key) const { return m_Private->valueByKey(key); }
+	inline const std::string & key(int index) const { return m_Private->key(index); }
+	inline const std::string & value(int index) const { return m_Private->value(index); }
 
-	protected:
-		IPrimitive() : RCWrapper< AbstractPrimitiveInputAdaptor >() {}
-		IPrimitive (AbstractPrimitiveInputAdaptor * data) : RCWrapper< AbstractPrimitiveInputAdaptor >(data) {}
-	};
-}
+	inline const std::string & valueByKeyId(uint32_t key) const { return m_Private->valueByKeyId(key); }
+	inline const std::string & valueByKey(const std::string key) const { return m_Private->valueByKey(key); }
+
+protected:
+	IPrimitive() : RCWrapper< AbstractPrimitiveInputAdaptor >() {}
+	IPrimitive (AbstractPrimitiveInputAdaptor * data) : RCWrapper< AbstractPrimitiveInputAdaptor >(data) {}
+};
+
+} // namespace osmpbf
 
 #endif // OSMPBF_IPRIMITIVE

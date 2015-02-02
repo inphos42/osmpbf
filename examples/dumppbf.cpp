@@ -73,7 +73,7 @@ void parseBlock(osmpbf::PrimitiveBlockInputAdaptor & pbi) {
 	if (pbi.waysSize()) {
 		for (osmpbf::IWayStream way = pbi.getWayStream(); !way.isNull(); way.next()) {
 			std::cout << "<way id=" << way.id() << ">" << std::endl;
-			for(osmpbf::IWay::RefIterator refIt(way.refBegin()), refEnd(way.refEnd()); refIt != refEnd; ++refIt) {
+			for(osmpbf::RefIterator refIt(way.refBegin()), refEnd(way.refEnd()); refIt != refEnd; ++refIt) {
 				std::cout << "\t<nd ref=" << *refIt << "/>" << std::endl;
 			}
 			for(uint32_t i = 0, s = way.tagsSize();  i < s; ++i) {

@@ -24,190 +24,53 @@
 #include <cstdint>
 #include <string>
 
-#include "abstractprimitiveinputadaptor.h"
-#include "common.h"
-#include "iprimitive.h"
+#include <osmpbf/common_input.h>
+#include <osmpbf/iprimitive.h>
+#include <osmpbf/abstractnodeinputadaptor.h>
+#include <osmpbf/nodestreaminputadaptor.h>
 
-namespace crosby {
-	namespace binary {
-		class Node;
-		class DenseNodes;
-		class PrimitiveGroup;
-	}
-}
+namespace osmpbf
+{
 
-namespace osmpbf {
-	class PrimitiveBlockInputAdaptor;
+class INode : public IPrimitive
+{
+public:
+	explicit INode(AbstractNodeInputAdaptor * data);
+	INode(const INode & other);
 
-	class AbstractNodeInputAdaptor : public AbstractPrimitiveInputAdaptor {
-	public:
-		AbstractNodeInputAdaptor()
-			: AbstractPrimitiveInputAdaptor() {}
-		AbstractNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller)
-			: AbstractPrimitiveInputAdaptor(controller) {}
+	INode & operator=(const INode & other);
 
-		virtual osmpbf::PrimitiveType type() const;
+	inline int64_t lati() const { return static_cast< AbstractNodeInputAdaptor * >(m_Private)->lati(); }
+	inline int64_t loni() const { return static_cast< AbstractNodeInputAdaptor * >(m_Private)->loni(); }
 
-		virtual int64_t lati() = 0;
-		virtual int64_t loni() = 0;
+	inline double latd() const { return static_cast< AbstractNodeInputAdaptor * >(m_Private)->latd(); }
+	inline double lond() const { return static_cast< AbstractNodeInputAdaptor * >(m_Private)->lond(); }
 
-		virtual double latd() = 0;
-		virtual double lond() = 0;
+	inline int64_t rawLat() const { return static_cast< AbstractNodeInputAdaptor * >(m_Private)->rawLat(); }
+	inline int64_t rawLon() const { return static_cast< AbstractNodeInputAdaptor * >(m_Private)->rawLon(); }
 
-		virtual int64_t rawLat() const = 0;
-		virtual int64_t rawLon() const = 0;
+	inline NodeType internalNodeType() const { return static_cast< AbstractNodeInputAdaptor * >(m_Private)->nodeType(); }
 
-		virtual NodeType nodeType() const = 0;
-	};
+protected:
+	INode();
+};
 
-	class INode : public IPrimitive {
-		friend class PrimitiveBlockInputAdaptor;
-	public:
-		INode(const INode & other);
+class INodeStream : public INode
+{
+public:
+	explicit INodeStream(PrimitiveBlockInputAdaptor * controller);
+	INodeStream(const INodeStream & other);
 
-		inline INode & operator=(const INode & other) { IPrimitive::operator=(other); return *this; }
+	INodeStream & operator=(const INodeStream & other);
 
-		inline int64_t lati() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->lati(); }
-		inline int64_t loni() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->loni(); }
+	inline void next() { static_cast< NodeStreamInputAdaptor * >(m_Private)->next(); }
+	inline void previous() { static_cast< NodeStreamInputAdaptor * >(m_Private)->previous(); }
 
-		inline double latd() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->latd(); }
-		inline double lond() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->lond(); }
+protected:
+	INodeStream();
+	INodeStream(AbstractNodeInputAdaptor * data);
+};
 
-		inline int64_t rawLat() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->rawLat(); }
-		inline int64_t rawLon() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->rawLon(); }
-
-		inline NodeType internalNodeType() const { return dynamic_cast< AbstractNodeInputAdaptor * >(m_Private)->nodeType(); }
-
-	protected:
-		INode();
-		INode(AbstractNodeInputAdaptor * data);
-	};
-
-	class PlainNodeInputAdaptor : public AbstractNodeInputAdaptor {
-	public:
-		PlainNodeInputAdaptor();
-		PlainNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Node & data);
-
-		virtual bool isNull() const { return AbstractPrimitiveInputAdaptor::isNull() || !m_Data; }
-
-		virtual int64_t id();
-
-		virtual int64_t lati();
-		virtual int64_t loni();
-
-		virtual double latd();
-		virtual double lond();
-
-		virtual int64_t rawLat() const;
-		virtual int64_t rawLon() const;
-
-		virtual int tagsSize() const;
-
-		virtual uint32_t keyId(int index) const;
-		virtual uint32_t valueId(int index) const;
-
-		virtual NodeType nodeType() const { return PlainNode; }
-
-	protected:
-		const crosby::binary::Node * m_Data;
-	};
-
-	class DenseNodeInputAdaptor : public AbstractNodeInputAdaptor {
-	public:
-		DenseNodeInputAdaptor();
-		DenseNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::DenseNodes & data, int index);
-
-		virtual bool isNull() const;
-
-		virtual int64_t id();
-
-		virtual int64_t lati();
-		virtual int64_t loni();
-
-		virtual double latd();
-		virtual double lond();
-
-		virtual int64_t rawLat() const;
-		virtual int64_t rawLon() const;
-
-		virtual int tagsSize() const;
-
-		virtual uint32_t keyId(int index) const;
-		virtual uint32_t valueId(int index) const;
-
-		virtual NodeType nodeType() const { return DenseNode; }
-
-	protected:
-		const crosby::binary::DenseNodes * m_Data;
-		int m_Index;
-
-		bool m_HasCachedId;
-		bool m_HasCachedLat;
-		bool m_HasCachedLon;
-
-		int64_t m_CachedId;
-		int64_t m_CachedLat;
-		int64_t m_CachedLon;
-	};
-
-	class NodeStreamInputAdaptor : public AbstractNodeInputAdaptor {
-	public:
-		NodeStreamInputAdaptor();
-		NodeStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller);
-
-		virtual bool isNull() const { return AbstractPrimitiveInputAdaptor::isNull() || !(m_PlainNodes || m_DenseNodes) || (m_Index < 0) || m_Index >= m_PlainNodesSize + m_DenseNodesSize; }
-
-		virtual int64_t id() { return m_Id; }
-
-		virtual int tagsSize() const;
-
-		virtual uint32_t keyId(int index) const;
-		virtual uint32_t valueId(int index) const;
-
-		virtual int64_t lati() { return m_WGS84Lat; }
-		virtual int64_t loni() { return m_WGS84Lon; }
-
-		virtual double latd() { return m_WGS84Lat * .000000001; }
-		virtual double lond() { return m_WGS84Lon * .000000001; }
-
-		virtual int64_t rawLat() const { return m_Lat; }
-		virtual int64_t rawLon() const { return m_Lon; }
-
-		virtual NodeType nodeType() const { return (m_DenseIndex > -1 ? DenseNode : PlainNode); }
-
-		void next();
-		void previous();
-
-	private:
-		crosby::binary::PrimitiveGroup * m_PlainNodes;
-		crosby::binary::PrimitiveGroup * m_DenseNodes;
-
-		int m_Index;
-		int m_DenseIndex;
-
-		const int m_PlainNodesSize;
-		const int m_DenseNodesSize;
-
-		int64_t m_Id;
-		int64_t m_Lat;
-		int64_t m_Lon;
-		int64_t m_WGS84Lat;
-		int64_t m_WGS84Lon;
-	};
-
-	class INodeStream : public INode {
-	public:
-		INodeStream(PrimitiveBlockInputAdaptor * controller);
-		INodeStream(const INodeStream & other);
-
-		inline INodeStream & operator=(const INodeStream & other) { INode::operator=(other); return *this; }
-
-		inline void next() { dynamic_cast< NodeStreamInputAdaptor * >(m_Private)->next(); }
-		inline void previous() { dynamic_cast< NodeStreamInputAdaptor * >(m_Private)->previous(); }
-	private:
-		INodeStream();
-		INodeStream(AbstractNodeInputAdaptor * data);
-	};
-}
+} // namespace osmpbf
 
 #endif // OSMPBF_INNODE_H

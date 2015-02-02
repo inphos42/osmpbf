@@ -23,7 +23,8 @@
 
 #include <generics/store_fwd.h>
 
-namespace osmpbf {
+namespace osmpbf
+{
 	typedef generics::Store< std::string > StringTable;
 }
 

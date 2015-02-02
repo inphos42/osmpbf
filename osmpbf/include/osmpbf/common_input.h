@@ -18,24 +18,32 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include <osmpbf/irelation.h>
+#ifndef OSMPBF_COMMON_INPUT_H
+#define OSMPBF_COMMON_INPUT_H
+
+#include <osmpbf/common.h>
+
+#include <generics/fielditerator.h>
 
 namespace osmpbf
 {
 
-// IRelation
+class INode;
+class IWay;
+class IRelation;
 
-IRelation::IRelation() : IPrimitive() {}
-IRelation::IRelation(RelationInputAdaptor * data) : IPrimitive(data) {}
-IRelation::IRelation(const IRelation & other) : IPrimitive(other) {}
+class INodeStream;
+class IWayStream;
+class IRelationStream;
 
-IRelation & IRelation::operator=(const IRelation & other) { IPrimitive::operator=(other); return *this; }
+class PrimitiveBlockInputAdaptor;
+class AbstractPrimitiveInputAdaptor;
+class AbstractNodeInputAdaptor;
+class WayInputAdaptor;
+class RelationInputAdaptor;
 
-// IRelationStream
-
-IRelationStream::IRelationStream(PrimitiveBlockInputAdaptor * controller) : IRelation(new RelationStreamInputAdaptor(controller)) {}
-IRelationStream::IRelationStream(const IRelationStream & other) : IRelation(other) {}
-
-IRelationStream & IRelationStream::operator=(const IRelationStream & other) { IRelation::operator=(other); return *this; }
+typedef generics::DeltaFieldConstForwardIterator<int64_t> RefIterator;
 
 } // namespace osmpbf
+
+#endif // OSMPBF_COMMON_INPUT_H

@@ -1,12 +1,34 @@
+/*
+    This file is part of the osmpbf library.
+
+    Copyright(c) 2012-2014 Oliver Groß.
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 3 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, see
+    <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef OSMPBF_PARSEHELPERS_H
 #define OSMPBF_PARSEHELPERS_H
-#include "osmfilein.h"
-#include "primitiveblockinputadaptor.h"
+
+#include <osmpbf/osmfilein.h>
+#include <osmpbf/primitiveblockinputadaptor.h>
 #include <omp.h>
 #include <mutex>
 #include <thread>
 
-namespace osmpbf {
+namespace osmpbf
+{
 
 ///@processor (osmpbf::PrimitiveBlockInputAdaptor & pbi)
 template<typename TPBI_Processor>
@@ -28,9 +50,11 @@ void parseFileCPPThreads(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, ui
 //definitions
 
 template<typename TPBI_Processor>
-void parseFile(OSMFileIn & inFile, TPBI_Processor processor) {
+void parseFile(OSMFileIn & inFile, TPBI_Processor processor)
+{
 	osmpbf::PrimitiveBlockInputAdaptor pbi;
-	while (inFile.parseNextBlock(pbi)) {
+	while (inFile.parseNextBlock(pbi))
+	{
 		if (pbi.isNull())
 			continue;
 		processor(pbi);
@@ -38,22 +62,30 @@ void parseFile(OSMFileIn & inFile, TPBI_Processor processor) {
 }
 
 template<typename TPBI_Processor>
-void parseFileOmp(OSMFileIn & inFile, TPBI_Processor processor, uint32_t readBlobCount) {
-	if (!readBlobCount) {
+void parseFileOmp(OSMFileIn & inFile, TPBI_Processor processor, uint32_t readBlobCount)
+{
+	if (!readBlobCount)
+	{
 		readBlobCount = std::max<int>(omp_get_num_procs(), 1);
 	}
+
 	std::vector<osmpbf::BlobDataBuffer> pbiBuffers;
 	bool processedFile = false;
-	while (!processedFile) {
+
+	while (!processedFile)
+	{
 		pbiBuffers.clear();
 		inFile.getNextBlocks(pbiBuffers, readBlobCount);
 		uint32_t pbiCount = pbiBuffers.size();
 		processedFile = (pbiCount < readBlobCount);
+
 		#pragma omp parallel for schedule(dynamic)
-		for(uint32_t i = 0; i < pbiCount; ++i) {
+		for(uint32_t i = 0; i < pbiCount; ++i)
+		{
 			osmpbf::PrimitiveBlockInputAdaptor pbi(pbiBuffers[i].data, pbiBuffers[i].availableBytes);
 			pbiBuffers[i].clear();
-			if (pbi.isNull()) {
+			if (pbi.isNull())
+			{
 				continue;
 			}
 			processor(pbi);
@@ -62,17 +94,24 @@ void parseFileOmp(OSMFileIn & inFile, TPBI_Processor processor, uint32_t readBlo
 }
 
 template<typename TPBI_Processor>
-void parseFileCPPThreads(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_t threadCount, uint32_t readBlobCount, bool threadPrivateProcessor) {
-	if (!threadCount) {
+void parseFileCPPThreads(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_t threadCount, uint32_t readBlobCount, bool threadPrivateProcessor)
+{
+	if (!threadCount)
+	{
 		threadCount = std::max<int>(std::thread::hardware_concurrency(), 1);
 	}
+
 	readBlobCount = std::max<uint32_t>(readBlobCount, 1);
 	std::mutex mtx;
-	auto workFunc = [&inFile, &processor, &mtx, readBlobCount, threadPrivateProcessor]() {
+
+	auto workFunc = [&inFile, &processor, &mtx, readBlobCount, threadPrivateProcessor]()
+	{
 		TPBI_Processor * myP = (threadPrivateProcessor? new TPBI_Processor(processor) : &processor);
 		osmpbf::PrimitiveBlockInputAdaptor pbi;
 		std::vector<osmpbf::BlobDataBuffer> dbufs;
-		while (true) {
+
+		while (true)
+		{
 			dbufs.clear();
 			mtx.lock();
 			bool haveNext = inFile.getNextBlocks(dbufs, readBlobCount);
@@ -89,17 +128,21 @@ void parseFileCPPThreads(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, ui
 			delete myP;
 		}
 	};
+
 	std::vector<std::thread> ts;
 	ts.reserve(threadCount);
-	for(uint32_t i(0); i < threadCount; ++i) {
+	for(uint32_t i(0); i < threadCount; ++i)
+	{
 		ts.push_back(std::thread(workFunc));
 	}
-	for(std::thread & t : ts) {
+
+	for(std::thread & t : ts)
+	{
 		t.join();
 	}
 }
 
 
-}//end namespace
+} // namespace osmpbf
 
-#endif
+#endif // OSMPBF_PARSEHELPERS_H
