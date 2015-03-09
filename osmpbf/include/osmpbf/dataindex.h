@@ -57,7 +57,7 @@ private:
 
 	crosby::binary::PrimitiveGroup * m_Group;
 	std::vector<int> m_KeyValIndex;
-	bool m_DataUnpacked;
+	bool m_DataUnpacked = false;
 };
 
 typedef std::vector<crosby::binary::PrimitiveGroup *> PrimitiveGroupVector;
