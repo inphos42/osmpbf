@@ -35,6 +35,7 @@ DenseNodesData::DenseNodesData(const DenseNodesData & other) : m_Group(other.m_G
 
 DenseNodesData::DenseNodesData(crosby::binary::PrimitiveGroup * denseNodesGroup, bool unpack)
 	: m_Group(denseNodesGroup)
+	, m_DataUnpacked(false)
 {
 	if (unpack)
 		unpackData();
