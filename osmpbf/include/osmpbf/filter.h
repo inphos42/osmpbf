@@ -21,19 +21,21 @@
 #ifndef OSMPBF_FILTER_H
 #define OSMPBF_FILTER_H
 
+#include <osmpbf/common.h>
+
+#include <generics/refcountobject.h>
+
 #include <forward_list>
 #include <string>
 #include <set>
 #include <unordered_set>
-
-#include <generics/refcountobject.h>
 
 /**
   * TagFilters:
   *
   *
   *
-  * You can create a DAG out of Filters. 
+  * You can create a DAG out of Filters.
   *
   */
 
@@ -88,6 +90,7 @@ namespace osmpbf {
 		virtual bool buildIdCache() = 0;
 
 		inline bool invert() { m_Invert = !m_Invert; return m_Invert; }
+		inline void setInverted(bool value) { m_Invert = value; }
 
 	protected:
 		virtual bool p_matches(const IPrimitive & primitive) = 0;
@@ -97,9 +100,9 @@ namespace osmpbf {
 	
 	class PrimitiveTypeFilter: public AbstractTagFilter {
 	public:
-		PrimitiveTypeFilter(int primitiveTypes);
+		PrimitiveTypeFilter(PrimitiveTypeFlags primitiveTypes);
 		virtual ~PrimitiveTypeFilter();
-		void setFilteredTypes(int primitiveTypes);
+		void setFilteredTypes(PrimitiveTypeFlags primitiveTypes);
 		inline int filteredTypes() { return m_filteredPrimitives; }
 		
 		virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi);

@@ -18,22 +18,23 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include <cstdint>
-#include <cstdlib>
+#include "osmpbf/filter.h"
 
-#include <osmpbf/filter.h>
 #include <osmpbf/primitiveblockinputadaptor.h>
 #include <osmpbf/iprimitive.h>
 #include <osmpbf/irelation.h>
 
+#include <cstdint>
+#include <cstdlib>
+
 namespace osmpbf {
 
 	//PrimitiveTypeFilter
-	PrimitiveTypeFilter::PrimitiveTypeFilter(int primitiveTypes) : m_filteredPrimitives(primitiveTypes) {}
+	PrimitiveTypeFilter::PrimitiveTypeFilter(PrimitiveTypeFlags primitiveTypes) : m_filteredPrimitives(primitiveTypes) {}
 	
 	PrimitiveTypeFilter::~PrimitiveTypeFilter() {}
 	
-	void PrimitiveTypeFilter::setFilteredTypes(int primitiveTypes) {
+	void PrimitiveTypeFilter::setFilteredTypes(PrimitiveTypeFlags primitiveTypes) {
 		m_filteredPrimitives = primitiveTypes;
 	}
 	

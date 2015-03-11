@@ -29,7 +29,8 @@
 namespace osmpbf {
 	typedef uint8_t NodeTypeFlags;
 	enum NodeType : NodeTypeFlags { Undefined = 0, PlainNode = 1, DenseNode = 2 };
-	enum PrimitiveType { NoPrimitive=0, InvalidPrimitive=0, NodePrimitive = 0x1, WayPrimitive = 0x2, RelationPrimitive = 0x4 };
+	typedef uint16_t PrimitiveTypeFlags;
+	enum PrimitiveType : PrimitiveTypeFlags { NoPrimitive=0, InvalidPrimitive=0, NodePrimitive = 0x1, WayPrimitive = 0x2, RelationPrimitive = 0x4 };
 }
 
 #endif // OSMPBF_COMMON_H
