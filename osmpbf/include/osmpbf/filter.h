@@ -23,6 +23,7 @@
 
 #include <osmpbf/common_input.h>
 
+#include <generics/macros.h>
 #include <generics/refcountobject.h>
 
 #include <forward_list>
@@ -87,19 +88,25 @@ public:
 	AbstractTagFilter() : generics::RefCountObject(), m_Invert(false) {}
 	virtual ~AbstractTagFilter() {}
 
+	///if you associate an pbi with an filter then you have to rebuild the cache everytime you change the contents of the pbi
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) = 0;
+
+	virtual bool rebuildCache() = 0;
+
+	/// this function is deprecated and will soon be removed, use rebuildCache() instead
+	inline GENERICS_MARK_FUNC_DEPRECATED bool buildIdCache() { return rebuildCache(); }
+
 	inline bool matches(const IPrimitive & primitive)
 	{
 		return m_Invert ? !p_matches(primitive) : p_matches(primitive);
 	}
-	///if you associate an pbi with an filter then you have to rebuild the id cache everytime you change the contents of the pbi
-	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) = 0;
-	virtual bool buildIdCache() = 0;
 
 	inline bool invert()
 	{
 		m_Invert = !m_Invert;
 		return m_Invert;
 	}
+
 	inline void setInverted(bool value)
 	{
 		m_Invert = value;
@@ -116,17 +123,15 @@ class PrimitiveTypeFilter: public AbstractTagFilter
 public:
 	PrimitiveTypeFilter(PrimitiveTypeFlags primitiveTypes);
 	virtual ~PrimitiveTypeFilter();
-	void setFilteredTypes(PrimitiveTypeFlags primitiveTypes);
-	inline int filteredTypes()
-	{
-		return m_filteredPrimitives;
-	}
 
-	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi);
-	virtual bool buildIdCache();
+	void setFilteredTypes(PrimitiveTypeFlags primitiveTypes);
+	inline int filteredTypes() { return m_filteredPrimitives; }
+
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
+	virtual bool rebuildCache() override;
 
 protected:
-	virtual bool p_matches(const IPrimitive & primitive);
+	virtual bool p_matches(const IPrimitive & primitive) override;
 
 private:
 	int m_filteredPrimitives;
@@ -139,7 +144,7 @@ public:
 	AbstractMultiTagFilter() : AbstractTagFilter() {}
 	virtual ~AbstractMultiTagFilter();
 
-	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi);
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
 
 	inline AbstractTagFilter * addChild(AbstractTagFilter * child)
 	{
@@ -171,10 +176,10 @@ class OrTagFilter : public AbstractMultiTagFilter
 public:
 	OrTagFilter() : AbstractMultiTagFilter() {}
 
-	virtual bool buildIdCache();
+	virtual bool rebuildCache() override;
 
 private:
-	virtual bool p_matches(const IPrimitive & primitive);
+	virtual bool p_matches(const IPrimitive & primitive) override;
 };
 
 class AndTagFilter : public AbstractMultiTagFilter
@@ -182,10 +187,10 @@ class AndTagFilter : public AbstractMultiTagFilter
 public:
 	AndTagFilter() : AbstractMultiTagFilter() {}
 
-	virtual bool buildIdCache();
+	virtual bool rebuildCache() override;
 
 private:
-	virtual bool p_matches(const IPrimitive & primitive);
+	virtual bool p_matches(const IPrimitive & primitive) override;
 };
 
 class KeyOnlyTagFilter : public AbstractTagFilter
@@ -199,7 +204,7 @@ public:
 		m_PBI = pbi;
 	}
 
-	virtual bool buildIdCache();
+	virtual bool rebuildCache() override;
 
 	int matchingTag() const
 	{
@@ -207,14 +212,10 @@ public:
 	}
 
 	void setKey(const std::string & key);
-
-	inline const std::string & key() const
-	{
-		return m_Key;
-	}
+	inline const std::string & key() const { return m_Key; }
 
 protected:
-	virtual bool p_matches(const IPrimitive & primitive);
+	virtual bool p_matches(const IPrimitive & primitive) override;
 
 	uint32_t findId(const std::string & str);
 
@@ -251,17 +252,16 @@ public:
 		}
 		m_PBI = pbi;
 	}
-	virtual bool buildIdCache();
+	virtual bool rebuildCache() override;
 
 	void setValue(const std::string & value);
+	inline const std::string & value() const { return m_Value; }
 
-	inline const std::string & Value() const
-	{
-		return m_Value;
-	}
+	/// this function is deprecated and will soon be removed, use value() instead
+	inline GENERICS_MARK_FUNC_DEPRECATED const std::string & Value() const { return value(); }
 
 protected:
-	virtual bool p_matches(const IPrimitive & primitive);
+	virtual bool p_matches(const IPrimitive & primitive) override;
 
 	std::string m_Value;
 
@@ -289,34 +289,25 @@ public:
 	template<typename T_STRING_ITERATOR>
 	MultiStringTagFilter(const std::string & key, const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end);
 
-	virtual bool buildIdCache();
+	virtual bool rebuildCache() override;
 
 	template<typename T_STRING_ITERATOR>
 	void setValues(const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end);
-	inline void setValues(const std::set<std::string> & values)
-	{
-		setValues(values.cbegin(), values.cend());
-	}
-	inline void setValues(const std::unordered_set<std::string> & values)
-	{
-		setValues(values.cbegin(), values.cend());
-	}
-	inline void setValues(std::initializer_list<std::string> l)
-	{
-		setValues(l.begin(), l.end());
-	}
+
+	inline void setValues(const std::set<std::string> & values) { setValues(values.cbegin(), values.cend()); }
+	inline void setValues(const std::unordered_set<std::string> & values) { setValues(values.cbegin(), values.cend()); }
+	inline void setValues(std::initializer_list<std::string> l) { setValues(l.begin(), l.end()); }
+
 	void addValue(const std::string & value);
-	void clearValues()
-	{
-		m_IdSet.clear();
-		m_ValueSet.clear();
-	}
+
+	void clearValues();
 
 	inline MultiStringTagFilter & operator<<(const std::string & value)
 	{
 		addValue(value);
 		return *this;
 	}
+
 	inline MultiStringTagFilter & operator<<(const char * value)
 	{
 		addValue(value);
@@ -324,7 +315,7 @@ public:
 	}
 
 protected:
-	virtual bool p_matches(const IPrimitive & primitive);
+	virtual bool p_matches(const IPrimitive & primitive) override;
 
 	void updateValueIds();
 
@@ -338,33 +329,22 @@ class BoolTagFilter : public MultiStringTagFilter
 public:
 	BoolTagFilter(const std::string & key, bool value);
 
-	virtual bool buildIdCache()
-	{
-		return MultiStringTagFilter::buildIdCache();
-	}
+	virtual bool rebuildCache() override;
 
 	void setValue(bool value);
-	inline bool value() const
-	{
-		return m_Value;
-	}
+	inline bool value() const { return m_Value; }
 
 private:
 	void setValues(const std::set< std::string > & values);
-	inline void addValue(const std::string & value)
-	{
-		MultiStringTagFilter::addValue(value);
-	}
-	inline void clearValues()
-	{
-		MultiStringTagFilter::clearValues();
-	}
+	inline void addValue(const std::string & value) { MultiStringTagFilter::addValue(value); }
+	inline void clearValues() { MultiStringTagFilter::clearValues(); }
 
 	inline MultiStringTagFilter & operator<<(const std::string & value)
 	{
 		MultiStringTagFilter::operator<<(value);
 		return *this;
 	}
+
 	inline MultiStringTagFilter & operator<<(const char * value)
 	{
 		MultiStringTagFilter::operator<<(value);
@@ -380,25 +360,14 @@ class IntTagFilter : public KeyOnlyTagFilter
 public:
 	IntTagFilter(const std::string & key, int value);
 
-	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi)
-	{
-		if (m_PBI != pbi)
-		{
-			m_KeyIdIsDirty = true;
-			m_ValueIdIsDirty = true;
-		}
-		m_PBI = pbi;
-	}
-	virtual bool buildIdCache();
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
+	virtual bool rebuildCache() override;
 
 	void setValue(int value);
-	inline int value() const
-	{
-		return m_Value;
-	}
+	inline int value() const { return m_Value; }
 
 protected:
-	virtual bool p_matches(const IPrimitive & primitive);
+	virtual bool p_matches(const IPrimitive & primitive) override;
 
 	bool findValueId();
 
