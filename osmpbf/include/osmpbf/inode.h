@@ -21,13 +21,13 @@
 #ifndef OSMPBF_INNODE_H
 #define OSMPBF_INNODE_H
 
-#include <cstdint>
-#include <string>
-
 #include <osmpbf/common_input.h>
 #include <osmpbf/iprimitive.h>
 #include <osmpbf/abstractnodeinputadaptor.h>
 #include <osmpbf/nodestreaminputadaptor.h>
+
+#include <cstdint>
+#include <string>
 
 namespace osmpbf
 {

@@ -21,12 +21,12 @@
 #ifndef OSMPBF_ONODE_H
 #define OSMPBF_ONODE_H
 
+#include <osmpbf/abstractprimitiveoutputadaptor.h>
+#include <osmpbf/oprimitive.h>
+
 #include <cstdint>
 #include <string>
 #include <utility>
-
-#include "abstractprimitiveoutputadaptor.h"
-#include "oprimitive.h"
 
 namespace crosby {
 	namespace binary {

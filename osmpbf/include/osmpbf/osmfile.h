@@ -21,7 +21,7 @@
 #ifndef OSMPBF_OSMFILE_H
 #define OSMPBF_OSMFILE_H
 
-#include "osmfilein.h"
-#include "osmfileout.h"
+#include <osmpbf/osmfilein.h>
+#include <osmpbf/osmfileout.h>
 
 #endif // OSMPBF_OSMFILE_H

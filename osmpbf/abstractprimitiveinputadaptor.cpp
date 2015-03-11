@@ -18,7 +18,8 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include <osmpbf/abstractprimitiveinputadaptor.h>
+#include "osmpbf/abstractprimitiveinputadaptor.h"
+
 #include <osmpbf/primitiveblockinputadaptor.h>
 
 namespace osmpbf

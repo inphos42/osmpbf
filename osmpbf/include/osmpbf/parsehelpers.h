@@ -23,6 +23,7 @@
 
 #include <osmpbf/osmfilein.h>
 #include <osmpbf/primitiveblockinputadaptor.h>
+
 #include <omp.h>
 #include <mutex>
 #include <thread>

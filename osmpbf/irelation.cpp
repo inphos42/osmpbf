@@ -18,7 +18,7 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include <osmpbf/irelation.h>
+#include "osmpbf/irelation.h"
 
 namespace osmpbf
 {

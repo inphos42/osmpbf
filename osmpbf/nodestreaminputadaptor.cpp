@@ -18,11 +18,11 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include <osmpbf/nodestreaminputadaptor.h>
-
-#include <osmpbf/primitiveblockinputadaptor.h>
+#include "osmpbf/nodestreaminputadaptor.h"
 
 #include "osmformat.pb.h"
+
+#include <osmpbf/primitiveblockinputadaptor.h>
 
 namespace osmpbf
 {

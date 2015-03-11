@@ -21,15 +21,14 @@
 #ifndef OSMPBF_PRIMITIVEBLOCKINPUTADAPTOR_H
 #define OSMPBF_PRIMITIVEBLOCKINPUTADAPTOR_H
 
-#include <cstdint>
-#include <string>
-#include <vector>
-
-#include <osmpbf/common.h>
 #include <osmpbf/common_input.h>
 #include <osmpbf/pbf_prototypes.h>
 #include <osmpbf/typelimits.h>
 #include <osmpbf/dataindex.h>
+
+#include <cstdint>
+#include <string>
+#include <vector>
 
 
 //TODO:add id to identify a pb within a file (with which we could automatically do the filter update)

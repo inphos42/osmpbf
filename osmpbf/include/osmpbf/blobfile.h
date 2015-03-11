@@ -21,12 +21,11 @@
 #ifndef OSMPBF_BLOBFILE_H
 #define OSMPBF_BLOBFILE_H
 
+#include <osmpbf/blobdata.h>
+#include <osmpbf/typelimits.h>
+
 #include <cstdint>
 #include <string>
-
-#include "blobdata.h"
-
-#include "typelimits.h"
 
 namespace osmpbf {
 	class AbstractBlobFile {

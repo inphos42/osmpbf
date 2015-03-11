@@ -21,11 +21,11 @@
 #ifndef OSMPBF_PRIMITIVEBLOCKOUTPUTADAPTOR_H
 #define OSMPBF_PRIMITIVEBLOCKOUTPUTADAPTOR_H
 
-#include <cstdint>
-#include <string>
-
 #include <osmpbf/common.h>
 #include <osmpbf/stringtable_fwd.h>
+
+#include <cstdint>
+#include <string>
 
 namespace crosby {
 	namespace binary {

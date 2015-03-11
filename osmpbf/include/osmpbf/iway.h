@@ -21,15 +21,15 @@
 #ifndef OSMPBF_IWAY_H
 #define OSMPBF_IWAY_H
 
-#include <cstdint>
-#include <string>
-
-#include <generics/macros.h>
-
 #include <osmpbf/iprimitive.h>
 #include <osmpbf/pbf_prototypes.h>
 #include <osmpbf/common_input.h>
 #include <osmpbf/wayinputadaptor.h>
+
+#include <generics/macros.h>
+
+#include <cstdint>
+#include <string>
 
 namespace osmpbf
 {

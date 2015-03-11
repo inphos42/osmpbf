@@ -21,11 +21,14 @@
 #ifndef OSMPBF_RELATIONINPUTADAPTOR_H
 #define OSMPBF_RELATIONINPUTADAPTOR_H
 
-#include <cstdint>
 #include <osmpbf/common_input.h>
-#include <osmpbf/dataindex.h>
-#include <osmpbf/abstractprimitiveinputadaptor.h>
 #include <osmpbf/pbf_prototypes.h>
+#include <osmpbf/abstractprimitiveinputadaptor.h>
+#include <osmpbf/dataindex.h>
+
+#include <generics/refcountobject.h>
+
+#include <cstdint>
 
 namespace osmpbf
 {

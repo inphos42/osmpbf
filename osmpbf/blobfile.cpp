@@ -18,6 +18,10 @@
     <http://www.gnu.org/licenses/>.
  */
 
+#include "osmpbf/blobfile.h"
+
+#include "osmblob.pb.h"
+
 #include <iostream>
 #include <limits>
 
@@ -27,10 +31,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/mman.h>
-
-#include <osmpbf/blobfile.h>
-
-#include "osmblob.pb.h"
 
 namespace osmpbf {
 	bool inflateData(const char * source, uint32_t sourceSize, char * dest, uint32_t destSize) {

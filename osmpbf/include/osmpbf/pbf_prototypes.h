@@ -26,7 +26,9 @@ namespace crosby
 namespace binary
 {
 
+class HeaderBlock;
 class PrimitiveBlock;
+
 class PrimitiveGroup;
 class Node;
 class DenseNodes;

@@ -20,14 +20,13 @@
 
 #ifndef OSMPBF_XML_CONVERTER_H
 #define OSMPBF_XML_CONVERTER_H
+
+#include <osmpbf/common_input.h>
+
 #include <ostream>
 
 namespace osmpbf
 {
-
-class INode;
-class IWay;
-class IRelation;
 
 struct XmlConverter
 {

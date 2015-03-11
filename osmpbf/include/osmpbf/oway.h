@@ -21,15 +21,15 @@
 #ifndef OSMPBF_OWAY_H
 #define OSMPBF_OWAY_H
 
+#include <osmpbf/common.h>
+#include <osmpbf/abstractprimitiveoutputadaptor.h>
+#include <osmpbf/oprimitive.h>
+
 #include <cstdint>
 #include <string>
 #include <utility>
 
 #include <generics/fielditerator.h>
-
-#include <osmpbf/common.h>
-#include <osmpbf/abstractprimitiveoutputadaptor.h>
-#include <osmpbf/oprimitive.h>
 
 namespace crosby {
 	namespace binary {

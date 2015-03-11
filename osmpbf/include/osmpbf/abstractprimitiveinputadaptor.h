@@ -21,13 +21,13 @@
 #ifndef OSMPBF_ABSTRACTPRIMITIVEINPUTADAPTOR_H
 #define OSMPBF_ABSTRACTPRIMITIVEINPUTADAPTOR_H
 
-#include <cstdint>
-#include <string>
-
 #include <osmpbf/typelimits.h>
 #include <osmpbf/common_input.h>
 
 #include <generics/refcountobject.h>
+
+#include <cstdint>
+#include <string>
 
 namespace osmpbf
 {

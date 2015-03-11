@@ -18,13 +18,13 @@
     <http://www.gnu.org/licenses/>.
  */
 
+#include "osmpbf/dataindex.h"
+
+#include "osmformat.pb.h"
+
 #include <cstddef>
 #include <iostream>
 #include <assert.h>
-
-#include <osmpbf/dataindex.h>
-
-#include "osmformat.pb.h"
 
 namespace osmpbf
 {

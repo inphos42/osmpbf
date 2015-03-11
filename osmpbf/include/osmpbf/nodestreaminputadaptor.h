@@ -21,10 +21,11 @@
 #ifndef OSMPBF_NODESTREAMINPUTADAPTOR_H
 #define OSMPBF_NODESTREAMINPUTADAPTOR_H
 
-#include <cstdint>
 #include <osmpbf/common_input.h>
 #include <osmpbf/abstractnodeinputadaptor.h>
 #include <osmpbf/dataindex.h>
+
+#include <cstdint>
 
 namespace osmpbf
 {

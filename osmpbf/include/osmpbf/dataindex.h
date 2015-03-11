@@ -21,8 +21,9 @@
 #ifndef NODEDATACACHE_H
 #define NODEDATACACHE_H
 
-#include <vector>
 #include <osmpbf/pbf_prototypes.h>
+
+#include <vector>
 
 namespace osmpbf
 {

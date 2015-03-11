@@ -21,12 +21,11 @@
 #ifndef OSMPBF_OSMFILEOUT_H
 #define OSMPBF_OSMFILEOUT_H
 
+#include <osmpbf/blobdata.h>
+#include <osmpbf/typelimits.h>
+
 #include <string>
 #include <vector>
-
-#include "blobdata.h"
-
-#include "typelimits.h"
 
 namespace crosby {
 	namespace binary {

@@ -21,12 +21,12 @@
 #ifndef OSMPBF_ABSTRACTPRIMITIVEOUTPUTADAPTOR_H
 #define OSMPBF_ABSTRACTPRIMITIVEOUTPUTADAPTOR_H
 
-#include <cstdint>
-#include <string>
+#include <osmpbf/stringtable_fwd.h>
 
 #include <generics/refcountobject.h>
 
-#include "stringtable_fwd.h"
+#include <cstdint>
+#include <string>
 
 namespace osmpbf {
 

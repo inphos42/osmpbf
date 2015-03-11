@@ -20,9 +20,9 @@
 
 #include <generics/store.h>
 
-#include <osmpbf/abstractprimitiveoutputadaptor.h>
-
 #include "osmformat.pb.h"
+
+#include <osmpbf/abstractprimitiveoutputadaptor.h>
 
 namespace osmpbf {
 	template class AbstractPrimitiveOutputAdaptor< crosby::binary::Way >;

@@ -21,101 +21,96 @@
 #ifndef OSMPBF_OSMFILEIN_H
 #define OSMPBF_OSMFILEIN_H
 
+#include <osmpbf/blobdata.h>
+#include <osmpbf/typelimits.h>
+#include <osmpbf/pbf_prototypes.h>
+
 #include <string>
 #include <vector>
 
-#include "blobdata.h"
-#include "typelimits.h"
+namespace osmpbf
+{
 
-namespace crosby {
-	namespace binary {
-		class HeaderBlock;
-	}
-}
+class PrimitiveBlockInputAdaptor;
+class BlobFileIn;
 
-namespace osmpbf {
-	class PrimitiveBlockInputAdaptor;
-	class BlobFileIn;
+typedef std::vector<BlobDataBuffer> BlobDataMultiBuffer;
 
-	typedef std::vector<BlobDataBuffer> BlobDataMultiBuffer;
+class OSMFileIn
+{
+public:
+	OSMFileIn(const std::string & fileName, bool verboseOutput = false);
+	OSMFileIn(BlobFileIn * fileIn);
+	~OSMFileIn();
 
-	class OSMFileIn {
-	public:
-		OSMFileIn(const std::string & fileName, bool verboseOutput = false);
-		OSMFileIn(BlobFileIn * fileIn);
-		~OSMFileIn();
+	bool open();
+	void close();
 
-		bool open();
-		void close();
+	void reset();
+	void dataSeek(OffsetType position);
+	OffsetType dataPosition() const;
+	OffsetType dataSize() const;
 
-		void reset();
-		void dataSeek(OffsetType position);
-		OffsetType dataPosition() const;
-		OffsetType dataSize() const;
+	OffsetType totalSize() const;
 
-		OffsetType totalSize() const;
+	bool readBlock();
+	bool skipBlock();
 
-		bool readBlock();
-		bool skipBlock();
+	/**
+	 * copy next block into data buffer
+	 * not thread safe
+	 *
+	 * @param buffer target buffer
+	 */
+	bool getNextBlock(BlobDataBuffer & buffer);
 
-		/**
-		 * copy next block into data buffer
-		 * not thread safe
-		 *
-		 * @param buffer target buffer
-		 */
-		bool getNextBlock(BlobDataBuffer & buffer);
+	/**
+	 * copy next blocks into data buffers
+	 * not thread-safe
+	 *
+	 * @param buffers target container of buffers
+	 * @param num number of blocks to copy, set to -1 to copy all remaining blocks
+	 */
+	bool getNextBlocks(BlobDataMultiBuffer & buffers, int num);
 
-		/**
-		 * copy next blocks into data buffers
-		 * not thread-safe
-		 *
-		 * @param buffers target container of buffers
-		 * @param num number of blocks to copy, set to -1 to copy all remaining blocks
-		 */
-		bool getNextBlocks(BlobDataMultiBuffer & buffers, int num);
+	///@param adaptor parse next block by @adaptor, not thread-safe
+	bool parseNextBlock(PrimitiveBlockInputAdaptor & adaptor);
 
-		///@param adaptor parse next block by @adaptor, not thread-safe
-		bool parseNextBlock(PrimitiveBlockInputAdaptor & adaptor);
+	inline const BlobDataBuffer & blockBuffer() const { return m_DataBuffer; }
+	inline void clearBlockBuffer() { m_DataBuffer.clear(); }
 
-		inline const BlobDataBuffer & blockBuffer() const { return m_DataBuffer; }
-		inline void clearBlockBuffer() { m_DataBuffer.clear(); }
+	inline bool parserMeetsRequirements() const { return m_MissingFeatures.empty(); }
 
-		inline bool parserMeetsRequirements() const { return m_MissingFeatures.empty(); }
+	int requiredFeaturesSize() const;
+	int optionalFeaturesSize() const;
 
-		int requiredFeaturesSize() const;
-		int optionalFeaturesSize() const;
+	const std::string & requiredFeatures(int index) const;
+	const std::string & optionalFeatures(int index) const;
+	inline bool requiredFeatureMissing(int index) const { return m_MissingFeatures.empty() ? false : m_MissingFeatures.at(index); }
 
-		const std::string & requiredFeatures(int index) const;
-		const std::string & optionalFeatures(int index) const;
-		inline bool requiredFeatureMissing(int index) const { return m_MissingFeatures.empty() ? false : m_MissingFeatures.at(index); }
+	// bounding box in nanodegrees
+	int64_t minLat() const;
+	int64_t maxLat() const;
 
-		// bounding box in nanodegrees
-		int64_t minLat() const;
-		int64_t maxLat() const;
+	int64_t minLon() const;
+	int64_t maxLon() const;
 
-		int64_t minLon() const;
-		int64_t maxLon() const;
+protected:
+	OSMFileIn() = delete;
+	OSMFileIn(const OSMFileIn & other) = delete;
+	OSMFileIn & operator=(const OSMFileIn & other) = delete;
 
-	protected:
-		BlobFileIn * m_FileIn;
-		BlobDataBuffer m_DataBuffer;
+	BlobFileIn * m_FileIn;
+	BlobDataBuffer m_DataBuffer;
 
-		crosby::binary::HeaderBlock * m_FileHeader;
-		std::vector< bool > m_MissingFeatures;
+	crosby::binary::HeaderBlock * m_FileHeader;
+	std::vector< bool > m_MissingFeatures;
 
-		OffsetType m_DataOffset;
+	OffsetType m_DataOffset;
 
-		bool parseHeader();
+	bool parseHeader();
+};
 
-	private:
-		OSMFileIn();
-		OSMFileIn(const OSMFileIn & other);
-		OSMFileIn & operator=(const OSMFileIn & other);
-	};
-
-}
-
-
+} // namespace osmpbf
 
 #endif // OSMPBF_OSMFILEIN_H

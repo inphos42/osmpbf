@@ -21,10 +21,10 @@
 #ifndef OSMPBF_IPRIMITIVE
 #define OSMPBF_IPRIMITIVE
 
-#include <generics/refcountobject.h>
-
+#include <osmpbf/common_input.h>
 #include <osmpbf/abstractprimitiveinputadaptor.h>
-#include <osmpbf/common.h>
+
+#include <generics/refcountobject.h>
 
 namespace osmpbf
 {

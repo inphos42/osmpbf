@@ -18,14 +18,15 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
-#include <deque>
+#include "osmpbf/osmfilein.h"
 
-#include <osmpbf/osmfilein.h>
+#include "osmformat.pb.h"
+
 #include <osmpbf/blobfile.h>
 #include <osmpbf/primitiveblockinputadaptor.h>
 
-#include "osmformat.pb.h"
+#include <iostream>
+#include <deque>
 
 namespace osmpbf {
 

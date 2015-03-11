@@ -18,7 +18,7 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include <osmpbf/iway.h>
+#include "osmpbf/iway.h"
 
 namespace osmpbf
 {

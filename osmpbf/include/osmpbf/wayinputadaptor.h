@@ -21,16 +21,13 @@
 #ifndef OSMPBF_WAYINPUTADAPTOR_H
 #define OSMPBF_WAYINPUTADAPTOR_H
 
+#include <osmpbf/common_input.h>
+#include <osmpbf/pbf_prototypes.h>
+#include <osmpbf/abstractprimitiveinputadaptor.h>
+#include <osmpbf/dataindex.h>
+
 #include <cstdint>
 #include <string>
-
-#include <generics/fielditerator.h>
-
-#include <osmpbf/abstractnodeinputadaptor.h>
-#include <osmpbf/iprimitive.h>
-#include <osmpbf/pbf_prototypes.h>
-#include <osmpbf/common_input.h>
-#include <osmpbf/dataindex.h>
 
 namespace osmpbf
 {
