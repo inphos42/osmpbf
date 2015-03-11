@@ -88,6 +88,7 @@ void NodeStreamInputAdaptor::next()
 		}
 		break;
 	case NodeType::Undefined:
+	default:
 		return;
 	}
 
@@ -128,6 +129,7 @@ void NodeStreamInputAdaptor::previous()
 		}
 		break;
 	case NodeType::Undefined:
+	default:
 		m_Id = 0;
 		m_Lat = 0;
 		m_Lon = 0;
@@ -152,6 +154,7 @@ int NodeStreamInputAdaptor::tagsSize() const
 		return group->dense().keys_vals_size() ?
 			m_DenseGroupIterator->queryDenseNodeKeyValIndex(m_GroupNodeIndex * 2 + 1) : 0;
 	case NodeType::Undefined:
+	default:
 		return 0;
 	}
 }
@@ -177,6 +180,7 @@ uint32_t NodeStreamInputAdaptor::keyId(int index) const
 			return group->dense().keys_vals_size() ? group->dense().keys_vals(keyValIndex) : 0;
 		}
 	case NodeType::Undefined:
+	default:
 		return NULL_STRING_ID;
 	}
 }
@@ -202,6 +206,7 @@ uint32_t NodeStreamInputAdaptor::valueId(int index) const
 			return group->dense().keys_vals_size() ? group->dense().keys_vals(keyValIndex) : 0;
 		}
 	case NodeType::Undefined:
+	default:
 		return NULL_STRING_ID;
 	}
 }
@@ -263,6 +268,7 @@ void NodeStreamInputAdaptor::nextNodeIndex()
 		}
 		break;
 	case NodeType::Undefined:
+	default:
 		m_GroupNodeIndex = 0;
 		break;
 	}
@@ -289,6 +295,7 @@ void NodeStreamInputAdaptor::previousNodeIndex()
 		break;
 	case NodeType::DenseNode:
 	case NodeType::Undefined:
+	default:
 		if (m_DenseGroupIterator == m_Controller->m_DenseNodesGroups.begin())
 		{
 			m_GroupMode = NodeType::PlainNode;
@@ -326,6 +333,7 @@ void NodeStreamInputAdaptor::previousNodeIndex()
 		m_GroupNodeIndex = group->dense().id_size() - 1;
 		break;
 	case NodeType::Undefined:
+	default:
 		m_GroupNodeIndex = 0;
 		break;
 	}
@@ -343,6 +351,7 @@ crosby::binary::PrimitiveGroup * NodeStreamInputAdaptor::getCurrentGroup() const
 		return (m_DenseGroupIterator == m_Controller->m_DenseNodesGroups.end()) ?
 			nullptr : m_DenseGroupIterator->group();
 	case NodeType::Undefined:
+	default:
 		return nullptr;
 	}
 }
