@@ -26,11 +26,28 @@
 #define NULL_PRIMITIVE_ID -1
 #define NULL_STRING_ID 0
 
-namespace osmpbf {
-	typedef uint8_t NodeTypeFlags;
-	enum NodeType : NodeTypeFlags { Undefined = 0, PlainNode = 1, DenseNode = 2 };
-	typedef uint16_t PrimitiveTypeFlags;
-	enum PrimitiveType : PrimitiveTypeFlags { NoPrimitive=0, InvalidPrimitive=0, NodePrimitive = 0x1, WayPrimitive = 0x2, RelationPrimitive = 0x4 };
-}
+namespace osmpbf
+{
+
+typedef uint8_t NodeTypeFlags;
+enum NodeType : NodeTypeFlags
+{
+	Undefined = 0,
+	PlainNode = 1,
+	DenseNode = 2
+};
+
+typedef uint16_t PrimitiveTypeFlags;
+enum PrimitiveType : PrimitiveTypeFlags
+{
+	NoPrimitive = 0,
+	InvalidPrimitive = 0,
+
+	NodePrimitive = 0x1,
+	WayPrimitive = 0x2,
+	RelationPrimitive = 0x4
+};
+
+} // namespace osmpbf
 
 #endif // OSMPBF_COMMON_H

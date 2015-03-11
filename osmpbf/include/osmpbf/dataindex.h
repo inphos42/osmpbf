@@ -41,7 +41,7 @@ public:
 	DenseNodesData & operator=(const DenseNodesData & other);
 
 	inline crosby::binary::PrimitiveGroup * group() { return m_Group; }
-	bool isDataUnpacked() const { return m_DataUnpacked; }
+	inline bool isDataUnpacked() const { return m_DataUnpacked; }
 
 	inline int queryDenseNodeKeyValIndex(int index)
 	{

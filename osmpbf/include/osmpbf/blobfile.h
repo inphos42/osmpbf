@@ -27,81 +27,95 @@
 #include <cstdint>
 #include <string>
 
-namespace osmpbf {
-	class AbstractBlobFile {
-	public:
-		AbstractBlobFile() : m_FileDescriptor(-1), m_VerboseOutput(false) {}
-		AbstractBlobFile(const std::string & fileName);
-		virtual ~AbstractBlobFile() {}
+namespace osmpbf
+{
 
-		virtual bool open() = 0;
-		virtual void close() = 0;
+class AbstractBlobFile
+{
+public:
+	explicit AbstractBlobFile(const std::string & fileName);
+	virtual ~AbstractBlobFile() {}
 
-		virtual void seek(OffsetType position) = 0;
-		virtual OffsetType position() const = 0;
+	virtual bool open() = 0;
+	virtual void close() = 0;
 
-		virtual OffsetType size() const = 0;
+	virtual void seek(OffsetType position) = 0;
+	virtual OffsetType position() const = 0;
 
-		inline void setVerboseOutput(bool value) { m_VerboseOutput = value; }
-	protected:
-		std::string m_FileName;
-		int m_FileDescriptor;
-		bool m_VerboseOutput;
-	};
+	virtual OffsetType size() const = 0;
 
-	class BlobFileIn : public AbstractBlobFile {
-	public:
-		BlobFileIn(const std::string & fileName);
-		virtual ~BlobFileIn() { close(); }
+	inline void setVerboseOutput(bool value)
+	{
+		m_VerboseOutput = value;
+	}
 
-		virtual bool open() override;
-		virtual void close() override;
+protected:
+	AbstractBlobFile() = delete;
 
-		virtual void seek(OffsetType position) override;
-		virtual OffsetType position() const override;
+	std::string m_FileName;
+	int m_FileDescriptor;
+	bool m_VerboseOutput;
+};
 
-		virtual OffsetType size() const override;
+class BlobFileIn : public AbstractBlobFile
+{
+public:
+	explicit BlobFileIn(const std::string & fileName);
+	virtual ~BlobFileIn();
 
-		void readBlob(BlobDataBuffer & buffer);
-		BlobDataType readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize);
+	virtual bool open() override;
+	virtual void close() override;
 
-		bool skipBlob();
+	virtual void seek(OffsetType position) override;
+	virtual OffsetType position() const override;
 
-	protected:
-		char * m_FileData;
-		OffsetType m_FilePos;
-		OffsetType m_FileSize;
+	virtual OffsetType size() const override;
 
-		void readBlobHeader(uint32_t & blobLength, BlobDataType & blobDataType);
+	void readBlob(BlobDataBuffer & buffer);
+	BlobDataType readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize);
 
-		inline void * fileData() { return (void *) &(m_FileData[m_FilePos]); }
+	bool skipBlob();
 
-	private:
-		BlobFileIn() : AbstractBlobFile() {}
-	};
+protected:
+	char * m_FileData;
+	OffsetType m_FilePos;
+	OffsetType m_FileSize;
 
-	class BlobFileOut : public AbstractBlobFile {
-	public:
-		BlobFileOut(const std::string & fileName) : AbstractBlobFile(fileName), m_CurrentSize(0) {}
-		virtual ~BlobFileOut() { close(); }
+	void readBlobHeader(uint32_t & blobLength, BlobDataType & blobDataType);
 
-		virtual bool open() override;
-		virtual void close() override;
+	inline void * fileData()
+	{
+		return static_cast<void *>(&(m_FileData[m_FilePos]));
+	}
 
-		virtual void seek(OffsetType position) override;
-		virtual OffsetType position() const override;
+private:
+	BlobFileIn() = delete;
+};
 
-		virtual OffsetType size() const override;
+class BlobFileOut : public AbstractBlobFile
+{
+public:
+	explicit BlobFileOut(const std::string & fileName);
+	virtual ~BlobFileOut();
 
-		bool writeBlob(const BlobDataBuffer & buffer, bool compress = true);
-		bool writeBlob(BlobDataType type, const char * buffer, uint32_t bufferSize, bool compress = true);
+	virtual bool open() override;
+	virtual void close() override;
 
-	protected:
-		OffsetType m_CurrentSize;
+	virtual void seek(OffsetType position) override;
+	virtual OffsetType position() const override;
 
-	private:
-		BlobFileOut() : AbstractBlobFile() {}
-	};
-}
+	virtual OffsetType size() const override;
+
+	bool writeBlob(const BlobDataBuffer & buffer, bool compress = true);
+	bool writeBlob(BlobDataType type, const char * buffer, uint32_t bufferSize, bool compress = true);
+
+protected:
+	OffsetType m_CurrentSize;
+
+private:
+	BlobFileOut() = delete;
+};
+
+} // namespace osmpbf
 
 #endif // OSMPBF_BLOBFILE_H

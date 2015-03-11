@@ -28,6 +28,7 @@
 namespace osmpbf
 {
 
+class IPrimitive;
 class INode;
 class IWay;
 class IRelation;
