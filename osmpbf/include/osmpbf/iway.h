@@ -37,6 +37,8 @@ namespace osmpbf
 class IWay : public IPrimitive
 {
 public:
+	typedef osmpbf::RefIterator RefIterator;
+public:
 	explicit IWay(WayInputAdaptor * data);
 	IWay(const IWay & other);
 
