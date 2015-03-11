@@ -38,15 +38,15 @@ public:
 	WayInputAdaptor();
 	WayInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Way * data);
 
-	virtual bool isNull() const;
+	virtual bool isNull() const override;
 
-	virtual int64_t id();
-	virtual osmpbf::PrimitiveType type() const;
+	virtual int64_t id() override;
+	virtual osmpbf::PrimitiveType type() const override;
 
-	virtual int tagsSize() const;
+	virtual int tagsSize() const override;
 
-	virtual uint32_t keyId(int index) const;
-	virtual uint32_t valueId(int index) const;
+	virtual uint32_t keyId(int index) const override;
+	virtual uint32_t valueId(int index) const override;
 
 	int refsSize() const;
 	int64_t rawRef(int index) const;
@@ -69,7 +69,7 @@ public:
 	WayStreamInputAdaptor();
 	WayStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller);
 
-	virtual bool isNull() const;
+	virtual bool isNull() const override;
 
 	void next();
 	void previous();

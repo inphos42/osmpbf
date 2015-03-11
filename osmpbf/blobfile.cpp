@@ -120,6 +120,11 @@ namespace osmpbf {
 		GOOGLE_PROTOBUF_VERIFY_VERSION;
 	}
 
+	BlobFileIn::BlobFileIn(const std::string &fileName)
+		: AbstractBlobFile(fileName), m_FileData(NULL)
+	{
+	}
+
 	bool BlobFileIn::open() {
 		close();
 
@@ -167,6 +172,21 @@ namespace osmpbf {
 
 			m_FileData = NULL;
 		}
+	}
+
+	void BlobFileIn::seek(OffsetType position)
+	{
+		m_FilePos = position;
+	}
+
+	OffsetType BlobFileIn::position() const
+	{
+		return m_FilePos;
+	}
+
+	OffsetType BlobFileIn::size() const
+	{
+		return m_FileSize;
 	}
 
 	void BlobFileIn::readBlob(BlobDataBuffer & buffer) {
@@ -357,6 +377,11 @@ namespace osmpbf {
 
 	OffsetType BlobFileOut::position() const {
 		return ::lseek(m_FileDescriptor, 0, SEEK_CUR);
+	}
+
+	OffsetType BlobFileOut::size() const
+	{
+		return m_CurrentSize;
 	}
 
 	bool BlobFileOut::writeBlob(const BlobDataBuffer & buffer, bool compress) {

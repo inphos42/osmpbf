@@ -36,25 +36,25 @@ public:
 	NodeStreamInputAdaptor();
 	NodeStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller);
 
-	virtual bool isNull() const;
+	virtual bool isNull() const override;
 
-	virtual int64_t id() { return m_Id; }
+	virtual int64_t id() override;
 
-	virtual int tagsSize() const;
+	virtual int tagsSize() const override;
 
-	virtual uint32_t keyId(int index) const;
-	virtual uint32_t valueId(int index) const;
+	virtual uint32_t keyId(int index) const override;
+	virtual uint32_t valueId(int index) const override;
 
-	virtual int64_t lati() { return m_WGS84Lat; }
-	virtual int64_t loni() { return m_WGS84Lon; }
+	virtual int64_t lati() override;
+	virtual int64_t loni() override;
 
-	virtual double latd() { return m_WGS84Lat * .000000001; }
-	virtual double lond() { return m_WGS84Lon * .000000001; }
+	virtual double latd() override;
+	virtual double lond() override;
 
-	virtual int64_t rawLat() const { return m_Lat; }
-	virtual int64_t rawLon() const { return m_Lon; }
+	virtual int64_t rawLat() const override;
+	virtual int64_t rawLon() const override;
 
-	virtual NodeType nodeType() const { return m_GroupMode; }
+	virtual NodeType nodeType() const override;
 
 	void next();
 	void previous();

@@ -91,15 +91,15 @@ public:
 	RelationInputAdaptor();
 	explicit RelationInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Relation * data);
 
-	virtual bool isNull() const { return AbstractPrimitiveInputAdaptor::isNull() || !m_Data; }
+	virtual bool isNull() const override;
 
-	virtual int64_t id();
-	virtual osmpbf::PrimitiveType type() const;
+	virtual int64_t id() override;
+	virtual osmpbf::PrimitiveType type() const override;
 
-	virtual int tagsSize() const;
+	virtual int tagsSize() const override;
 
-	virtual uint32_t keyId(int index) const;
-	virtual uint32_t valueId(int index) const;
+	virtual uint32_t keyId(int index) const override;
+	virtual uint32_t valueId(int index) const override;
 
 	virtual int membersSize() const;
 
@@ -115,7 +115,7 @@ public:
 	RelationStreamInputAdaptor();
 	RelationStreamInputAdaptor(PrimitiveBlockInputAdaptor * controller);
 
-	virtual bool isNull() const;
+	virtual bool isNull() const override;
 
 	void next();
 	void previous();

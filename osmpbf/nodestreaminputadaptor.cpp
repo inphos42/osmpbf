@@ -54,6 +54,11 @@ bool NodeStreamInputAdaptor::isNull() const
 		 m_DenseGroupIterator == m_Controller->m_DenseNodesGroups.end());
 }
 
+int64_t NodeStreamInputAdaptor::id()
+{
+	return m_Id;
+}
+
 void NodeStreamInputAdaptor::next()
 {
 	if (AbstractPrimitiveInputAdaptor::isNull())
@@ -209,6 +214,41 @@ uint32_t NodeStreamInputAdaptor::valueId(int index) const
 	default:
 		return NULL_STRING_ID;
 	}
+}
+
+int64_t NodeStreamInputAdaptor::lati()
+{
+	return m_WGS84Lat;
+}
+
+int64_t NodeStreamInputAdaptor::loni()
+{
+	return m_WGS84Lon;
+}
+
+double NodeStreamInputAdaptor::latd()
+{
+	return m_WGS84Lat * .000000001;
+}
+
+double NodeStreamInputAdaptor::lond()
+{
+	return m_WGS84Lon * .000000001;
+}
+
+int64_t NodeStreamInputAdaptor::rawLat() const
+{
+	return m_Lat;
+}
+
+int64_t NodeStreamInputAdaptor::rawLon() const
+{
+	return m_Lon;
+}
+
+NodeType NodeStreamInputAdaptor::nodeType() const
+{
+	return m_GroupMode;
 }
 
 void NodeStreamInputAdaptor::updateGroupMode()

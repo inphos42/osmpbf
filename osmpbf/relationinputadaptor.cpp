@@ -53,7 +53,12 @@ const std::string & IMemberStream::role() const
 
 RelationInputAdaptor::RelationInputAdaptor() : AbstractPrimitiveInputAdaptor(), m_Data(NULL) {}
 RelationInputAdaptor::RelationInputAdaptor(PrimitiveBlockInputAdaptor * controller, const crosby::binary::Relation * data)
-	: AbstractPrimitiveInputAdaptor(controller), m_Data(data) {}
+: AbstractPrimitiveInputAdaptor(controller), m_Data(data) {}
+
+bool RelationInputAdaptor::isNull() const
+{
+	return AbstractPrimitiveInputAdaptor::isNull() || !m_Data;
+}
 
 int64_t RelationInputAdaptor::id()
 {

@@ -36,7 +36,7 @@ public:
 	AbstractNodeInputAdaptor(PrimitiveBlockInputAdaptor * controller)
 		: AbstractPrimitiveInputAdaptor(controller) {}
 
-	virtual osmpbf::PrimitiveType type() const { return osmpbf::PrimitiveType::NodePrimitive; }
+	virtual osmpbf::PrimitiveType type() const override { return osmpbf::PrimitiveType::NodePrimitive; }
 
 	virtual int64_t lati() = 0;
 	virtual int64_t loni() = 0;

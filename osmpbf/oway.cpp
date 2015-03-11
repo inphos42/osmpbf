@@ -33,7 +33,12 @@ namespace osmpbf {
 
 	OWay & OWay::operator=(const OWay & other) { OPrimitive<WayOutputAdaptor>::operator=(other); return *this; }
 
-// WayOutputAdaptor
+	void OWay::clearRefs()
+	{
+		m_Private->clearRefs();
+	}
+
+	// WayOutputAdaptor
 
 	WayOutputAdaptor::WayOutputAdaptor() : AbstractPrimitiveOutputAdaptor< crosby::binary::Way >() {}
 	WayOutputAdaptor::WayOutputAdaptor(PrimitiveBlockOutputAdaptor * controller, crosby::binary::Way * data) :

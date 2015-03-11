@@ -51,16 +51,16 @@ namespace osmpbf {
 
 	class BlobFileIn : public AbstractBlobFile {
 	public:
-		BlobFileIn(const std::string & fileName) : AbstractBlobFile(fileName), m_FileData(NULL) {}
+		BlobFileIn(const std::string & fileName);
 		virtual ~BlobFileIn() { close(); }
 
-		virtual bool open();
-		virtual void close();
+		virtual bool open() override;
+		virtual void close() override;
 
-		virtual void seek(OffsetType position) { m_FilePos = position; }
-		virtual OffsetType position() const { return m_FilePos; }
+		virtual void seek(OffsetType position) override;
+		virtual OffsetType position() const override;
 
-		virtual OffsetType size() const { return m_FileSize; }
+		virtual OffsetType size() const override;
 
 		void readBlob(BlobDataBuffer & buffer);
 		BlobDataType readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize);
@@ -85,13 +85,13 @@ namespace osmpbf {
 		BlobFileOut(const std::string & fileName) : AbstractBlobFile(fileName), m_CurrentSize(0) {}
 		virtual ~BlobFileOut() { close(); }
 
-		virtual bool open();
-		virtual void close();
+		virtual bool open() override;
+		virtual void close() override;
 
-		virtual void seek(OffsetType position);
-		virtual OffsetType position() const;
+		virtual void seek(OffsetType position) override;
+		virtual OffsetType position() const override;
 
-		virtual OffsetType size() const { return m_CurrentSize; }
+		virtual OffsetType size() const override;
 
 		bool writeBlob(const BlobDataBuffer & buffer, bool compress = true);
 		bool writeBlob(BlobDataType type, const char * buffer, uint32_t bufferSize, bool compress = true);

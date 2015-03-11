@@ -78,7 +78,7 @@ namespace osmpbf {
 		inline void setRefs(const generics::FieldConstIterator<int64_t> & from, const generics::FieldConstIterator<int64_t> & to) {
 			m_Private->setRefs(from, to); }
 
-		virtual void clearRefs() { m_Private->clearRefs(); }
+		virtual void clearRefs();
 
 	protected:
 		OWay();
