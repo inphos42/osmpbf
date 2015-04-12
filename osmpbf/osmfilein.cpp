@@ -84,6 +84,12 @@ namespace osmpbf {
 	OffsetType OSMFileIn::totalSize() const {
 		return m_FileIn->size();
 	}
+	
+	bool OSMFileIn::hasNext() const
+	{
+		return m_FileIn->position() < m_FileIn->size();
+	}
+
 
 	bool OSMFileIn::getNextBlock(BlobDataBuffer & buffer) {
 		m_FileIn->readBlob(buffer);

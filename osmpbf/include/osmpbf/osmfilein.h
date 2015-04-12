@@ -45,13 +45,15 @@ public:
 
 	bool open();
 	void close();
-
 	void reset();
 	void dataSeek(OffsetType position);
 	OffsetType dataPosition() const;
 	OffsetType dataSize() const;
 
 	OffsetType totalSize() const;
+
+
+	bool hasNext() const;
 
 	bool readBlock();
 	bool skipBlock();
