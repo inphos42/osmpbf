@@ -198,7 +198,7 @@ class KeyOnlyTagFilter : public AbstractTagFilter
 public:
 	KeyOnlyTagFilter(const std::string & key);
 
-	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi)
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override
 	{
 		if (m_PBI != pbi) m_KeyIdIsDirty = true;
 		m_PBI = pbi;
@@ -243,7 +243,7 @@ class StringTagFilter : public KeyOnlyTagFilter
 public:
 	StringTagFilter(const std::string & key, const std::string & value);
 
-	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi)
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override
 	{
 		if (m_PBI != pbi)
 		{
