@@ -60,6 +60,7 @@ template<typename TPBI_Processor>
 void parseFileOmp(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_t readBlobCount = 0);
 
 ///@processor (osmpbf::PrimitiveBlockInputAdaptor & pbi) if the return value is not void, then the processing stops for ALL processors if its evaluated to false
+///Every thread hold its own PrimitiveBlockInputAdaptor. You can set threadPrivateProcessor to true to always get the same pbi on a per-thread/@processor basis
 ///@threadCount if this is set to zero then this will default to max(omp_get_num_procs(), 1) or max(std::thread::hardware_concurrency(), 1)
 ///@readBlobCount number of blobs a single thread fetches to work upon before fetching new blobs
 ///@threadPrivateProcessor each thread will hold a copy of processor instead of sharing a single one
