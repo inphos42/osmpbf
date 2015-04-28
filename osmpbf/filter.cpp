@@ -471,6 +471,118 @@ AbstractTagFilter* MultiStringTagFilter::copy(AbstractTagFilter::CopyMap& copies
 	return myCopy;
 }
 
+//MultiKeyTagFilter
+MultiKeyTagFilter::MultiKeyTagFilter(std::initializer_list< std::string > l) :
+m_PBI(0),
+m_KeyIdIsDirty(true),
+m_ValueSet(l.begin(), l.end())
+{}
+
+bool MultiKeyTagFilter::rebuildCache()
+{
+	m_IdSet.clear();
+	m_KeyIdIsDirty = false;
+	
+	if(!m_PBI)
+	{
+		return true;
+	}
+	
+	if (m_PBI->isNull())
+	{
+		return false;
+	}
+		
+	for(int i(0), s(m_PBI->stringTableSize()); i < s; ++i)
+	{
+		if (m_ValueSet.count(m_PBI->queryStringTable(i)))
+		{
+			m_IdSet.insert(i);
+		}
+	}
+	return m_IdSet.size();
+}
+
+void MultiKeyTagFilter::addValue(const std::string& value)
+{
+	m_ValueSet.insert(value);
+	m_KeyIdIsDirty = true;
+}
+
+void MultiKeyTagFilter::clearValues()
+{
+	m_IdSet.clear();
+	m_ValueSet.clear();
+	m_KeyIdIsDirty = false;
+}
+
+void MultiKeyTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor* pbi)
+{
+	if (m_PBI != pbi)
+	{
+		m_KeyIdIsDirty = true;
+		m_PBI = pbi;
+	}
+}
+
+bool MultiKeyTagFilter::p_matches(const IPrimitive& primitive)
+{
+	if (m_ValueSet.empty())
+	{
+		return false;
+	}
+	
+	if (m_PBI)
+	{
+		if (m_PBI->isNull())
+		{
+			return false;
+		}
+		
+		if (m_KeyIdIsDirty)
+		{
+			rebuildCache();
+		}
+	
+		if (!m_IdSet.size())
+		{
+			return false;
+		}
+		
+		for(int i(0), s(primitive.tagsSize()); i < s; ++i)
+		{
+			if (m_IdSet.count( primitive.keyId(i) ))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	else
+	{
+		for(int i(0), s(primitive.tagsSize()); i < s; ++i)
+		{
+			if (m_ValueSet.count( primitive.key(i) ))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+AbstractTagFilter* MultiKeyTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
+{
+	if (copies.count(this))
+	{
+		return copies.at(this);
+	}
+	MultiKeyTagFilter * myCopy = new MultiKeyTagFilter(m_ValueSet.begin(), m_ValueSet.end());
+	myCopy->m_Invert = m_Invert;
+	copies[this] = myCopy;
+	return myCopy;
+}
+
 // BoolTagFilter
 
 BoolTagFilter::BoolTagFilter(const std::string & key, bool value) :

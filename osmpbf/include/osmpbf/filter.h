@@ -342,6 +342,51 @@ protected:
 	ValueSet m_ValueSet;
 };
 
+class MultiKeyTagFilter : public AbstractTagFilter
+{
+public:
+	typedef std::unordered_set<uint32_t> IdSet;
+	typedef std::unordered_set<std::string> ValueSet;
+
+	MultiKeyTagFilter(std::initializer_list<std::string> l);
+	template<typename T_STRING_ITERATOR>
+	MultiKeyTagFilter(const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end);
+
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
+	virtual bool rebuildCache() override;
+
+	template<typename T_STRING_ITERATOR>
+	void addValues(const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end);
+
+	inline void addValues(std::initializer_list<std::string> l) { addValues(l.begin(), l.end()); }
+
+	void addValue(const std::string & value);
+
+	void clearValues();
+
+	inline MultiKeyTagFilter & operator<<(const std::string & value)
+	{
+		addValue(value);
+		return *this;
+	}
+
+	inline MultiKeyTagFilter & operator<<(const char * value)
+	{
+		addValue(value);
+		return *this;
+	}
+
+protected:
+	virtual bool p_matches(const IPrimitive & primitive) override;
+	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
+
+	const PrimitiveBlockInputAdaptor * m_PBI;
+	bool m_KeyIdIsDirty;
+	IdSet m_IdSet;
+	ValueSet m_ValueSet;
+};
+
+
 /** Check for a @key that matches boolean value @value. Evaluates to false if key is not available */
 class BoolTagFilter : public MultiStringTagFilter
 {
@@ -440,6 +485,19 @@ void MultiStringTagFilter::setValues(const T_STRING_ITERATOR & begin, const T_ST
 	updateValueIds();
 }
 
+template<typename T_STRING_ITERATOR>
+MultiKeyTagFilter::MultiKeyTagFilter(const T_STRING_ITERATOR& begin, const T_STRING_ITERATOR& end) :
+m_PBI(0),
+m_KeyIdIsDirty(true),
+m_ValueSet(begin, end)
+{}
+
+template<typename T_STRING_ITERATOR>
+void MultiKeyTagFilter::addValues(const T_STRING_ITERATOR& begin, const T_STRING_ITERATOR& end)
+{
+	m_ValueSet.insert(begin, end);
+	m_KeyIdIsDirty = true;
+}
 } // namespace osmpbf
 
 #endif // OSMPBF_FILTER_H
