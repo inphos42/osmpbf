@@ -85,6 +85,18 @@ uint32_t RelationInputAdaptor::valueId(int index) const
 	return m_Data->vals(index);
 }
 
+bool RelationInputAdaptor::hasInfo() const {
+	return m_Data->has_info();
+}
+
+IInfo RelationInputAdaptor::info() const {
+	if (!hasInfo())
+	{
+		return IInfo();
+	}
+	return IInfo(m_Data->info());
+}
+
 int RelationInputAdaptor::membersSize() const
 {
 	return m_Data->memids_size();

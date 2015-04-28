@@ -216,6 +216,50 @@ uint32_t NodeStreamInputAdaptor::valueId(int index) const
 	}
 }
 
+bool NodeStreamInputAdaptor::hasInfo() const
+{
+	const crosby::binary::PrimitiveGroup * group = getCurrentGroup();
+
+	if (!group)
+	{
+		return false;
+	}
+	
+	switch (m_GroupMode)
+	{
+	case NodeType::PlainNode:
+		return group->nodes(m_GroupNodeIndex).has_info();
+	case NodeType::DenseNode: //deal with this later
+	case NodeType::Undefined:
+	default:
+		return false;
+	}
+}
+
+IInfo NodeStreamInputAdaptor::info() const
+{
+	const crosby::binary::PrimitiveGroup * group = getCurrentGroup();
+
+	if (!group)
+	{
+		return IInfo();
+	}
+	
+	switch (m_GroupMode)
+	{
+	case NodeType::PlainNode:
+		if (group->nodes(m_GroupNodeIndex).has_info()) {
+			return IInfo(group->nodes(m_GroupNodeIndex).info());
+		}
+		return IInfo();
+	case NodeType::DenseNode: //deal with this later
+	case NodeType::Undefined:
+	default:
+		return IInfo();
+	}
+}
+
+
 int64_t NodeStreamInputAdaptor::lati()
 {
 	return m_WGS84Lat;

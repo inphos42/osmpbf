@@ -23,6 +23,7 @@
 
 #include <osmpbf/typelimits.h>
 #include <osmpbf/common_input.h>
+#include <osmpbf/iinfo.h>
 
 #include <generics/refcountobject.h>
 
@@ -49,6 +50,9 @@ public:
 
 	virtual uint32_t keyId(int index) const = 0;
 	virtual uint32_t valueId(int index) const = 0;
+	
+	virtual bool hasInfo() const = 0;
+	virtual IInfo info() const = 0;
 
 	virtual const std::string & key(int index) const;
 	virtual const std::string & value(int index) const;

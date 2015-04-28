@@ -61,6 +61,7 @@ set(SOURCES_CPP
 	iway.cpp
 	inode.cpp
 	irelation.cpp
+	iinfo.cpp
 	abstractprimitiveoutputadaptor.cpp
 	primitiveblockoutputadaptor.cpp
 	nodestreaminputadaptor.cpp

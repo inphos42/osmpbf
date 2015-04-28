@@ -100,7 +100,10 @@ public:
 
 	virtual uint32_t keyId(int index) const override;
 	virtual uint32_t valueId(int index) const override;
-
+	
+	virtual bool hasInfo() const;
+	virtual IInfo info() const;
+	
 	virtual int membersSize() const;
 
 	virtual IMemberStream getMemberStream() const;

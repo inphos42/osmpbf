@@ -32,6 +32,7 @@ class IPrimitive;
 class INode;
 class IWay;
 class IRelation;
+class IInfo;
 
 class INodeStream;
 class IWayStream;

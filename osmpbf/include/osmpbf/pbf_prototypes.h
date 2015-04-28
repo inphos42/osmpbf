@@ -34,6 +34,7 @@ class Node;
 class DenseNodes;
 class Way;
 class Relation;
+class Info;
 
 } // namespace binary
 } // namespace crosby

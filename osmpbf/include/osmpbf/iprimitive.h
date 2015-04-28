@@ -23,6 +23,7 @@
 
 #include <osmpbf/common_input.h>
 #include <osmpbf/abstractprimitiveinputadaptor.h>
+#include <osmpbf/iinfo.h>
 
 #include <generics/refcountobject.h>
 
@@ -45,6 +46,9 @@ public:
 
 	inline uint32_t keyId(int index) const { return m_Private->keyId(index); }
 	inline uint32_t valueId(int index) const { return m_Private->valueId(index); }
+	
+	inline bool hasInfo() const { return m_Private->hasInfo(); }
+	inline IInfo info() const { return m_Private->info(); }
 
 	inline const std::string & key(int index) const { return m_Private->key(index); }
 	inline const std::string & value(int index) const { return m_Private->value(index); }

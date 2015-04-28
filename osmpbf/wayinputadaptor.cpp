@@ -91,6 +91,18 @@ uint32_t WayInputAdaptor::valueId(int index) const
 	return m_Data->vals(index);
 }
 
+bool WayInputAdaptor::hasInfo() const {
+	return m_Data->has_info();
+}
+
+IInfo WayInputAdaptor::info() const {
+	if (hasInfo())
+	{
+		return IInfo();
+	}
+	return IInfo(m_Data->info());
+}
+
 // WayStreamInputAdaptor
 
 WayStreamInputAdaptor::WayStreamInputAdaptor() : WayInputAdaptor(), m_Index(-1) {}
