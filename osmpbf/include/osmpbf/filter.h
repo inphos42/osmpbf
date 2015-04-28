@@ -30,6 +30,7 @@
 #include <string>
 #include <set>
 #include <unordered_set>
+#include <unordered_map>
 
 /**
   * TagFilters:
@@ -111,9 +112,17 @@ public:
 	{
 		m_Invert = value;
 	}
+	
+	AbstractTagFilter * copy() const;
 
 protected:
+	typedef std::unordered_map<const AbstractTagFilter*, AbstractTagFilter*> CopyMap;
 	virtual bool p_matches(const IPrimitive & primitive) = 0;
+
+	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const = 0;
+	inline AbstractTagFilter * copy(AbstractTagFilter * other, AbstractTagFilter::CopyMap & copies) const {
+		return other->copy(copies);
+	}
 
 	bool m_Invert;
 };
@@ -132,6 +141,7 @@ public:
 
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
+	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
 
 private:
 	int m_filteredPrimitives;
@@ -167,7 +177,7 @@ public:
 
 protected:
 	typedef std::forward_list<AbstractTagFilter *> FilterList;
-
+	virtual AbstractTagFilter* copy(CopyMap& copies) const override = 0;
 	FilterList m_Children;
 };
 
@@ -177,6 +187,9 @@ public:
 	OrTagFilter() : AbstractMultiTagFilter() {}
 
 	virtual bool rebuildCache() override;
+
+protected:
+	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
 
 private:
 	virtual bool p_matches(const IPrimitive & primitive) override;
@@ -188,6 +201,9 @@ public:
 	AndTagFilter() : AbstractMultiTagFilter() {}
 
 	virtual bool rebuildCache() override;
+
+protected:
+	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
 
 private:
 	virtual bool p_matches(const IPrimitive & primitive) override;
@@ -216,6 +232,7 @@ public:
 
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
+	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
 
 	uint32_t findId(const std::string & str);
 
@@ -262,6 +279,7 @@ public:
 
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
+	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
 
 	std::string m_Value;
 
@@ -316,6 +334,7 @@ public:
 
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
+	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
 
 	void updateValueIds();
 
@@ -352,6 +371,7 @@ private:
 	}
 
 protected:
+	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
 	bool m_Value;
 };
 
@@ -368,6 +388,7 @@ public:
 
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
+	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
 
 	bool findValueId();
 

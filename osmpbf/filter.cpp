@@ -30,6 +30,11 @@
 namespace osmpbf
 {
 
+AbstractTagFilter* AbstractTagFilter::copy() const {
+	AbstractTagFilter::CopyMap cm;
+	return this->copy(cm);
+}
+
 //PrimitiveTypeFilter
 PrimitiveTypeFilter::PrimitiveTypeFilter(PrimitiveTypeFlags primitiveTypes) : m_filteredPrimitives(primitiveTypes) {}
 
@@ -43,6 +48,18 @@ void PrimitiveTypeFilter::setFilteredTypes(PrimitiveTypeFlags primitiveTypes)
 void PrimitiveTypeFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi)
 {
 	m_PBI = pbi;
+}
+
+AbstractTagFilter* PrimitiveTypeFilter::copy(AbstractTagFilter::CopyMap& copies) const
+{
+	if (copies.count(this)) {
+		return copies.at(this);
+	}
+
+	PrimitiveTypeFilter * myCopy = new PrimitiveTypeFilter(m_filteredPrimitives);
+	myCopy->m_Invert = this->m_Invert;
+	copies[this] = myCopy;
+	return myCopy;
 }
 
 bool PrimitiveTypeFilter::rebuildCache()
@@ -106,6 +123,32 @@ bool OrTagFilter::p_matches(const IPrimitive & primitive)
 	return false;
 }
 
+AbstractTagFilter* OrTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
+{
+	if (copies.count(this))
+	{
+		return copies.at(this);
+	}
+	OrTagFilter * myCopy = new OrTagFilter();
+	myCopy->m_Invert = m_Invert;
+	for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it)
+	{
+		if (copies.count(*it))
+		{
+			myCopy->m_Children.push_front(copies.at(*it));
+		}
+		else
+		{
+			myCopy->m_Children.push_front( AbstractTagFilter::copy(*it, copies));
+		}
+		myCopy->m_Children.front()->rcInc();
+	}
+	myCopy->m_Children.reverse();
+	copies[this] = myCopy;
+	return myCopy;
+}
+
+
 // AndTagFilter
 
 bool AndTagFilter::rebuildCache()
@@ -127,6 +170,32 @@ bool AndTagFilter::p_matches(const IPrimitive & primitive)
 
 	return true;
 }
+
+AbstractTagFilter* AndTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
+{
+	if (copies.count(this))
+	{
+		return copies.at(this);
+	}
+	AndTagFilter * myCopy = new AndTagFilter();
+	myCopy->m_Invert = m_Invert;
+	for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it)
+	{
+		if (copies.count(*it))
+		{
+			myCopy->m_Children.push_front(copies.at(*it));
+		}
+		else
+		{
+			myCopy->m_Children.push_front( AbstractTagFilter::copy(*it, copies));
+		}
+		myCopy->m_Children.front()->rcInc();
+	}
+	myCopy->m_Children.reverse();
+	copies[this] = myCopy;
+	return myCopy;
+}
+
 
 // KeyOnlyTagFilter
 
@@ -203,6 +272,19 @@ uint32_t KeyOnlyTagFilter::findId(const std::string & str)
 	return id;
 }
 
+AbstractTagFilter* KeyOnlyTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
+{
+	if (copies.count(this))
+	{
+		return copies.at(this);
+	}
+	KeyOnlyTagFilter * myCopy = new KeyOnlyTagFilter(key());
+	myCopy->m_Invert = this->m_Invert;
+	copies[this] = myCopy;
+	return myCopy;
+}
+
+
 // StringTagFilter
 
 StringTagFilter::StringTagFilter(const std::string & key, const std::string & value) :
@@ -257,6 +339,18 @@ bool StringTagFilter::p_matches(const IPrimitive & primitive)
 	}
 
 	return false;
+}
+
+AbstractTagFilter* StringTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
+{
+	if (copies.count(this))
+	{
+		return copies.at(this);
+	}
+	StringTagFilter * myCopy = new StringTagFilter(key(), value());
+	myCopy->m_Invert = this->m_Invert;
+	copies[this] = myCopy;
+	return myCopy;
 }
 
 // MultiStringTagFilter
@@ -356,6 +450,17 @@ void MultiStringTagFilter::updateValueIds()
 	}
 }
 
+AbstractTagFilter* MultiStringTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
+{
+	if (copies.count(this)) {
+		return copies.at(this);
+	}
+	MultiStringTagFilter * myCopy = new MultiStringTagFilter(key(), m_ValueSet.begin(), m_ValueSet.end());
+	myCopy->m_Invert = this->m_Invert;
+	copies[this] = myCopy;
+	return myCopy;
+}
+
 // BoolTagFilter
 
 BoolTagFilter::BoolTagFilter(const std::string & key, bool value) :
@@ -395,6 +500,18 @@ void BoolTagFilter::setValue(bool value)
 		MultiStringTagFilter::setValues({"False", "false", "No", "no", "0"});
 	}
 }
+
+AbstractTagFilter* BoolTagFilter::copy(AbstractTagFilter::CopyMap& copies) const {
+	if (copies.count(this))
+	{
+		return copies.at(this);
+	}
+	BoolTagFilter * myCopy = new BoolTagFilter(key(), value());
+	myCopy->m_Invert = this->m_Invert;
+	copies[this] = myCopy;
+	return myCopy;
+}
+
 
 // IntTagFilter
 
@@ -492,5 +609,18 @@ bool IntTagFilter::p_matches(const IPrimitive & primitive)
 
 	return false;
 }
+
+AbstractTagFilter* IntTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
+{
+	if (copies.count(this))
+	{
+		return copies.at(this);
+	}
+	IntTagFilter * myCopy = new IntTagFilter(key(), value());
+	myCopy->m_Invert = this->m_Invert;
+	copies[this] = myCopy;
+	return myCopy;
+}
+
 
 } // namespace osmpbf
