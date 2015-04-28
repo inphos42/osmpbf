@@ -82,7 +82,6 @@ inline bool hasKey(const OSMInputPrimitive & primitive, uint32_t keyId)
 	return findKey<OSMInputPrimitive>(primitive, keyId) > -1;
 }
 
-
 class AbstractTagFilter : public generics::RefCountObject
 {
 public:
@@ -387,6 +386,29 @@ protected:
 };
 
 
+class MultiKeyValueTagFilter : public AbstractTagFilter
+{
+public:
+
+	MultiKeyValueTagFilter();
+
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
+	virtual bool rebuildCache() override;
+
+	template<typename T_STRING_ITERATOR>
+	void addValues(const std::string & key, const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end);
+
+	void clearValues();
+
+protected:
+	typedef std::unordered_map<std::string, std::unordered_set<std::string> > ValueMap;
+	
+	virtual bool p_matches(const IPrimitive & primitive) override;
+	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
+
+	ValueMap m_ValueMap;
+};
+
 /** Check for a @key that matches boolean value @value. Evaluates to false if key is not available */
 class BoolTagFilter : public MultiStringTagFilter
 {
@@ -498,6 +520,13 @@ void MultiKeyTagFilter::addValues(const T_STRING_ITERATOR& begin, const T_STRING
 	m_ValueSet.insert(begin, end);
 	m_KeyIdIsDirty = true;
 }
+
+template<typename T_STRING_ITERATOR>
+void MultiKeyValueTagFilter::addValues(const std::string& key, const T_STRING_ITERATOR& begin, const T_STRING_ITERATOR& end)
+{
+	m_ValueMap[key].insert(begin, end);
+}
+
 } // namespace osmpbf
 
 #endif // OSMPBF_FILTER_H

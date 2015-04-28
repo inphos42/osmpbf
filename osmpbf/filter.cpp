@@ -583,6 +583,50 @@ AbstractTagFilter* MultiKeyTagFilter::copy(AbstractTagFilter::CopyMap& copies) c
 	return myCopy;
 }
 
+//MultiKeyValueTagFilter
+
+MultiKeyValueTagFilter::MultiKeyValueTagFilter() {}
+
+void MultiKeyValueTagFilter::clearValues()
+{
+	m_ValueMap.clear();
+}
+
+bool MultiKeyValueTagFilter::p_matches(const IPrimitive& primitive)
+{
+	for(int i(0), s(primitive.tagsSize()); i < s; ++i)
+	{
+		ValueMap::const_iterator it( m_ValueMap.find(primitive.key(i)) );
+		if ( it != m_ValueMap.end() && it->second.count(primitive.value(i)) )
+		{
+			return true;
+		}
+	
+	}
+	return false;
+}
+
+void MultiKeyValueTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor* ) {}
+
+bool MultiKeyValueTagFilter::rebuildCache() {return true;}
+
+AbstractTagFilter* MultiKeyValueTagFilter::copy(AbstractTagFilter::CopyMap & copies) const
+{
+	if (copies.count(this))
+	{
+		return copies.at(this);
+	}
+	MultiKeyValueTagFilter * myCopy = new MultiKeyValueTagFilter();
+	for(const auto & x : m_ValueMap)
+	{
+		myCopy->addValues(x.first, x.second.cbegin(), x.second.cend());
+	}
+	myCopy->m_Invert = this->m_Invert;
+	copies[this] = myCopy;
+	return myCopy;
+}
+
+
 // BoolTagFilter
 
 BoolTagFilter::BoolTagFilter(const std::string & key, bool value) :
