@@ -30,7 +30,8 @@
 namespace osmpbf
 {
 
-AbstractTagFilter* AbstractTagFilter::copy() const {
+AbstractTagFilter* AbstractTagFilter::copy() const
+{
 	AbstractTagFilter::CopyMap cm;
 	return this->copy(cm);
 }
@@ -52,7 +53,8 @@ void PrimitiveTypeFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor * 
 
 AbstractTagFilter* PrimitiveTypeFilter::copy(AbstractTagFilter::CopyMap& copies) const
 {
-	if (copies.count(this)) {
+	if (copies.count(this))
+	{
 		return copies.at(this);
 	}
 
@@ -88,13 +90,17 @@ bool PrimitiveTypeFilter::p_matches(const IPrimitive & primitive)
 AbstractMultiTagFilter::~AbstractMultiTagFilter()
 {
 	for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it)
+	{
 		(*it)->rcDec();
+	}
 }
 
 void AbstractMultiTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi)
 {
 	for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it)
+	{
 		(*it)->assignInputAdaptor(pbi);
+	}
 }
 
 // OrTagFilter
@@ -155,8 +161,9 @@ bool AndTagFilter::rebuildCache()
 {
 	bool result = true;
 	for (FilterList::const_iterator it(m_Children.cbegin()), end(m_Children.cend()); it != end; ++it)
+	{
 		result = (*it)->rebuildCache() && result;
-
+	}
 	return result;
 }
 
@@ -165,7 +172,9 @@ bool AndTagFilter::p_matches(const IPrimitive & primitive)
 	for (FilterList::const_iterator it(m_Children.cbegin()), end(m_Children.cend()); it != end; ++it)
 	{
 		if (!(*it)->matches(primitive))
+		{
 			return false;
+		}
 	}
 
 	return true;
@@ -452,7 +461,8 @@ void MultiStringTagFilter::updateValueIds()
 
 AbstractTagFilter* MultiStringTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
 {
-	if (copies.count(this)) {
+	if (copies.count(this))
+	{
 		return copies.at(this);
 	}
 	MultiStringTagFilter * myCopy = new MultiStringTagFilter(key(), m_ValueSet.begin(), m_ValueSet.end());
@@ -501,7 +511,8 @@ void BoolTagFilter::setValue(bool value)
 	}
 }
 
-AbstractTagFilter* BoolTagFilter::copy(AbstractTagFilter::CopyMap& copies) const {
+AbstractTagFilter* BoolTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
+{
 	if (copies.count(this))
 	{
 		return copies.at(this);
