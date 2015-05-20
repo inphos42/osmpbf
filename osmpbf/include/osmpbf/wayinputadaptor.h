@@ -48,8 +48,8 @@ public:
 	virtual uint32_t keyId(int index) const override;
 	virtual uint32_t valueId(int index) const override;
 	
-	virtual bool hasInfo() const;
-	virtual IInfo info() const;
+	virtual bool hasInfo() const override;
+	virtual IInfo info() const override;
 
 	int refsSize() const;
 	int64_t rawRef(int index) const;

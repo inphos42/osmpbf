@@ -44,8 +44,8 @@ public:
 
 	virtual uint32_t keyId(int index) const override;
 	virtual uint32_t valueId(int index) const override;
-	virtual bool hasInfo() const;
-	virtual IInfo info() const;
+	virtual bool hasInfo() const override;
+	virtual IInfo info() const override;
 
 	virtual int64_t lati() override;
 	virtual int64_t loni() override;
