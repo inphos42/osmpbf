@@ -48,7 +48,7 @@ void parseBlock(osmpbf::PrimitiveBlockInputAdaptor & pbi) {
 	andFilter.addChild(hwFilter);
 
 	//build the id cache for faster queries (this is not neccessary)
-	if (!andFilter.buildIdCache()) {
+	if (!andFilter.rebuildCache()) {
 // 		std::cout << "No matching elements in this block" << std::endl;
 	}
 	

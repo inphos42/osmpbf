@@ -350,7 +350,7 @@ int dumpMatch(char * inputFileName, char * matchString, bool verbose) {
 		nodesCount += pbi.nodesSize();
 		relationsCount += pbi.relationsSize();
 
-		if (!filter->buildIdCache())
+		if (!filter->rebuildCache())
 			continue;
 
 		uint32_t matchCount;
