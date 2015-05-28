@@ -31,6 +31,8 @@ namespace osmpbf
 class IRelation : public IPrimitive
 {
 public:
+	typedef IMemberStream MemberStream;
+public:
 	explicit IRelation(RelationInputAdaptor * data);
 	IRelation(const IRelation & other);
 
@@ -38,7 +40,7 @@ public:
 
 	inline int membersSize() const { return static_cast< RelationInputAdaptor * >(m_Private)->membersSize(); }
 
-	inline IMemberStream getMemberStream() const { return static_cast< RelationInputAdaptor * >(m_Private)->getMemberStream(); }
+	inline MemberStream getMemberStream() const { return static_cast< RelationInputAdaptor * >(m_Private)->getMemberStream(); }
 
 protected:
 	IRelation();
