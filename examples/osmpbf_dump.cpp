@@ -333,7 +333,7 @@ int dumpMatch(char * inputFileName, char * matchString, bool verbose) {
 	std::cout << "looking for: key = \"" << keyString << "\" value = \"" << valueString << '\"' << std::endl;
 
 	osmpbf::AbstractTagFilter * filter = valueString.size() ?
-		new osmpbf::StringTagFilter(keyString, valueString) :
+		new osmpbf::KeyValueTagFilter(keyString, valueString) :
 		new osmpbf::KeyOnlyTagFilter(keyString);
 
 	keyString.clear();

@@ -44,7 +44,7 @@ inline std::string primitiveTypeToString(osmpbf::PrimitiveType t) {
 
 void parseBlock(osmpbf::PrimitiveBlockInputAdaptor & pbi) {
 	//using filters is straight forward
-	osmpbf::MultiStringTagFilter * hwFilter = new osmpbf::MultiStringTagFilter("highway");
+	osmpbf::KeyMultiValueTagFilter * hwFilter = new osmpbf::KeyMultiValueTagFilter("highway");
 	hwFilter->setValues(std::set<std::string>({"path", "residential"}));
 	//andFilter takes ownership of hwFilter
 	osmpbf::AndTagFilter andFilter;

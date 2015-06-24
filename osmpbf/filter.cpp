@@ -296,10 +296,14 @@ AbstractTagFilter* KeyOnlyTagFilter::copy(AbstractTagFilter::CopyMap& copies) co
 
 // StringTagFilter
 
-StringTagFilter::StringTagFilter(const std::string & key, const std::string & value) :
-	KeyOnlyTagFilter(key), m_Value(value), m_ValueId(0), m_ValueIdIsDirty(false) {}
+KeyValueTagFilter::KeyValueTagFilter(const std::string & key, const std::string & value) :
+KeyOnlyTagFilter(key),
+m_Value(value),
+m_ValueId(0),
+m_ValueIdIsDirty(false)
+{}
 
-bool StringTagFilter::rebuildCache()
+bool KeyValueTagFilter::rebuildCache()
 {
 	m_KeyId = findId(m_Key);
 	m_KeyIdIsDirty = false;
@@ -313,13 +317,13 @@ bool StringTagFilter::rebuildCache()
 	return m_KeyId && m_ValueId;
 }
 
-void StringTagFilter::setValue(const std::string & value)
+void KeyValueTagFilter::setValue(const std::string & value)
 {
 	m_Value = value;
 	m_ValueIdIsDirty = true;
 }
 
-bool StringTagFilter::p_matches(const IPrimitive & primitive)
+bool KeyValueTagFilter::p_matches(const IPrimitive & primitive)
 {
 	if (m_Key.empty())
 		return false;
@@ -350,13 +354,13 @@ bool StringTagFilter::p_matches(const IPrimitive & primitive)
 	return false;
 }
 
-AbstractTagFilter* StringTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
+AbstractTagFilter* KeyValueTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
 {
 	if (copies.count(this))
 	{
 		return copies.at(this);
 	}
-	StringTagFilter * myCopy = new StringTagFilter(key(), value());
+	KeyValueTagFilter * myCopy = new KeyValueTagFilter(key(), value());
 	myCopy->m_Invert = this->m_Invert;
 	copies[this] = myCopy;
 	return myCopy;
@@ -364,16 +368,16 @@ AbstractTagFilter* StringTagFilter::copy(AbstractTagFilter::CopyMap& copies) con
 
 // MultiStringTagFilter
 
-MultiStringTagFilter::MultiStringTagFilter(const std::string & key) : KeyOnlyTagFilter(key) {}
+KeyMultiValueTagFilter::KeyMultiValueTagFilter(const std::string & key) : KeyOnlyTagFilter(key) {}
 
-MultiStringTagFilter::MultiStringTagFilter(const std::string & key, std::initializer_list<std::string> l) :
-	KeyOnlyTagFilter(key),
-	m_ValueSet(l)
+KeyMultiValueTagFilter::KeyMultiValueTagFilter(const std::string & key, std::initializer_list<std::string> l) :
+KeyOnlyTagFilter(key),
+m_ValueSet(l)
 {
 	updateValueIds();
 }
 
-bool MultiStringTagFilter::rebuildCache()
+bool KeyMultiValueTagFilter::rebuildCache()
 {
 	m_KeyId = findId(m_Key);
 	m_KeyIdIsDirty = false;
@@ -386,7 +390,7 @@ bool MultiStringTagFilter::rebuildCache()
 	return m_KeyId && m_IdSet.size();
 }
 
-void MultiStringTagFilter::addValue(const std::string & value)
+void KeyMultiValueTagFilter::addValue(const std::string & value)
 {
 	m_ValueSet.insert(value);
 
@@ -396,13 +400,13 @@ void MultiStringTagFilter::addValue(const std::string & value)
 		m_IdSet.insert(valueId);
 }
 
-void MultiStringTagFilter::clearValues()
+void KeyMultiValueTagFilter::clearValues()
 {
 	m_IdSet.clear();
 	m_ValueSet.clear();
 }
 
-bool MultiStringTagFilter::p_matches(const IPrimitive & primitive)
+bool KeyMultiValueTagFilter::p_matches(const IPrimitive & primitive)
 {
 	if (m_Key.empty())
 		return false;
@@ -445,7 +449,7 @@ bool MultiStringTagFilter::p_matches(const IPrimitive & primitive)
 	}
 }
 
-void MultiStringTagFilter::updateValueIds()
+void KeyMultiValueTagFilter::updateValueIds()
 {
 	m_IdSet.clear();
 
@@ -459,13 +463,13 @@ void MultiStringTagFilter::updateValueIds()
 	}
 }
 
-AbstractTagFilter* MultiStringTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
+AbstractTagFilter* KeyMultiValueTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
 {
 	if (copies.count(this))
 	{
 		return copies.at(this);
 	}
-	MultiStringTagFilter * myCopy = new MultiStringTagFilter(key(), m_ValueSet.begin(), m_ValueSet.end());
+	KeyMultiValueTagFilter * myCopy = new KeyMultiValueTagFilter(key(), m_ValueSet.begin(), m_ValueSet.end());
 	myCopy->m_Invert = this->m_Invert;
 	copies[this] = myCopy;
 	return myCopy;
@@ -475,7 +479,7 @@ AbstractTagFilter* MultiStringTagFilter::copy(AbstractTagFilter::CopyMap& copies
 MultiKeyTagFilter::MultiKeyTagFilter(std::initializer_list< std::string > l) :
 m_PBI(0),
 m_KeyIdIsDirty(true),
-m_ValueSet(l.begin(), l.end())
+m_KeySet(l.begin(), l.end())
 {}
 
 bool MultiKeyTagFilter::rebuildCache()
@@ -495,7 +499,7 @@ bool MultiKeyTagFilter::rebuildCache()
 		
 	for(int i(0), s(m_PBI->stringTableSize()); i < s; ++i)
 	{
-		if (m_ValueSet.count(m_PBI->queryStringTable(i)))
+		if (m_KeySet.count(m_PBI->queryStringTable(i)))
 		{
 			m_IdSet.insert(i);
 		}
@@ -505,14 +509,14 @@ bool MultiKeyTagFilter::rebuildCache()
 
 void MultiKeyTagFilter::addValue(const std::string& value)
 {
-	m_ValueSet.insert(value);
+	m_KeySet.insert(value);
 	m_KeyIdIsDirty = true;
 }
 
 void MultiKeyTagFilter::clearValues()
 {
 	m_IdSet.clear();
-	m_ValueSet.clear();
+	m_KeySet.clear();
 	m_KeyIdIsDirty = false;
 }
 
@@ -527,7 +531,7 @@ void MultiKeyTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor* pbi
 
 bool MultiKeyTagFilter::p_matches(const IPrimitive& primitive)
 {
-	if (m_ValueSet.empty())
+	if (m_KeySet.empty())
 	{
 		return false;
 	}
@@ -562,7 +566,7 @@ bool MultiKeyTagFilter::p_matches(const IPrimitive& primitive)
 	{
 		for(int i(0), s(primitive.tagsSize()); i < s; ++i)
 		{
-			if (m_ValueSet.count( primitive.key(i) ))
+			if (m_KeySet.count( primitive.key(i) ))
 			{
 				return true;
 			}
@@ -577,7 +581,7 @@ AbstractTagFilter* MultiKeyTagFilter::copy(AbstractTagFilter::CopyMap& copies) c
 	{
 		return copies.at(this);
 	}
-	MultiKeyTagFilter * myCopy = new MultiKeyTagFilter(m_ValueSet.begin(), m_ValueSet.end());
+	MultiKeyTagFilter * myCopy = new MultiKeyTagFilter(m_KeySet.begin(), m_KeySet.end());
 	myCopy->m_Invert = m_Invert;
 	copies[this] = myCopy;
 	return myCopy;
@@ -585,14 +589,14 @@ AbstractTagFilter* MultiKeyTagFilter::copy(AbstractTagFilter::CopyMap& copies) c
 
 //MultiKeyValueTagFilter
 
-MultiKeyValueTagFilter::MultiKeyValueTagFilter() {}
+MultiKeyMultiValueTagFilter::MultiKeyMultiValueTagFilter() {}
 
-void MultiKeyValueTagFilter::clearValues()
+void MultiKeyMultiValueTagFilter::clearValues()
 {
 	m_ValueMap.clear();
 }
 
-bool MultiKeyValueTagFilter::p_matches(const IPrimitive& primitive)
+bool MultiKeyMultiValueTagFilter::p_matches(const IPrimitive& primitive)
 {
 	for(int i(0), s(primitive.tagsSize()); i < s; ++i)
 	{
@@ -606,17 +610,17 @@ bool MultiKeyValueTagFilter::p_matches(const IPrimitive& primitive)
 	return false;
 }
 
-void MultiKeyValueTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor* ) {}
+void MultiKeyMultiValueTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor* ) {}
 
-bool MultiKeyValueTagFilter::rebuildCache() {return true;}
+bool MultiKeyMultiValueTagFilter::rebuildCache() {return true;}
 
-AbstractTagFilter* MultiKeyValueTagFilter::copy(AbstractTagFilter::CopyMap & copies) const
+AbstractTagFilter* MultiKeyMultiValueTagFilter::copy(AbstractTagFilter::CopyMap & copies) const
 {
 	if (copies.count(this))
 	{
 		return copies.at(this);
 	}
-	MultiKeyValueTagFilter * myCopy = new MultiKeyValueTagFilter();
+	MultiKeyMultiValueTagFilter * myCopy = new MultiKeyMultiValueTagFilter();
 	for(const auto & x : m_ValueMap)
 	{
 		myCopy->addValues(x.first, x.second.cbegin(), x.second.cend());
@@ -630,22 +634,22 @@ AbstractTagFilter* MultiKeyValueTagFilter::copy(AbstractTagFilter::CopyMap & cop
 // BoolTagFilter
 
 BoolTagFilter::BoolTagFilter(const std::string & key, bool value) :
-	MultiStringTagFilter(key),
+	KeyMultiValueTagFilter(key),
 	m_Value(value)
 {
 	if (m_Value)
 	{
-		MultiStringTagFilter::setValues({"True", "true", "Yes", "yes", "1"});
+		KeyMultiValueTagFilter::setValues({"True", "true", "Yes", "yes", "1"});
 	}
 	else
 	{
-		MultiStringTagFilter::setValues({"False", "false", "No", "no", "0"});
+		KeyMultiValueTagFilter::setValues({"False", "false", "No", "no", "0"});
 	}
 }
 
 bool BoolTagFilter::rebuildCache()
 {
-	return MultiStringTagFilter::rebuildCache();
+	return KeyMultiValueTagFilter::rebuildCache();
 }
 
 void BoolTagFilter::setValue(bool value)
@@ -659,11 +663,11 @@ void BoolTagFilter::setValue(bool value)
 
 	if (m_Value)
 	{
-		MultiStringTagFilter::setValues({"True", "true", "Yes", "yes", "1"});
+		KeyMultiValueTagFilter::setValues({"True", "true", "Yes", "yes", "1"});
 	}
 	else
 	{
-		MultiStringTagFilter::setValues({"False", "false", "No", "no", "0"});
+		KeyMultiValueTagFilter::setValues({"False", "false", "No", "no", "0"});
 	}
 }
 

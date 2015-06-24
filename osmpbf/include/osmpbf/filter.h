@@ -126,6 +126,8 @@ protected:
 	bool m_Invert;
 };
 
+typedef generics::RCPtr<AbstractTagFilter> RCFilterPtr;
+
 class PrimitiveTypeFilter: public AbstractTagFilter
 {
 public:
@@ -254,10 +256,11 @@ protected:
 	const osmpbf::PrimitiveBlockInputAdaptor * m_PBI;
 };
 
-class StringTagFilter : public KeyOnlyTagFilter
+///A single key, single value tag filter
+class KeyValueTagFilter : public KeyOnlyTagFilter
 {
 public:
-	StringTagFilter(const std::string & key, const std::string & value);
+	KeyValueTagFilter(const std::string & key, const std::string & value);
 
 	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override
 	{
@@ -295,16 +298,17 @@ protected:
 	}
 };
 
-class MultiStringTagFilter : public KeyOnlyTagFilter
+///A single key, multiple values filter
+class KeyMultiValueTagFilter : public KeyOnlyTagFilter
 {
 public:
 	typedef std::unordered_set<uint32_t> IdSet;
 	typedef std::unordered_set<std::string> ValueSet;
 
-	MultiStringTagFilter(const std::string & key);
-	MultiStringTagFilter(const std::string & key, std::initializer_list<std::string> l);
+	KeyMultiValueTagFilter(const std::string & key);
+	KeyMultiValueTagFilter(const std::string & key, std::initializer_list<std::string> l);
 	template<typename T_STRING_ITERATOR>
-	MultiStringTagFilter(const std::string & key, const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end);
+	KeyMultiValueTagFilter(const std::string & key, const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end);
 
 	virtual bool rebuildCache() override;
 
@@ -319,13 +323,13 @@ public:
 
 	void clearValues();
 
-	inline MultiStringTagFilter & operator<<(const std::string & value)
+	inline KeyMultiValueTagFilter & operator<<(const std::string & value)
 	{
 		addValue(value);
 		return *this;
 	}
 
-	inline MultiStringTagFilter & operator<<(const char * value)
+	inline KeyMultiValueTagFilter & operator<<(const char * value)
 	{
 		addValue(value);
 		return *this;
@@ -341,6 +345,7 @@ protected:
 	ValueSet m_ValueSet;
 };
 
+///A multi-key, any-value filter
 class MultiKeyTagFilter : public AbstractTagFilter
 {
 public:
@@ -382,15 +387,15 @@ protected:
 	const PrimitiveBlockInputAdaptor * m_PBI;
 	bool m_KeyIdIsDirty;
 	IdSet m_IdSet;
-	ValueSet m_ValueSet;
+	ValueSet m_KeySet;
 };
 
-
-class MultiKeyValueTagFilter : public AbstractTagFilter
+///A multiple keys, multiple-values filter
+class MultiKeyMultiValueTagFilter : public AbstractTagFilter
 {
 public:
 
-	MultiKeyValueTagFilter();
+	MultiKeyMultiValueTagFilter();
 
 	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
 	virtual bool rebuildCache() override;
@@ -410,7 +415,7 @@ protected:
 };
 
 /** Check for a @key that matches boolean value @value. Evaluates to false if key is not available */
-class BoolTagFilter : public MultiStringTagFilter
+class BoolTagFilter : public KeyMultiValueTagFilter
 {
 public:
 	BoolTagFilter(const std::string & key, bool value);
@@ -422,18 +427,18 @@ public:
 
 private:
 	void setValues(const std::set< std::string > & values);
-	inline void addValue(const std::string & value) { MultiStringTagFilter::addValue(value); }
-	inline void clearValues() { MultiStringTagFilter::clearValues(); }
+	inline void addValue(const std::string & value) { KeyMultiValueTagFilter::addValue(value); }
+	inline void clearValues() { KeyMultiValueTagFilter::clearValues(); }
 
-	inline MultiStringTagFilter & operator<<(const std::string & value)
+	inline KeyMultiValueTagFilter & operator<<(const std::string & value)
 	{
-		MultiStringTagFilter::operator<<(value);
+		KeyMultiValueTagFilter::operator<<(value);
 		return *this;
 	}
 
-	inline MultiStringTagFilter & operator<<(const char * value)
+	inline KeyMultiValueTagFilter & operator<<(const char * value)
 	{
-		MultiStringTagFilter::operator<<(value);
+		KeyMultiValueTagFilter::operator<<(value);
 		return *this;
 	}
 
@@ -491,16 +496,16 @@ inline OrTagFilter * newOr(AbstractTagFilter * a, AbstractTagFilter * b)
 //definitions
 
 template<typename T_STRING_ITERATOR>
-MultiStringTagFilter::MultiStringTagFilter(const std::string & key, const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end) :
-	KeyOnlyTagFilter(key),
-	m_ValueSet(begin, end)
+KeyMultiValueTagFilter::KeyMultiValueTagFilter(const std::string & key, const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end) :
+KeyOnlyTagFilter(key),
+m_ValueSet(begin, end)
 {
 	updateValueIds();
 }
 
 
 template<typename T_STRING_ITERATOR>
-void MultiStringTagFilter::setValues(const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end)
+void KeyMultiValueTagFilter::setValues(const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end)
 {
 	m_ValueSet.clear();
 	m_ValueSet.insert(begin, end);
@@ -511,18 +516,18 @@ template<typename T_STRING_ITERATOR>
 MultiKeyTagFilter::MultiKeyTagFilter(const T_STRING_ITERATOR& begin, const T_STRING_ITERATOR& end) :
 m_PBI(0),
 m_KeyIdIsDirty(true),
-m_ValueSet(begin, end)
+m_KeySet(begin, end)
 {}
 
 template<typename T_STRING_ITERATOR>
 void MultiKeyTagFilter::addValues(const T_STRING_ITERATOR& begin, const T_STRING_ITERATOR& end)
 {
-	m_ValueSet.insert(begin, end);
+	m_KeySet.insert(begin, end);
 	m_KeyIdIsDirty = true;
 }
 
 template<typename T_STRING_ITERATOR>
-void MultiKeyValueTagFilter::addValues(const std::string& key, const T_STRING_ITERATOR& begin, const T_STRING_ITERATOR& end)
+void MultiKeyMultiValueTagFilter::addValues(const std::string& key, const T_STRING_ITERATOR& begin, const T_STRING_ITERATOR& end)
 {
 	m_ValueMap[key].insert(begin, end);
 }
