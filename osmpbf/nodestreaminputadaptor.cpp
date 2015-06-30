@@ -272,12 +272,12 @@ int64_t NodeStreamInputAdaptor::loni()
 
 double NodeStreamInputAdaptor::latd()
 {
-	return m_WGS84Lat * .000000001;
+	return m_WGS84Lat * COORDINATE_SCALE_FACTOR_LAT;
 }
 
 double NodeStreamInputAdaptor::lond()
 {
-	return m_WGS84Lon * .000000001;
+	return m_WGS84Lon * COORDINATE_SCALE_FACTOR_LON;
 }
 
 int64_t NodeStreamInputAdaptor::rawLat() const

@@ -93,12 +93,12 @@ public:
 
 	inline double toWGS84Latd(int64_t rawValue) const
 	{
-		return toWGS84Lati(rawValue) * .000000001;
+		return toWGS84Lati(rawValue) * COORDINATE_SCALE_FACTOR_LAT;
 	}
 
 	inline double toWGS84Lond(int64_t rawValue) const
 	{
-		return toWGS84Loni(rawValue) * .000000001;
+		return toWGS84Loni(rawValue) * COORDINATE_SCALE_FACTOR_LON;
 	}
 
 private:
