@@ -24,11 +24,14 @@
 #include <osmpbf/osmfilein.h>
 #include <osmpbf/primitiveblockinputadaptor.h>
 
-#include <omp.h>
 #include <mutex>
 #include <atomic>
 #include <thread>
 #include <type_traits>
+
+#if defined(_OPENMP)
+#include <omp.h>
+#endif
 
 namespace osmpbf
 {
@@ -106,7 +109,11 @@ void parseFileOmp(OSMFileIn & inFile, TPBI_Processor processor, uint32_t readBlo
 {
 	if (!readBlobCount)
 	{
+		#if defined(_OPENMP)
 		readBlobCount = std::max<int>(omp_get_num_procs(), 1);
+		#else
+		readBlobCount = 1;
+		#endif
 	}
 
 	std::vector<osmpbf::BlobDataBuffer> pbiBuffers;
