@@ -186,6 +186,7 @@ class OrTagFilter : public AbstractMultiTagFilter
 {
 public:
 	OrTagFilter() : AbstractMultiTagFilter() {}
+	OrTagFilter(std::initializer_list<AbstractTagFilter*> l);
 
 	virtual bool rebuildCache() override;
 
@@ -200,6 +201,7 @@ class AndTagFilter : public AbstractMultiTagFilter
 {
 public:
 	AndTagFilter() : AbstractMultiTagFilter() {}
+	AndTagFilter(std::initializer_list<AbstractTagFilter*> l);
 
 	virtual bool rebuildCache() override;
 

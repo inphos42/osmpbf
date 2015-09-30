@@ -105,6 +105,12 @@ void AbstractMultiTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor
 
 // OrTagFilter
 
+OrTagFilter::OrTagFilter(std::initializer_list<AbstractTagFilter*> l) {
+	for(auto x : l) {
+		addChild(x);
+	}
+}
+
 bool OrTagFilter::rebuildCache()
 {
 	bool result = false;
@@ -156,6 +162,13 @@ AbstractTagFilter* OrTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
 
 
 // AndTagFilter
+
+AndTagFilter::AndTagFilter(std::initializer_list<AbstractTagFilter*> l)
+{
+	for(auto x : l) {
+		addChild(x);
+	}
+}
 
 bool AndTagFilter::rebuildCache()
 {
