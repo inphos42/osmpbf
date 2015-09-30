@@ -105,7 +105,8 @@ void AbstractMultiTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor
 
 // OrTagFilter
 
-OrTagFilter::OrTagFilter(std::initializer_list<AbstractTagFilter*> l) {
+OrTagFilter::OrTagFilter(std::initializer_list<AbstractTagFilter*> l)
+{
 	for(auto x : l) {
 		addChild(x);
 	}
