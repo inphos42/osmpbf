@@ -86,10 +86,10 @@ inline bool hasKey(const OSMInputPrimitive & primitive, uint32_t keyId)
 class AbstractTagFilter : public generics::RefCountObject
 {
 public:
-	AbstractTagFilter() : generics::RefCountObject(), m_Invert(false) {}
+	AbstractTagFilter() : generics::RefCountObject() {}
 	virtual ~AbstractTagFilter() {}
 
-	///if you associate an pbi with an filter then you have to rebuild the cache everytime you change the contents of the pbi
+	///if you associate a pbi with a filter then you have to rebuild the cache everytime you change the contents of the pbi
 	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) = 0;
 
 	virtual bool rebuildCache() = 0;
@@ -99,20 +99,9 @@ public:
 
 	inline bool matches(const IPrimitive & primitive)
 	{
-		return m_Invert ? !p_matches(primitive) : p_matches(primitive);
+		return p_matches(primitive);
 	}
 
-	inline bool invert()
-	{
-		m_Invert = !m_Invert;
-		return m_Invert;
-	}
-
-	inline void setInverted(bool value)
-	{
-		m_Invert = value;
-	}
-	
 	AbstractTagFilter * copy() const;
 
 protected:
@@ -123,11 +112,49 @@ protected:
 	inline AbstractTagFilter * copy(AbstractTagFilter * other, AbstractTagFilter::CopyMap & copies) const {
 		return other->copy(copies);
 	}
-
-	bool m_Invert;
 };
 
 typedef generics::RCPtr<AbstractTagFilter> RCFilterPtr;
+
+///Inverts the result of another filter
+class InversionFilter: public AbstractTagFilter {
+public:
+	InversionFilter();
+	InversionFilter(AbstractTagFilter * child);
+
+	InversionFilter(const InversionFilter & other) = delete;
+	InversionFilter operator=(const InversionFilter & other) = delete;
+
+	virtual ~InversionFilter();
+	
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
+	virtual bool rebuildCache() override;
+	
+	void setChild(AbstractTagFilter * child);
+	
+	inline AbstractTagFilter * child() { return m_child; }
+	inline const AbstractTagFilter * child() const { return m_child; }
+public:
+
+	///invert a given filter (remove InversionFilter if applicable)
+	inline static void invert(RCFilterPtr & filter)
+	{
+		InversionFilter * tmp = dynamic_cast<InversionFilter*>(filter.get());
+		if (tmp)
+		{
+			filter.reset(tmp->child());
+		}
+		else {
+			filter.reset( new InversionFilter(filter.get()) );
+		}
+	};
+
+protected:
+	virtual bool p_matches(const IPrimitive & primitive) override;
+	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
+private:
+	AbstractTagFilter * m_child;
+};
 
 class PrimitiveTypeFilter: public AbstractTagFilter
 {

@@ -59,7 +59,6 @@ AbstractTagFilter* PrimitiveTypeFilter::copy(AbstractTagFilter::CopyMap& copies)
 	}
 
 	PrimitiveTypeFilter * myCopy = new PrimitiveTypeFilter(m_filteredPrimitives);
-	myCopy->m_Invert = this->m_Invert;
 	copies[this] = myCopy;
 	return myCopy;
 }
@@ -143,7 +142,6 @@ AbstractTagFilter* OrTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
 		return copies.at(this);
 	}
 	OrTagFilter * myCopy = new OrTagFilter();
-	myCopy->m_Invert = m_Invert;
 	for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it)
 	{
 		if (copies.count(*it))
@@ -201,7 +199,6 @@ AbstractTagFilter* AndTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
 		return copies.at(this);
 	}
 	AndTagFilter * myCopy = new AndTagFilter();
-	myCopy->m_Invert = m_Invert;
 	for (FilterList::const_iterator it = m_Children.cbegin(); it != m_Children.cend(); ++it)
 	{
 		if (copies.count(*it))
@@ -302,7 +299,6 @@ AbstractTagFilter* KeyOnlyTagFilter::copy(AbstractTagFilter::CopyMap& copies) co
 		return copies.at(this);
 	}
 	KeyOnlyTagFilter * myCopy = new KeyOnlyTagFilter(key());
-	myCopy->m_Invert = this->m_Invert;
 	copies[this] = myCopy;
 	return myCopy;
 }
@@ -375,7 +371,6 @@ AbstractTagFilter* KeyValueTagFilter::copy(AbstractTagFilter::CopyMap& copies) c
 		return copies.at(this);
 	}
 	KeyValueTagFilter * myCopy = new KeyValueTagFilter(key(), value());
-	myCopy->m_Invert = this->m_Invert;
 	copies[this] = myCopy;
 	return myCopy;
 }
@@ -484,7 +479,6 @@ AbstractTagFilter* KeyMultiValueTagFilter::copy(AbstractTagFilter::CopyMap& copi
 		return copies.at(this);
 	}
 	KeyMultiValueTagFilter * myCopy = new KeyMultiValueTagFilter(key(), m_ValueSet.begin(), m_ValueSet.end());
-	myCopy->m_Invert = this->m_Invert;
 	copies[this] = myCopy;
 	return myCopy;
 }
@@ -596,7 +590,6 @@ AbstractTagFilter* MultiKeyTagFilter::copy(AbstractTagFilter::CopyMap& copies) c
 		return copies.at(this);
 	}
 	MultiKeyTagFilter * myCopy = new MultiKeyTagFilter(m_KeySet.begin(), m_KeySet.end());
-	myCopy->m_Invert = m_Invert;
 	copies[this] = myCopy;
 	return myCopy;
 }
@@ -639,7 +632,6 @@ AbstractTagFilter* MultiKeyMultiValueTagFilter::copy(AbstractTagFilter::CopyMap 
 	{
 		myCopy->addValues(x.first, x.second.cbegin(), x.second.cend());
 	}
-	myCopy->m_Invert = this->m_Invert;
 	copies[this] = myCopy;
 	return myCopy;
 }
@@ -725,7 +717,6 @@ AbstractTagFilter* RegexKeyTagFilter::copy(AbstractTagFilter::CopyMap& copies) c
 		return copies.at(this);
 	}
 	RegexKeyTagFilter * myCopy = new RegexKeyTagFilter(m_regex, m_matchFlags);
-	myCopy->m_Invert = this->m_Invert;
 	copies[this] = myCopy;
 	return myCopy;
 }
@@ -803,7 +794,6 @@ AbstractTagFilter* BoolTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
 		return copies.at(this);
 	}
 	BoolTagFilter * myCopy = new BoolTagFilter(key(), value());
-	myCopy->m_Invert = this->m_Invert;
 	copies[this] = myCopy;
 	return myCopy;
 }
@@ -913,9 +903,80 @@ AbstractTagFilter* IntTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
 		return copies.at(this);
 	}
 	IntTagFilter * myCopy = new IntTagFilter(key(), value());
-	myCopy->m_Invert = this->m_Invert;
 	copies[this] = myCopy;
 	return myCopy;
+}
+
+//InvertFilter
+
+InversionFilter::InversionFilter() :
+m_child(0)
+{}
+
+InversionFilter::InversionFilter(AbstractTagFilter* child) :
+m_child(child)
+{
+	if (m_child)
+	{
+		m_child->rcInc();
+	}
+}
+
+InversionFilter::~InversionFilter()
+{
+	if (m_child)
+	{
+		m_child->rcDec();
+	}
+}
+
+void InversionFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor* pbi)
+{
+	if (m_child)
+	{
+		m_child->assignInputAdaptor(pbi);
+	}
+}
+
+bool InversionFilter::rebuildCache()
+{
+	if (m_child)
+	{
+		return m_child->rebuildCache();
+	}
+	return true; //a null-child does not match anything
+}
+
+void InversionFilter::setChild(AbstractTagFilter* child)
+{
+	child->rcInc();
+	
+	if (m_child)
+	{
+		m_child->rcDec();
+	}
+	
+	m_child = child;
+}
+
+AbstractTagFilter* InversionFilter::copy(AbstractTagFilter::CopyMap& copies) const
+{
+	if (copies.count(this))
+	{
+		return copies.at(this);
+	}
+	InversionFilter * myCopy = new InversionFilter();
+	if (m_child)
+	{
+		myCopy->setChild( AbstractTagFilter::copy(m_child, copies) );
+	}
+	copies[this] = myCopy;
+	return myCopy;
+}
+
+bool InversionFilter::p_matches(const IPrimitive& primitive)
+{
+	return (m_child? !m_child->matches(primitive) : true); //a null-child cannot match anything
 }
 
 
