@@ -31,6 +31,7 @@
 #include <set>
 #include <unordered_set>
 #include <unordered_map>
+#include <regex>
 
 /**
   * TagFilters:
@@ -414,6 +415,46 @@ protected:
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
 
 	ValueMap m_ValueMap;
+};
+
+///A regex based key filter.
+class RegexKeyTagFilter : public AbstractTagFilter
+{
+private:
+	RegexKeyTagFilter(std::regex_constants::match_flag_type flags);
+public:
+	RegexKeyTagFilter();
+	RegexKeyTagFilter(const std::string & regexString, std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
+	RegexKeyTagFilter(const std::regex & regex, std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
+	template<typename T_OCTET_ITERATOR>
+	RegexKeyTagFilter(const T_OCTET_ITERATOR & begin, const T_OCTET_ITERATOR & end, std::regex_constants::match_flag_type flags = std::regex_constants::match_default) :
+	m_PBI(0), m_regex(begin, end), m_matchFlags(flags), m_dirty(true) {}
+	virtual ~RegexKeyTagFilter() {}
+	
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
+	virtual bool rebuildCache() override;
+	
+	template<typename T_OCTET_ITERATOR>
+	void setRegex(const T_OCTET_ITERATOR & begin, const T_OCTET_ITERATOR & end, std::regex_constants::match_flag_type flags = std::regex_constants::match_default) {
+		m_regex.assign(begin, end);
+		m_matchFlags = flags;
+		m_dirty = true;
+	}
+	
+	void setRegex(const std::regex & regex, std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
+	
+	void setRegex(const std::string & regexString, std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
+	
+	
+protected:
+	virtual bool p_matches(const IPrimitive & primitive) override;
+	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
+
+	const PrimitiveBlockInputAdaptor * m_PBI;
+	std::regex m_regex;
+	std::regex_constants::match_flag_type m_matchFlags;
+	std::unordered_set<int> m_IdSet;
+	bool m_dirty;
 };
 
 /** Check for a @key that matches boolean value @value. Evaluates to false if key is not available */

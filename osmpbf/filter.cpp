@@ -644,6 +644,117 @@ AbstractTagFilter* MultiKeyMultiValueTagFilter::copy(AbstractTagFilter::CopyMap 
 	return myCopy;
 }
 
+RegexKeyTagFilter::RegexKeyTagFilter(std::regex_constants::match_flag_type flags) :
+m_PBI(0),
+m_matchFlags(flags),
+m_dirty(true)
+{}
+
+RegexKeyTagFilter::RegexKeyTagFilter() :
+RegexKeyTagFilter(std::regex_constants::match_default)
+{}
+
+RegexKeyTagFilter::RegexKeyTagFilter(const std::string & regexString, std::regex_constants::match_flag_type flags) :
+m_PBI(0),
+m_regex(regexString),
+m_matchFlags(flags),
+m_dirty(true)
+{}
+
+RegexKeyTagFilter::RegexKeyTagFilter(const std::regex & regex, std::regex_constants::match_flag_type flags) :
+m_PBI(0),
+m_regex(regex),
+m_matchFlags(flags),
+m_dirty(true)
+{}
+
+void RegexKeyTagFilter::setRegex(const std::regex & regex, std::regex_constants::match_flag_type flags)
+{
+	m_regex = regex;
+	m_matchFlags = flags;
+	m_dirty = true;
+}
+
+void RegexKeyTagFilter::setRegex(const std::string & regexString, std::regex_constants::match_flag_type flags)
+{
+	m_regex.assign(regexString);
+	m_matchFlags = flags;
+	m_dirty = true;
+}
+
+// RegexKeyTagFilter
+bool RegexKeyTagFilter::rebuildCache()
+{
+	m_IdSet.clear();
+	m_dirty = false;
+
+	if (!m_PBI)
+	{
+		return true;
+	}
+	
+	if (m_PBI->isNull())
+	{
+		return false;
+	}
+
+	for (uint32_t id(0), s(m_PBI->stringTableSize()); id < s; ++id)
+	{
+		if (std::regex_match(m_PBI->queryStringTable(id), m_regex, m_matchFlags))
+		{
+			m_IdSet.insert(id);
+		}
+	}
+
+	return m_IdSet.size();
+}
+
+void RegexKeyTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor* pbi)
+{
+	if (m_PBI != pbi)
+	{
+		m_PBI = pbi;
+		m_dirty = true;
+	}
+}
+
+AbstractTagFilter* RegexKeyTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
+{
+	if (copies.count(this))
+	{
+		return copies.at(this);
+	}
+	RegexKeyTagFilter * myCopy = new RegexKeyTagFilter(m_regex, m_matchFlags);
+	myCopy->m_Invert = this->m_Invert;
+	copies[this] = myCopy;
+	return myCopy;
+}
+
+bool RegexKeyTagFilter::p_matches(const IPrimitive& primitive)
+{
+	if (m_dirty || !m_PBI)
+	{
+		for(int i(0), s(primitive.tagsSize()); i < s; ++i)
+		{
+			if (std::regex_match(primitive.key(i), m_regex, m_matchFlags))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	else
+	{
+		for(int i(0), s(primitive.tagsSize()); i < s; ++i)
+		{
+			if (m_IdSet.count(primitive.keyId(i)))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+}
 
 // BoolTagFilter
 
