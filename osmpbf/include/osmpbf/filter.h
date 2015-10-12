@@ -147,7 +147,13 @@ public:
 		else {
 			filter.reset( new InversionFilter(filter.get()) );
 		}
-	};
+	}
+	
+	inline static RCFilterPtr invert(AbstractTagFilter * filter) {
+		RCFilterPtr tmp(filter);
+		InversionFilter::invert(tmp);
+		return tmp;
+	}
 
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
