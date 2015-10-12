@@ -40,12 +40,10 @@ inline std::string primitiveTypeToString(osmpbf::PrimitiveType t) {
 
 void parseBlock(osmpbf::PrimitiveBlockInputAdaptor & pbi) {
 	//using filters is straight forward
-	osmpbf::KeyMultiValueTagFilter * hwFilter = new osmpbf::KeyMultiValueTagFilter("highway");
-	hwFilter->setValues(std::set<std::string>({"path", "residential"}));
-	//andFilter takes ownership of hwFilter
-	osmpbf::AndTagFilter andFilter;
-	andFilter.addChild(new osmpbf::KeyOnlyTagFilter("name"));
-	andFilter.addChild(hwFilter);
+	osmpbf::AndTagFilter andFilter({
+									new osmpbf::KeyOnlyTagFilter("name"),
+									new osmpbf::KeyMultiValueTagFilter("highway", {"path", "residential"})
+									});
 
 	//build the id cache for faster queries (this is not neccessary)
 	if (!andFilter.rebuildCache()) {
