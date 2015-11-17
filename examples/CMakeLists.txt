@@ -72,6 +72,10 @@ target_link_libraries(dumppbf_parsehelpers ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES}
 add_target_properties(dumppbf_parsehelpers COMPILE_FLAGS "-fopenmp")
 add_target_properties(dumppbf_parsehelpers LINK_FLAGS "-fopenmp")
 
+add_executable(filteredCount filteredCount.cpp)
+add_dependencies(filteredCount osmpbf)
+target_link_libraries(filteredCount ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
 add_executable(osmpbf_dump osmpbf_dump.cpp)
 add_dependencies(osmpbf_dump osmpbf)
 target_link_libraries(osmpbf_dump ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
