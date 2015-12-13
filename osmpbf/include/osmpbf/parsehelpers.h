@@ -175,15 +175,20 @@ parseFileCPPThreads(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_
 		{
 			dbufs.clear();
 			mtx.lock();
-			bool haveNext = (blobsRead < maxBlobsToRead) && inFile.getNextBlocks(dbufs, std::min<uint32_t>(readBlobCount, maxBlobsToRead-blobsRead));
-			blobsRead += dbufs.size();
-			mtx.unlock();
-			if (!haveNext) {//nothing left to do
-				break;
+			if (blobsRead < maxBlobsToRead) {
+				inFile.getNextBlocks(dbufs, std::min<uint32_t>(readBlobCount, maxBlobsToRead-blobsRead));
+				blobsRead += dbufs.size();
 			}
+			mtx.unlock();
 			for(osmpbf::BlobDataBuffer & dbuf : dbufs) {
 				pbi.parseData(dbuf.data, dbuf.availableBytes);
-				doProcessing = detail::PbiProcessor<MyPbiProcessor, PBIProcessorReturnType>::process(*myP, pbi) && doProcessing;
+				//make sure this does not get optimized away
+				bool tmp = detail::PbiProcessor<MyPbiProcessor, PBIProcessorReturnType>::process(*myP, pbi);
+				doProcessing = tmp && doProcessing;
+			}
+			//nothing to fetch
+			if (dbufs.size() < readBlobCount) {
+				break;
 			}
 		}
 		if (threadPrivateProcessor) {
