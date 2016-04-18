@@ -110,7 +110,7 @@ void WayInputAdaptor::print(std::ostream& out) const
 	out << "\trefs:";
 	char sep = '[';
 	for(int i(0), s(refsSize()); i < s; ++i) {
-		out << ref(i);
+		out << ref(i) << sep;
 		sep = ',';
 	}
 	out << "]\n}";
