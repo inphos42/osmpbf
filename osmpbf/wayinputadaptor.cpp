@@ -103,6 +103,20 @@ IInfo WayInputAdaptor::info() const {
 	return IInfo(m_Data->info());
 }
 
+void WayInputAdaptor::print(std::ostream& out) const
+{
+	out << "{\n";
+	printCommon(out);
+	out << "\trefs:";
+	char sep = '[';
+	for(int i(0), s(refsSize()); i < s; ++i) {
+		out << ref(i);
+		sep = ',';
+	}
+	out << "]\n}";
+}
+
+
 // WayStreamInputAdaptor
 
 WayStreamInputAdaptor::WayStreamInputAdaptor() : WayInputAdaptor(), m_Index(-1) {}

@@ -57,4 +57,20 @@ const std::string & AbstractPrimitiveInputAdaptor::valueByKey(const std::string 
 	return m_Controller->queryStringTable(NULL_STRING_ID); // return "null" string
 }
 
+void AbstractPrimitiveInputAdaptor::printCommon(std::ostream& out) const
+{
+	out << "\ttype:" << std::to_string(this->type()) << '\n';
+	out << "\tid:" << this->id() << '\n';
+	out << "\ttags:[\n";
+	if (tagsSize()) {
+		int i(0);
+		for(int s(tagsSize()-1); i < s; ++i) {
+			out << "\t\t" << key(i) << ":" << value(i) << ",\n";
+		}
+		out << "\t\t" << key(i) << ":" << value(i) << '\n';
+	}
+	out << "\t]\n";
+}
+
+
 } // namespace osmpbf

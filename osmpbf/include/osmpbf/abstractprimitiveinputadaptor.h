@@ -53,6 +53,8 @@ public:
 	
 	virtual bool hasInfo() const = 0;
 	virtual IInfo info() const = 0;
+	
+	virtual void print(std::ostream & out) const = 0;
 
 	virtual const std::string & key(int index) const;
 	virtual const std::string & value(int index) const;
@@ -63,6 +65,9 @@ public:
 	/// convenience function (very slow)
 	virtual const std::string & valueByKey(const std::string & key) const;
 
+protected:
+	///print tags, id, type with tabs in front
+	void printCommon(std::ostream & out) const;
 protected:
 	PrimitiveBlockInputAdaptor * m_Controller;
 };

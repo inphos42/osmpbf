@@ -50,6 +50,8 @@ public:
 	
 	virtual bool hasInfo() const override;
 	virtual IInfo info() const override;
+	
+	virtual void print(std::ostream & out) const override;
 
 	int refsSize() const;
 	int64_t rawRef(int index) const;

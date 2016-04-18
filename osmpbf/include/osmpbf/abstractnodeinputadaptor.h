@@ -38,6 +38,8 @@ public:
 
 	virtual osmpbf::PrimitiveType type() const override { return osmpbf::PrimitiveType::NodePrimitive; }
 
+	virtual void print(std::ostream & out) const override;
+	
 	virtual int64_t lati() const = 0;
 	virtual int64_t loni() const = 0;
 

@@ -63,6 +63,7 @@ set(SOURCES_CPP
 	irelation.cpp
 	iinfo.cpp
 	abstractprimitiveoutputadaptor.cpp
+	abstractnodeinputadaptor.cpp
 	primitiveblockoutputadaptor.cpp
 	nodestreaminputadaptor.cpp
 	wayinputadaptor.cpp

@@ -104,6 +104,8 @@ public:
 	virtual bool hasInfo() const override;
 	virtual IInfo info() const override;
 	
+	virtual void print(std::ostream & out) const override;
+	
 	virtual int membersSize() const;
 
 	virtual IMemberStream getMemberStream() const;

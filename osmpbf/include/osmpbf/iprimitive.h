@@ -21,6 +21,8 @@
 #ifndef OSMPBF_IPRIMITIVE
 #define OSMPBF_IPRIMITIVE
 
+#include <ostream>
+
 #include <osmpbf/common_input.h>
 #include <osmpbf/abstractprimitiveinputadaptor.h>
 #include <osmpbf/iinfo.h>
@@ -55,6 +57,8 @@ public:
 
 	inline const std::string & valueByKeyId(uint32_t key) const { return m_Private->valueByKeyId(key); }
 	inline const std::string & valueByKey(const std::string key) const { return m_Private->valueByKey(key); }
+	
+	inline void print(std::ostream & out) const { m_Private->print(out); }
 
 protected:
 	IPrimitive() : RCWrapper< AbstractPrimitiveInputAdaptor >() {}
@@ -62,5 +66,10 @@ protected:
 };
 
 } // namespace osmpbf
+
+inline std::ostream & operator<<(std::ostream & out, const osmpbf::IPrimitive & prim) {
+	prim.print(out);
+	return out;
+}
 
 #endif // OSMPBF_IPRIMITIVE

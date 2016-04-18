@@ -97,6 +97,32 @@ IInfo RelationInputAdaptor::info() const {
 	return IInfo(m_Data->info());
 }
 
+void RelationInputAdaptor::print(std::ostream& out) const
+{
+	out << "{\n";
+	printCommon(out);
+	out << "\tmembers:[\n";
+	if (membersSize()) {
+		for(IMemberStream mem(getMemberStream());true;) {
+			out << "\t{\n";
+			out << "\t\trole:" << mem.role() << '\n';
+			out << "\t\tid:" << mem.id() << '\n';
+			out << "\t\ttype:" << std::to_string(this->type()) << '\n';
+			out << "\t}";
+			mem.next();
+			if (!mem.isNull()) {
+				out << ",\n";
+			}
+			else {
+				out << "\n";
+				break;
+			}
+		}
+	}
+	out << "]\n";
+	out << "}";
+}
+
 int RelationInputAdaptor::membersSize() const
 {
 	return m_Data->memids_size();
