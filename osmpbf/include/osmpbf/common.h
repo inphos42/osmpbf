@@ -22,6 +22,7 @@
 #define OSMPBF_COMMON_H
 
 #include <cstdint>
+#include <string>
 
 #define NULL_PRIMITIVE_ID -1
 #define NULL_STRING_ID 0
@@ -52,5 +53,22 @@ enum PrimitiveType : PrimitiveTypeFlags
 };
 
 } // namespace osmpbf
+
+namespace std {
+
+inline std::string to_string(osmpbf::PrimitiveType pt) {
+	switch (pt) {
+	case osmpbf::NodePrimitive:
+		return "node";
+	case osmpbf::WayPrimitive:
+		return "way";
+	case osmpbf::RelationPrimitive:
+		return "relation";
+	default:
+		return "invalid";
+	}
+}
+
+}//end namespace std
 
 #endif // OSMPBF_COMMON_H
