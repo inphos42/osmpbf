@@ -93,7 +93,7 @@ public:
 
 	virtual bool isNull() const override;
 
-	virtual int64_t id() override;
+	virtual int64_t id() const override;
 	virtual osmpbf::PrimitiveType type() const override;
 
 	virtual int tagsSize() const override;

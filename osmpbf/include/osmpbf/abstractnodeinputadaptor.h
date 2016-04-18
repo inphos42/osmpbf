@@ -38,11 +38,11 @@ public:
 
 	virtual osmpbf::PrimitiveType type() const override { return osmpbf::PrimitiveType::NodePrimitive; }
 
-	virtual int64_t lati() = 0;
-	virtual int64_t loni() = 0;
+	virtual int64_t lati() const = 0;
+	virtual int64_t loni() const = 0;
 
-	virtual double latd() = 0;
-	virtual double lond() = 0;
+	virtual double latd() const = 0;
+	virtual double lond() const = 0;
 
 	virtual int64_t rawLat() const = 0;
 	virtual int64_t rawLon() const = 0;

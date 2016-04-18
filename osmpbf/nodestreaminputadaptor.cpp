@@ -54,7 +54,7 @@ bool NodeStreamInputAdaptor::isNull() const
 		 m_DenseGroupIterator == m_Controller->m_DenseNodesGroups.end());
 }
 
-int64_t NodeStreamInputAdaptor::id()
+int64_t NodeStreamInputAdaptor::id() const
 {
 	return m_Id;
 }
@@ -259,23 +259,22 @@ IInfo NodeStreamInputAdaptor::info() const
 	}
 }
 
-
-int64_t NodeStreamInputAdaptor::lati()
+int64_t NodeStreamInputAdaptor::lati() const
 {
 	return m_WGS84Lat;
 }
 
-int64_t NodeStreamInputAdaptor::loni()
+int64_t NodeStreamInputAdaptor::loni() const
 {
 	return m_WGS84Lon;
 }
 
-double NodeStreamInputAdaptor::latd()
+double NodeStreamInputAdaptor::latd() const
 {
 	return m_WGS84Lat * COORDINATE_SCALE_FACTOR_LAT;
 }
 
-double NodeStreamInputAdaptor::lond()
+double NodeStreamInputAdaptor::lond() const
 {
 	return m_WGS84Lon * COORDINATE_SCALE_FACTOR_LON;
 }

@@ -43,7 +43,7 @@ public:
 
 	virtual bool isNull() const { return !m_Controller; }
 
-	virtual int64_t id() = 0;
+	virtual int64_t id() const = 0;
 	virtual osmpbf::PrimitiveType type() const = 0;
 
 	virtual int tagsSize() const = 0;

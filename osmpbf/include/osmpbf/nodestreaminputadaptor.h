@@ -38,7 +38,7 @@ public:
 
 	virtual bool isNull() const override;
 
-	virtual int64_t id() override;
+	virtual int64_t id() const override;
 
 	virtual int tagsSize() const override;
 
@@ -47,11 +47,11 @@ public:
 	virtual bool hasInfo() const override;
 	virtual IInfo info() const override;
 
-	virtual int64_t lati() override;
-	virtual int64_t loni() override;
+	virtual int64_t lati() const override;
+	virtual int64_t loni() const override;
 
-	virtual double latd() override;
-	virtual double lond() override;
+	virtual double latd() const override;
+	virtual double lond() const override;
 
 	virtual int64_t rawLat() const override;
 	virtual int64_t rawLon() const override;

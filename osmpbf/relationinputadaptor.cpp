@@ -60,7 +60,7 @@ bool RelationInputAdaptor::isNull() const
 	return AbstractPrimitiveInputAdaptor::isNull() || !m_Data;
 }
 
-int64_t RelationInputAdaptor::id()
+int64_t RelationInputAdaptor::id() const
 {
 	return m_Data->id();
 }

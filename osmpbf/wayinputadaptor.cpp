@@ -37,7 +37,7 @@ bool WayInputAdaptor::isNull() const
 	return AbstractPrimitiveInputAdaptor::isNull() || !m_Data;
 }
 
-int64_t WayInputAdaptor::id()
+int64_t WayInputAdaptor::id() const
 {
 	return m_Data->id();
 }
