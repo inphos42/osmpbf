@@ -68,6 +68,7 @@ set(SOURCES_CPP
 	nodestreaminputadaptor.cpp
 	wayinputadaptor.cpp
 	relationinputadaptor.cpp
+	pbistream.cpp
 	oway.cpp
 	onode.cpp
 	filter.cpp
