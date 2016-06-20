@@ -61,19 +61,22 @@ namespace detail {
 	struct ProcessorPtr<T*> {
 		static T* ptr(T * t) { return t; }
 	};
-	
+
 }
 
+///@inFile currently either OSMFileIn or PbiStream
 ///@processor (osmpbf::PrimitiveBlockInputAdaptor & pbi)
-template<typename TPBI_Processor>
-void parseFile(osmpbf::OSMFileIn & inFile, TPBI_Processor processor);
+template<typename TPBI_Processor, typename T_IN_DATA>
+void parseFile(T_IN_DATA & inFile, TPBI_Processor processor);
 
+///@inFile currently either OSMFileIn or PbiStream
 ///@processor (osmpbf::PrimitiveBlockInputAdaptor & pbi)
 ///@readBlobCount number of blobs to work on in parallel. If this is set to zero then this will default to max(omp_get_num_procs(), 1)
-template<typename TPBI_Processor>
-void parseFileOmp(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_t readBlobCount = 0);
+template<typename TPBI_Processor, typename T_IN_DATA>
+void parseFileOmp(T_IN_DATA & inFile, TPBI_Processor processor, uint32_t readBlobCount = 0);
 
 ///@warning processor is passed by value! Pass a pointer to avoid copying
+///@inFile currently either OSMFileIn or PbiStream
 ///@processor (osmpbf::PrimitiveBlockInputAdaptor & pbi) if the return value is not void, then the processing stops for ALL processors if its evaluated to false
 ///Every thread hold its own PrimitiveBlockInputAdaptor. You can set threadPrivateProcessor to true to always get the same pbi on a per-thread/@processor basis
 ///@threadCount if this is set to zero then this will default to max(omp_get_num_procs(), 1) or max(std::thread::hardware_concurrency(), 1)
@@ -81,19 +84,22 @@ void parseFileOmp(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_t 
 ///@threadPrivateProcessor each thread will hold a copy of processor instead of sharing a single one
 ///@maxBlobsToRead maximum number of blobs to read
 ///@return number of blobs read
-template<typename TPBI_Processor>
-uint32_t parseFileCPPThreads(osmpbf::OSMFileIn& inFile, TPBI_Processor processor,
+template<typename TPBI_Processor, typename T_IN_DATA>
+uint32_t parseFileCPPThreads(T_IN_DATA & inFile, TPBI_Processor processor,
 							uint32_t threadCount = 0,
 							uint32_t readBlobCount = 1,
 							bool threadPrivateProcessor = false,
 							uint32_t maxBlobsToRead = 0xFFFFFFFF
 						);
+						
 
+}// end namespace osmpbf
 
 //definitions
 
-template<typename TPBI_Processor>
-void parseFile(OSMFileIn & inFile, TPBI_Processor processor)
+namespace osmpbf {
+template<typename TPBI_Processor, typename T_IN_DATA>
+void parseFile(T_IN_DATA & inFile, TPBI_Processor processor)
 {
 	osmpbf::PrimitiveBlockInputAdaptor pbi;
 	while (inFile.parseNextBlock(pbi))
@@ -104,8 +110,8 @@ void parseFile(OSMFileIn & inFile, TPBI_Processor processor)
 	}
 }
 
-template<typename TPBI_Processor>
-void parseFileOmp(OSMFileIn & inFile, TPBI_Processor processor, uint32_t readBlobCount)
+template<typename TPBI_Processor, typename T_IN_DATA>
+void parseFileOmp(T_IN_DATA & inFile, TPBI_Processor processor, uint32_t readBlobCount)
 {
 	if (!readBlobCount)
 	{
@@ -140,9 +146,9 @@ void parseFileOmp(OSMFileIn & inFile, TPBI_Processor processor, uint32_t readBlo
 	}
 }
 
-template<typename TPBI_Processor>
+template<typename TPBI_Processor, typename T_IN_DATA>
 uint32_t
-parseFileCPPThreads(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_t threadCount, uint32_t readBlobCount, bool threadPrivateProcessor, uint32_t maxBlobsToRead)
+parseFileCPPThreads(T_IN_DATA & inFile, TPBI_Processor processor, uint32_t threadCount, uint32_t readBlobCount, bool threadPrivateProcessor, uint32_t maxBlobsToRead)
 {
 	typedef typename std::conditional<std::is_pointer<TPBI_Processor>::value, typename std::remove_pointer<TPBI_Processor>::type, TPBI_Processor>::type MyPbiProcessor;
 // 	typedef typename std::remove_pointer<TPBI_Processor>::type MyPbiProcessor;
@@ -212,6 +218,6 @@ parseFileCPPThreads(osmpbf::OSMFileIn& inFile, TPBI_Processor processor, uint32_
 }
 
 
-} // namespace osmpbf
+} //end namespace osmpbf
 
 #endif // OSMPBF_PARSEHELPERS_H
