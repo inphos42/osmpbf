@@ -41,7 +41,9 @@ class OSMFileIn
 public:
 	OSMFileIn(const std::string & fileName, bool verboseOutput = false);
 	OSMFileIn(BlobFileIn * fileIn);
+	OSMFileIn(OSMFileIn && other);
 	~OSMFileIn();
+	OSMFileIn & operator=(OSMFileIn && other);
 
 	bool open();
 	void close();

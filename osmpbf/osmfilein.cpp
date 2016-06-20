@@ -46,11 +46,45 @@ namespace osmpbf {
 		m_DataOffset(0)
 	{}
 
+	OSMFileIn::OSMFileIn(OSMFileIn&& other) :
+		m_FileIn(other.m_FileIn),
+		m_DataBuffer(std::move(other.m_DataBuffer)),
+		m_FileHeader(other.m_FileHeader),
+		m_MissingFeatures(std::move(other.m_MissingFeatures)),
+		m_DataOffset(other.m_DataOffset)
+	
+	{
+		other.m_FileIn = 0;
+		other.m_DataBuffer.clear();
+		other.m_FileHeader = 0;
+		other.m_MissingFeatures.clear();
+		other.m_DataOffset = 0;
+	}
+
+	
 	OSMFileIn::~OSMFileIn() {
 		delete m_FileIn;
 		delete m_FileHeader;
 	}
 
+	OSMFileIn& OSMFileIn::operator=(OSMFileIn&& other)
+	{
+		delete m_FileIn;
+		delete m_FileHeader;
+	
+		m_FileIn = other.m_FileIn;
+		m_DataBuffer = std::move(other.m_DataBuffer);
+		m_FileHeader = other.m_FileHeader;
+		m_MissingFeatures = std::move(other.m_MissingFeatures);
+		m_DataOffset = other.m_DataOffset;
+		
+		other.m_FileIn = 0;
+		other.m_DataBuffer.clear();
+		other.m_FileHeader = 0;
+		other.m_MissingFeatures.clear();
+		other.m_DataOffset = 0;
+		return *this;
+	}
 
 	bool OSMFileIn::open() {
 		if (m_FileIn->open() && parseHeader())
