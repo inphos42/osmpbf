@@ -162,6 +162,27 @@ private:
 	AbstractTagFilter * m_child;
 };
 
+//always returns either true or false
+class ConstantReturnFilter: public AbstractTagFilter
+{
+public:
+	ConstantReturnFilter(bool returnValue);
+	virtual ~ConstantReturnFilter();
+
+	inline void setValue(bool returnValue) { m_returnValue = returnValue; }
+	inline int filteredTypes() { return m_returnValue; }
+
+	
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
+	virtual bool rebuildCache() override;
+
+protected:
+	virtual bool p_matches(const IPrimitive & primitive) override;
+	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
+protected:
+	bool m_returnValue;
+};
+
 class PrimitiveTypeFilter: public AbstractTagFilter
 {
 public:

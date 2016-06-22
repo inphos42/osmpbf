@@ -36,6 +36,34 @@ AbstractTagFilter* AbstractTagFilter::copy() const
 	return this->copy(cm);
 }
 
+//ConstantReturnFilter
+ConstantReturnFilter::ConstantReturnFilter(bool returnValue) :
+m_returnValue(returnValue)
+{}
+
+ConstantReturnFilter::~ConstantReturnFilter() {}
+
+void ConstantReturnFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor *) {}
+
+bool ConstantReturnFilter::rebuildCache() { return m_returnValue;}
+
+bool ConstantReturnFilter::p_matches(const IPrimitive & /*primitive*/)
+{
+	return m_returnValue;
+}
+
+AbstractTagFilter * ConstantReturnFilter::copy(AbstractTagFilter::CopyMap & copies) const
+{
+	if (copies.count(this))
+	{
+		return copies.at(this);
+	}
+
+	ConstantReturnFilter * myCopy = new ConstantReturnFilter(m_returnValue);
+	copies[this] = myCopy;
+	return myCopy;
+}
+
 //PrimitiveTypeFilter
 PrimitiveTypeFilter::PrimitiveTypeFilter(PrimitiveTypeFlags primitiveTypes) : m_filteredPrimitives(primitiveTypes) {}
 
