@@ -25,6 +25,7 @@
 #include <cstddef>
 #include <iostream>
 #include <assert.h>
+#include <stdint.h>
 
 namespace osmpbf
 {

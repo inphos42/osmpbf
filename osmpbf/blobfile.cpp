@@ -25,12 +25,24 @@
 #include <iostream>
 #include <limits>
 
-#include <zlib.h>
-
-#include <netinet/in.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+
+
+#ifndef _WIN32
+#include <netinet/in.h>
 #include <sys/mman.h>
+#include <zlib.h>
+#else
+#include <WinSock2.h>
+#include <windows\mman\mman.h>
+#include <windows\zlib-1.2.8\zlib.h>
+#include <fstream> 
+#include <cstddef>
+#include <stdint.h>
+#include <io.h>
+
+#endif
 
 namespace osmpbf
 {
@@ -150,12 +162,20 @@ bool BlobFileIn::open()
 	m_FileSize = 0;
 	m_FilePos = 0;
 
+	
+	#ifndef _WIN32
 	m_FileDescriptor = ::open(m_FileName.c_str(), O_RDONLY);
 	if (m_FileDescriptor < 0) return false;
+	#else
+	m_FileDescriptor = _open(m_FileName.c_str(), O_RDONLY);
+	if (m_FileDescriptor < 0) return false;
+	#endif
+	
 
 	struct stat stFileInfo;
 	if (fstat(m_FileDescriptor, &stFileInfo) == 0)
 	{
+		#ifndef _WIN32
 		if (stFileInfo.st_size > std::numeric_limits<SignedOffsetType>::max())
 		{
 			std::cerr << "ERROR: input file is larger than " << (std::numeric_limits<SignedOffsetType>::max() >> 30) << " GiB" << std::endl;
@@ -163,6 +183,15 @@ bool BlobFileIn::open()
 			m_FileDescriptor = -1;
 			return false;
 		}
+		#else
+		if (stFileInfo.st_size > (std::numeric_limits<SignedOffsetType>::max)())
+		{
+			std::cerr << "ERROR: input file is larger than " << ((std::numeric_limits<SignedOffsetType>::max)() >> 30) << " GiB" << std::endl;
+			_close(m_FileDescriptor);
+			m_FileDescriptor = -1;
+			return false;
+		}
+		#endif
 
 		m_FileSize = OffsetType(stFileInfo.st_size);
 	}
@@ -172,7 +201,11 @@ bool BlobFileIn::open()
 	if ((void *) m_FileData == MAP_FAILED)
 	{
 		std::cerr << "ERROR: could not mmap file" << std::endl;
+		#ifndef _WIN32
 		::close(m_FileDescriptor);
+		#else
+		_close(m_FileDescriptor);
+		#endif
 		m_FileDescriptor = -1;
 		m_FileData = NULL;
 		return false;
@@ -188,7 +221,11 @@ void BlobFileIn::close()
 	{
 		if (m_VerboseOutput) std::cout << "closing file ...";
 		munmap(m_FileData, m_FileSize);
+		#ifndef _WIN32
 		::close(m_FileDescriptor);
+		#else
+		_close(m_FileDescriptor);
+		#endif
 		if (m_VerboseOutput) std::cout << "done" << std::endl;
 
 		m_FileData = NULL;

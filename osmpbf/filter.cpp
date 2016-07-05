@@ -27,6 +27,10 @@
 #include <cstdint>
 #include <cstdlib>
 
+#ifdef _WIN32
+#include <initializer_list>
+#endif
+
 namespace osmpbf
 {
 
@@ -783,11 +787,21 @@ BoolTagFilter::BoolTagFilter(const std::string & key, bool value) :
 {
 	if (m_Value)
 	{
-		KeyMultiValueTagFilter::setValues({"True", "true", "Yes", "yes", "1"});
+		#ifndef _WIN32
+			KeyMultiValueTagFilter::setValues({"True", "true", "Yes", "yes", "1"});
+		#else
+			const std::unordered_set<std::string> s ({ "True", "true", "Yes", "yes", "1" });
+			KeyMultiValueTagFilter::setValues(s);
+		#endif
 	}
 	else
 	{
-		KeyMultiValueTagFilter::setValues({"False", "false", "No", "no", "0"});
+		#ifndef _WIN32
+			KeyMultiValueTagFilter::setValues({"False", "false", "No", "no", "0"});
+		#else
+		const std::unordered_set<std::string> s({ "False", "false", "No", "no", "0" });
+		KeyMultiValueTagFilter::setValues(s);
+		#endif
 	}
 }
 
@@ -807,11 +821,21 @@ void BoolTagFilter::setValue(bool value)
 
 	if (m_Value)
 	{
-		KeyMultiValueTagFilter::setValues({"True", "true", "Yes", "yes", "1"});
+		#ifndef _WIN32
+			KeyMultiValueTagFilter::setValues({ "True", "true", "Yes", "yes", "1" });
+		#else
+			const std::unordered_set<std::string> s({ "True", "true", "Yes", "yes", "1" });
+			KeyMultiValueTagFilter::setValues(s);
+		#endif
 	}
 	else
 	{
-		KeyMultiValueTagFilter::setValues({"False", "false", "No", "no", "0"});
+		#ifndef _WIN32
+			KeyMultiValueTagFilter::setValues({ "False", "false", "No", "no", "0" });
+		#else
+			const std::unordered_set<std::string> s({ "False", "false", "No", "no", "0" });
+			KeyMultiValueTagFilter::setValues(s);
+		#endif
 	}
 }
 
