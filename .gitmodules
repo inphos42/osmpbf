@@ -3,8 +3,17 @@
 	url = https://github.com/inphos42/generics.git
 
 [submodule "windows/mman"]
+	
 	path = windows/mman
+	
 	url = https://github.com/witwall/mman-win32
+
+	ignore = all
+	
 [submodule "windows/zlib"]
+	
 	path = windows/zlib
+	
 	url = https://github.com/madler/zlib
+
+	ignore = all
