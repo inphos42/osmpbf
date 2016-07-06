@@ -24,7 +24,6 @@ Once you have compiled Protobuf you need to run protoc.exe located in osmpbf\win
 ```
 windows\protobuf\cmake\build\Release\protoc.exe osmpbf\osmblob.proto --cpp_out=osmpbf
 windows\protobuf\cmake\build\Release\protoc.exe osmpbf\osmformat.proto --cpp_out=osmpbf
-
 ```
 
 * Compiling osmpbf
