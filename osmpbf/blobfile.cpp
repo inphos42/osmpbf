@@ -441,7 +441,11 @@ bool BlobFileOut::open()
 {
 	if (m_VerboseOutput) std::cout << "opening/creating File " << m_FileName << " ...";
 
+	#ifndef _WIN32
 	m_FileDescriptor = ::open(m_FileName.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+	#else
+	m_FileDescriptor = _open(m_FileName.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+	#endif
 
 	if (m_VerboseOutput) std::cout << "done" << std::endl;
 
@@ -453,19 +457,31 @@ void BlobFileOut::close()
 	if (m_FileDescriptor > -1)
 	{
 		if (m_VerboseOutput) std::cout << "closing File " << m_FileName << " ...";
+		#ifndef _WIN32
 		::close(m_FileDescriptor);
+		#else
+		_close(m_FileDescriptor);
+		#endif
 		if (m_VerboseOutput) std::cout << "done" << std::endl;
 	}
 }
 
 void BlobFileOut::seek(OffsetType position)
 {
+	#ifndef _WIN32
 	::lseek(m_FileDescriptor, position, SEEK_SET);
+	#else
+	_lseek(m_FileDescriptor, position, SEEK_SET);
+	#endif
 }
 
 OffsetType BlobFileOut::position() const
 {
+	#ifndef _WIN32
 	return ::lseek(m_FileDescriptor, 0, SEEK_CUR);
+	#else
+	return _lseek(m_FileDescriptor, 0, SEEK_CUR);
+	#endif
 }
 
 OffsetType BlobFileOut::size() const
@@ -545,8 +561,13 @@ bool BlobFileOut::writeBlob(osmpbf::BlobDataType type, const char * buffer, uint
 	if (m_VerboseOutput) std::cout << "writing blob...";
 
 	// save position and skip header size
+	#ifndef _WIN32
 	off_t headerSizePosition = ::lseek(m_FileDescriptor, 0, SEEK_CUR);
 	::lseek(m_FileDescriptor, sizeof(uint32_t), SEEK_CUR);
+	#else
+	off_t headerSizePosition = _lseek(m_FileDescriptor, 0, SEEK_CUR);
+	_lseek(m_FileDescriptor, sizeof(uint32_t), SEEK_CUR);
+	#endif
 
 	// serialize header blob
 	if (!blobHeader->SerializeToFileDescriptor(m_FileDescriptor))
@@ -555,20 +576,33 @@ bool BlobFileOut::writeBlob(osmpbf::BlobDataType type, const char * buffer, uint
 		delete blobHeader;
 		return false;
 	}
-
+	#ifndef _WIN32
 	off_t blobPosition = ::lseek(m_FileDescriptor, 0, SEEK_CUR);
+	#else
+	off_t blobPosition = _lseek(m_FileDescriptor, 0, SEEK_CUR);
+	#endif
 
 	// write header size
 	uint32_t headerSize = blobHeader->ByteSize();
 	headerSize = htonl(headerSize);
+	#ifndef _WIN32
 	::lseek(m_FileDescriptor, headerSizePosition, SEEK_SET);
 	::write(m_FileDescriptor, &headerSize, sizeof(uint32_t));
 	::lseek(m_FileDescriptor, blobPosition, SEEK_SET);
+	#else
+	_lseek(m_FileDescriptor, headerSizePosition, SEEK_SET);
+	_write(m_FileDescriptor, &headerSize, sizeof(uint32_t));
+	_lseek(m_FileDescriptor, blobPosition, SEEK_SET);
+	#endif
 
 	delete blobHeader;
 
 	// write blob
+	#ifndef _WIN32
 	::write(m_FileDescriptor, (void *) serializedBlobBuffer.data(), serializedBlobBuffer.length());
+	#else
+	_write(m_FileDescriptor, (void *)serializedBlobBuffer.data(), serializedBlobBuffer.length());
+	#endif
 	if (m_VerboseOutput) std::cout << "done" << std::endl;
 
 	OffsetType pos = position();
