@@ -14,16 +14,16 @@ git submodule update --recursive
 
 * Compiling dependencies
 
-Don´t forget to set Code generation->runtime library to Multi-threaded(/Mt) for Release and Multi-threaded Debug(/Mtd)  
-Mman can be compiled without no problem, just open the .vcxproj file and build as usual.   
-Use CMake to compile Protobuf(CmakeFiles are located in cmake subdirectory) and Zlib.
+Don´t forget to set Code generation->runtime library to Multi-threaded(/Mt) for Release or Multi-threaded Debug(/Mtd) for Debug 
+Mman can be compiled without problem, just open the .vcxproj file and build as usual.   
+Use CMake to compile Protobuf(CmakeFiles are located in cmake subdirectory; on error just disable the protobuf_BUILD_TESTS option) and Zlib.
 
 * Compiling proto files
 
 Once you have compiled Protobuf you need to run protoc.exe located in osmpbf\windows\protobuf\cmake\build\Release
 ```
-windows\protobuf\cmake\build\Release\protoc.exe osmpbf\osmblob.proto --cpp_out=osmpbf
-windows\protobuf\cmake\build\Release\protoc.exe osmpbf\osmformat.proto --cpp_out=osmpbf
+windows\protobuf\cmake\build\Release\protoc.exe osmpbf\osmblob.proto --cpp_out=.
+windows\protobuf\cmake\build\Release\protoc.exe osmpbf\osmformat.proto --cpp_out=.
 ```
 
 * Compiling osmpbf
@@ -39,11 +39,32 @@ osmpbf\include
 windows\protobuf\src
 windows\zlib\build
 ```
-your Linker -> Additional Library directories to
+For Release set your Linker -> Additional Library directories to
 ```
 windows\protobuf\cmake\build\Release
 windows\mman\x64\Release
 windows\zlib\build\Release
 ```
+For Debug set your Linker -> Additional Library directories to
+```
+windows\protobuf\cmake\build\Debug
+windows\mman\x64\Debug
+windows\zlib\build\Debug
+```
+For Release set Linker -> input to
+```
+zlib.lib
+Ws2_32.lib
+libprotobuf.lib
+mman.lib
+```
+For Debug set Linker -> input to
+```
+zlibd.lib
+Ws2_32.lib
+libprotobufd.lib
+mman.lib
+```
+
 
 
