@@ -16,7 +16,7 @@ git submodule update --recursive
 
 Don´t forget to set Code generation->runtime library to Multi-threaded(/Mt) for Release or Multi-threaded Debug(/Mtd) for Debug for every solution.      
 Mman can be compiled without problem, just open the .vcxproj file and build as usual.   
-Use CMake to compile Protobuf(CmakeFiles are located in cmake subdirectory; on error just disable the protobuf_BUILD_TESTS option) and Zlib.
+Use CMake to compile Protobuf(build just protoc solution;CmakeFiles are located in cmake subdirectory; on error just disable the protobuf_BUILD_TESTS option) and Zlib.
 
 * Compiling proto files
 
