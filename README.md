@@ -11,6 +11,11 @@ This is a simple C++ library to parse OpenStreetMap's PBF files. Have a look at 
 git submodule init
 git submodule update --recursive
 ```
+You also need to manually download latest stable Protobuf from
+```
+https://developers.google.com/protocol-buffers/docs/downloads
+```
+and put it into osmpbf/windows/protobuf.
 
 * Compiling dependencies
 
