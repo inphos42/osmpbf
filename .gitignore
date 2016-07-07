@@ -11,4 +11,3 @@ osmpbf/osmblob.pb.cc
 osmpbf/osmblob.pb.h
 osmpbf/osmformat.pb.cc
 osmpbf/osmformat.pb.h
-windows/protobuf

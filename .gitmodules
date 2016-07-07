@@ -17,3 +17,12 @@
 	url = https://github.com/madler/zlib
 
 	ignore = all
+
+
+[submodule "windows/protobuf"]
+	
+	path = windows/protobuf
+	
+	url = https://github.com/google/protobuf
+
+	ignore = all
