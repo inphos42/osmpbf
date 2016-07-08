@@ -3,6 +3,10 @@
 #include <assert.h>
 #include <limits>
 
+#ifdef _WIN32
+#include <algorithm>
+#endif
+
 namespace osmpbf {
 namespace interface {
 
