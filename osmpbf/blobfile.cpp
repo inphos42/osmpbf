@@ -35,8 +35,8 @@
 #include <zlib.h>
 #else
 #include <WinSock2.h>
-#include <windows\mman\mman.h>
-#include <windows\zlib\zlib.h>
+#include <mman.h>
+#include <zlib.h>
 #include <fstream> 
 #include <cstddef>
 #include <stdint.h>

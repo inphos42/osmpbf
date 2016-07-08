@@ -44,3 +44,5 @@ IF %a% EQU y (
 :Continue3
 @echo:
 ECHO Succesfully installed dependencies!
+
+set /p DUMMY=Press any key to close...
