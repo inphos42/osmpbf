@@ -7,6 +7,9 @@ Doxyfile
 build*
 *.pro.user
 *.kdev4
+windows/mman
+windows/protobuf
+windows/zlib
 osmpbf/osmblob.pb.cc
 osmpbf/osmblob.pb.h
 osmpbf/osmformat.pb.cc
