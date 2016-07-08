@@ -6,7 +6,7 @@ This is a simple C++ library to parse OpenStreetMap's PBF files. Have a look at 
 ## Building
 
 ### Building on Windows
-* First clone the repository and then download dependencies. The script ask for your permission to download required dependency. You can always say no if you already have it on your PC. Steps bellow are written assuming you downloaded all the dependencies with script
+* First clone the repository and then download dependencies. The script ask for your permission to download required dependency. You can always say no if you already have it on your PC. Steps bellow are written assuming you downloaded all the dependencies with provided script
 ```
 cd osmpbf
 windows_setup_deps.bat
@@ -43,7 +43,7 @@ Now you you should successfully compile osmpf project.
 
 ### Linking libraries
 
-Now that you succesfully compiled static library for osmpbf,you may include it in your project.
+Now that you have succesfully compiled static library for osmpbf,you may include it in your project.
 You need to set C/C++ -> Additional include directories to
 ```
 ext\osmpbf\osmpbf\include
@@ -83,7 +83,7 @@ google::protobuf::ShutdownProtobufLibrary(); //call before program exits
 
 ### Troubleshooting
 
-If you get any unresolved external symbol errors, its because you didn´t compile all libraries the same way - check Code generation->runtime library for each library and recompile with correct runtime if necessary. Sometimes libprotobuf doesn´t recompile properly when you just hit rebuild solution. The best way is to always call clean solution and build again.  
+If you get any unresolved external symbol errors, it is because you didn´t compile all libraries the same way - check Code generation->runtime library for each library and recompile with correct runtime if necessary. Sometimes libprotobuf doesn´t recompile properly when you just hit rebuild solution. The best way is to always call clean solution and build again.  
 
 ### Enabling OpenMP
 
