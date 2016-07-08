@@ -6,7 +6,7 @@ This is a simple C++ library to parse OpenStreetMap's PBF files. Have a look at 
 ## Building
 
 ### Building on Windows
-* First clone the repository and then download dependencies
+* First clone the repository and then download dependencies. The script ask for your permission to download required dependency. You can always say no if you already have it on your PC. Steps bellow are written assuming you downloaded all the dependencies with script
 ```
 cd osmpbf
 windows_setup_deps.bat
@@ -42,6 +42,7 @@ Now you you should successfully compile osmpf project.
 
 
 * Linking libraries
+
 Now that you succesfully compiled static library for osmpbf,you may include it in your project.
 You need to set C/C++ -> Additional include directories to
 ```
