@@ -41,7 +41,7 @@ If you are using VS 2013, you need to download, install https://www.microsoft.co
 Now you you should successfully compile osmpf project.
 
 
-* Linking libraries
+### Linking libraries
 
 Now that you succesfully compiled static library for osmpbf,you may include it in your project.
 You need to set C/C++ -> Additional include directories to
@@ -74,18 +74,18 @@ Ws2_32.lib
 ```
 
 
-* Memory leak detector
+### Memory leak detector
 Authors of Protobuf assume the OS clears the memory at the end of program, so memory leak detectors like Visual Leak Detector will detect memory leaks. To fix this do
 ```
 #include <google/protobuf/stubs/common.h>
 google::protobuf::ShutdownProtobufLibrary(); //call before program exits
 ```
 
-* Troubleshooting
+### Troubleshooting
 
 If you get any unresolved external symbol errors, its because you didn´t compile all libraries the same way - check Code generation->runtime library for each library and recompile with correct runtime if necessary. Sometimes libprotobuf doesn´t recompile properly when you just hit rebuild solution. The best way is to always call clean solution and build again.  
 
-* Enabling OpenMP
+### Enabling OpenMP
 
 To enable OpenMP, just go to C/C++ -> Language -> Open MP Support and choose Yes.
 
