@@ -17,7 +17,6 @@ int open(const char * path, int oflag, int omode);
 
 int close(int fd);
 
-
 int lseek(int fd, OffsetType offset, int whence);
 
 SignedSizeType write(int fd, const void * buffer, SizeType count);

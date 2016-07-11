@@ -4,7 +4,6 @@
 #ifdef _WIN32
 	#include <WinSock2.h>
 	#include <mman.h>
-	#include <zlib.h>
 	#include <fstream> 
 	#include <cstddef>
 	#include <stdint.h>
@@ -33,6 +32,17 @@ inline int __open_flags_from_my_open_flags(int oflag) {
 	}
 	if (oflag & IO_OPEN_READ_ONLY) {
 		r |= O_RDONLY;
+	}
+	return r;
+}
+
+inline int __seek_flags_from_my_seek_flags(int whence) {
+	int r = 0;
+	if (whence & IO_SEEK_CUR) {
+		r |= SEEK_CUR;
+	}
+	if (whence & IO_SEEK_SET) {
+		r |= SEEK_SET;
 	}
 	return r;
 }
@@ -76,14 +86,7 @@ int close(int fd) {
 }
 
 int lseek(int fd, OffsetType offset, int whence) {
-	int wh = 0;
-	if (whence & IO_SEEK_CUR) {
-		wh |= SEEK_CUR;
-	}
-	if (whence & IO_SEEK_SET) {
-		wh |= SEEK_SET;
-	}
-	return ::lseek(fd, offset, wh);
+	return ::lseek(fd, offset, common::__seek_flags_from_my_seek_flags(whence));
 }
 
 SignedSizeType write(int fd, const void * buffer, SizeType count) {
@@ -114,14 +117,7 @@ int close(int fd) {
 }
 
 int lseek(int fd, OffsetType offset, int whence) {
-	int wh = 0;
-	if (whence & IO_SEEK_CUR) {
-		wh |= SEEK_CUR;
-	}
-	if (whence & IO_SEEK_SET) {
-		wh |= SEEK_SET;
-	}
-	return _lseek(fd, offset, wh);
+	return _lseek(fd, offset, common::__seek_flags_from_my_seek_flags(whence));
 }
 
 SignedSizeType write(int fd, const void * buffer, SizeType count) {
