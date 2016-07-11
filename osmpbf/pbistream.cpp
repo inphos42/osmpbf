@@ -26,16 +26,16 @@ SingleFilePbiStream::reset() {
 }
 
 void
-SingleFilePbiStream::seek(OffsetType position) {
+SingleFilePbiStream::seek(SizeType position) {
 	m_file.dataSeek(position);
 }
 
-OffsetType
+SizeType
 SingleFilePbiStream::position() const {
 	return m_file.dataPosition();
 }
 
-OffsetType
+SizeType
 SingleFilePbiStream::size() const {
 	return m_file.dataPosition();
 }
@@ -83,7 +83,7 @@ MultiFilePbiStream::reset() {
 }
 
 void
-MultiFilePbiStream::seek(OffsetType position) {
+MultiFilePbiStream::seek(osmpbf::SizeType position) {
 	if (position > m_dataSize) {
 		m_position = m_dataSize;
 		m_currentFile = m_files.size();
@@ -112,12 +112,12 @@ MultiFilePbiStream::seek(OffsetType position) {
 	assert(m_currentFile < m_files.size());
 }
 
-OffsetType
+SizeType
 MultiFilePbiStream::position() const {
 	return m_position;
 }
 
-OffsetType
+SizeType
 MultiFilePbiStream::size() const {
 	return m_dataSize;
 }
@@ -236,16 +236,16 @@ PbiStream::reset() {
 }
 
 void
-PbiStream::seek(OffsetType position) {
+PbiStream::seek(SizeType position) {
 	m_priv->seek(position);
 }
 
-OffsetType
+SizeType
 PbiStream::position() const {
 	return m_priv->position();
 }
 
-OffsetType
+SizeType
 PbiStream::size() const {
 	return m_priv->size();
 }
@@ -277,12 +277,12 @@ PbiStream::dataSeek(OffsetType position) {
 	return seek(position);
 }
 
-OffsetType
+SizeType
 PbiStream::dataPosition() const {
 	return position();
 }
 
-OffsetType
+SizeType
 PbiStream::dataSize() const {
 	return size();
 }

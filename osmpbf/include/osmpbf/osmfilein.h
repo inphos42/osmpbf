@@ -49,10 +49,10 @@ public:
 	void close();
 	void reset();
 	void dataSeek(OffsetType position);
-	OffsetType dataPosition() const;
-	OffsetType dataSize() const;
+	SizeType dataPosition() const;
+	SizeType dataSize() const;
 
-	OffsetType totalSize() const;
+	SizeType totalSize() const;
 
 
 	bool hasNext() const;
@@ -110,7 +110,7 @@ protected:
 	crosby::binary::HeaderBlock * m_FileHeader;
 	std::vector< bool > m_MissingFeatures;
 
-	OffsetType m_DataOffset;
+	SizeType m_DataOffset;
 
 	bool parseHeader();
 };

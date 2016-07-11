@@ -45,7 +45,7 @@ PrimitiveBlockInputAdaptor::PrimitiveBlockInputAdaptor() :
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 }
 
-PrimitiveBlockInputAdaptor::PrimitiveBlockInputAdaptor(char * rawData, OffsetType length, bool unpackDense) :
+PrimitiveBlockInputAdaptor::PrimitiveBlockInputAdaptor(char * rawData, SizeType length, bool unpackDense) :
 	m_PrimitiveBlock(nullptr),
 	m_PlainNodesCount(0),
 	m_DenseNodesCount(0),
@@ -62,7 +62,7 @@ PrimitiveBlockInputAdaptor::~PrimitiveBlockInputAdaptor()
 	delete m_PrimitiveBlock;
 }
 
-void PrimitiveBlockInputAdaptor::parseData(char * rawData, OffsetType length, bool unpackDense)
+void PrimitiveBlockInputAdaptor::parseData(char * rawData, SizeType length, bool unpackDense)
 {
 	delete m_PrimitiveBlock;
 

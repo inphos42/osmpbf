@@ -156,9 +156,9 @@ bool BlobFileIn::open()
 	struct stat stFileInfo;
 	if (fstat(m_FileDescriptor, &stFileInfo) == 0)
 	{
-		if (stFileInfo.st_size > std::numeric_limits<SignedOffsetType>::max())
+		if (stFileInfo.st_size > std::numeric_limits<OffsetType>::max())
 		{
-			std::cerr << "ERROR: input file is larger than " << (std::numeric_limits<SignedOffsetType>::max() >> 30) << " GiB" << std::endl;
+			std::cerr << "ERROR: input file is larger than " << (std::numeric_limits<OffsetType>::max() >> 30) << " GiB" << std::endl;
 			::close(m_FileDescriptor);
 			m_FileDescriptor = -1;
 			return false;
@@ -200,12 +200,12 @@ void BlobFileIn::seek(OffsetType position)
 	m_FilePos = position;
 }
 
-OffsetType BlobFileIn::position() const
+SizeType BlobFileIn::position() const
 {
 	return m_FilePos;
 }
 
-OffsetType BlobFileIn::size() const
+SizeType BlobFileIn::size() const
 {
 	return m_FileSize;
 }
@@ -426,12 +426,12 @@ void BlobFileOut::seek(OffsetType position)
 	::lseek(m_FileDescriptor, position, SEEK_SET);
 }
 
-OffsetType BlobFileOut::position() const
+SizeType BlobFileOut::position() const
 {
 	return ::lseek(m_FileDescriptor, 0, SEEK_CUR);
 }
 
-OffsetType BlobFileOut::size() const
+SizeType BlobFileOut::size() const
 {
 	return m_CurrentSize;
 }

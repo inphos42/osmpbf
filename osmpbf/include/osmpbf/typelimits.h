@@ -27,11 +27,13 @@ namespace osmpbf
 {
 
 #ifdef __LP64__
-typedef uint64_t OffsetType;
-typedef int64_t SignedOffsetType;
+typedef uint64_t SizeType;
+typedef int64_t SignedSizeType;
+typedef int64_t OffsetType;
 #else
+typedef uint32_t SizeType;
+typedef int32_t SignedSizeType;
 typedef uint32_t OffsetType;
-typedef int32_t SignedOffsetType;
 #endif
 
 } // namespace osmpbf
