@@ -2,6 +2,8 @@
 #include <osmpbf/osmfilein.h>
 #include <assert.h>
 #include <limits>
+#include <algorithm>
+
 
 namespace osmpbf {
 namespace interface {

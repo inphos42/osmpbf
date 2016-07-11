@@ -19,19 +19,17 @@
  */
 
 #include "osmpbf/blobfile.h"
-#include "io.h"
+#include "fileio.h"
 
 #include "osmblob.pb.h"
 
 #include <iostream>
 #include <limits>
-
 #include <zlib.h>
+#include <assert.h>
 
-#include <netinet/in.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/mman.h>
+#include <netinet/in.h>
 
 namespace osmpbf
 {
@@ -151,15 +149,16 @@ bool BlobFileIn::open()
 	m_FileSize = 0;
 	m_FilePos = 0;
 
-	m_FileDescriptor = osmpbf::open(m_FileName.c_str(), O_RDONLY);
+	m_FileDescriptor = osmpbf::open(m_FileName.c_str(), IO_OPEN_READ_ONLY);
 	if (m_FileDescriptor < 0) return false;
+	
 
 	struct stat stFileInfo;
 	if (fstat(m_FileDescriptor, &stFileInfo) == 0)
 	{
-		if (stFileInfo.st_size > std::numeric_limits<OffsetType>::max())
+		if (stFileInfo.st_size > (std::numeric_limits<OffsetType>::max)())
 		{
-			std::cerr << "ERROR: input file is larger than " << (std::numeric_limits<OffsetType>::max() >> 30) << " GiB" << std::endl;
+			std::cerr << "ERROR: input file is larger than " << ((std::numeric_limits<OffsetType>::max)() >> 30) << " GiB" << std::endl;
 			osmpbf::close(m_FileDescriptor);
 			m_FileDescriptor = -1;
 			return false;
@@ -168,9 +167,9 @@ bool BlobFileIn::open()
 		m_FileSize = OffsetType(stFileInfo.st_size);
 	}
 
-	m_FileData = (char *) mmap(0, m_FileSize, PROT_READ, MAP_SHARED, m_FileDescriptor, 0);
+	m_FileData = (char *) mmap(0, m_FileSize, MM_PROT_READ, MM_MAP_SHARED, m_FileDescriptor, 0);
 
-	if ((void *) m_FileData == MAP_FAILED)
+	if (osmpbf::validMmapAddress(m_FileData))
 	{
 		std::cerr << "ERROR: could not mmap file" << std::endl;
 		osmpbf::close(m_FileDescriptor);
@@ -188,8 +187,8 @@ void BlobFileIn::close()
 	if (m_FileData)
 	{
 		if (m_VerboseOutput) std::cout << "closing file ...";
-		munmap(m_FileData, m_FileSize);
-		::close(m_FileDescriptor);
+		osmpbf::munmap(m_FileData, m_FileSize);
+		osmpbf::close(m_FileDescriptor);
 		if (m_VerboseOutput) std::cout << "done" << std::endl;
 
 		m_FileData = NULL;
@@ -405,7 +404,7 @@ bool BlobFileOut::open()
 {
 	if (m_VerboseOutput) std::cout << "opening/creating File " << m_FileName << " ...";
 
-	m_FileDescriptor = osmpbf::open(m_FileName.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+	m_FileDescriptor = osmpbf::open(m_FileName.c_str(), IO_OPEN_WRITE_ONLY | IO_OPEN_CREATE | IO_OPEN_TRUNCATE, 0666);
 
 	if (m_VerboseOutput) std::cout << "done" << std::endl;
 

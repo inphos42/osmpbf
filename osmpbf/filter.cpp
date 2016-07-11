@@ -26,6 +26,7 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <initializer_list>
 
 namespace osmpbf
 {
@@ -783,11 +784,13 @@ BoolTagFilter::BoolTagFilter(const std::string & key, bool value) :
 {
 	if (m_Value)
 	{
-		KeyMultiValueTagFilter::setValues({"True", "true", "Yes", "yes", "1"});
+		const std::array<std::string, 5> s{ { "True", "true", "Yes", "yes", "1" } };
+		KeyMultiValueTagFilter::setValues(s.begin(), s.end());
 	}
 	else
 	{
-		KeyMultiValueTagFilter::setValues({"False", "false", "No", "no", "0"});
+		const std::array<std::string, 5> s{ { "False", "false", "No", "no", "0" } };
+		KeyMultiValueTagFilter::setValues(s.begin(), s.end());
 	}
 }
 
@@ -807,11 +810,13 @@ void BoolTagFilter::setValue(bool value)
 
 	if (m_Value)
 	{
-		KeyMultiValueTagFilter::setValues({"True", "true", "Yes", "yes", "1"});
+		const std::array<std::string, 5> s{ { "True", "true", "Yes", "yes", "1" } };
+		KeyMultiValueTagFilter::setValues(s.begin(), s.end());
 	}
 	else
 	{
-		KeyMultiValueTagFilter::setValues({"False", "false", "No", "no", "0"});
+		const std::array<std::string, 5> s{ { "False", "false", "No", "no", "0" } };
+		KeyMultiValueTagFilter::setValues(s.begin(), s.end());
 	}
 }
 

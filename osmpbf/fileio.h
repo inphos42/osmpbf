@@ -1,5 +1,5 @@
-#ifndef OSMPBF_IO_H
-#define OSMPBF_IO_H
+#ifndef OSMPBF_FILE_IO_H
+#define OSMPBF_FILE_IO_H
 #include <osmpbf/typelimits.h>
 
 namespace osmpbf {
@@ -22,11 +22,11 @@ int lseek(int fd, OffsetType offset, int whence);
 
 SignedSizeType write(int fd, const void * buffer, SizeType count);
 
-
-
 ///@param protection expects a combination of MmapProtections
 ///@param flags expects a combination of MmapSharing
 void * mmap (void * addr, SizeType len, int protection, int flags, int fd, OffsetType offset);
+
+bool validMmapAddress(void * addr);
 
 int munmap(void * addr, SizeType len);
 
