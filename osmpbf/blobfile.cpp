@@ -18,7 +18,7 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "osmpbf/blobfile.h"
+#include <osmpbf/blobfile.h>
 
 #include "osmblob.pb.h"
 

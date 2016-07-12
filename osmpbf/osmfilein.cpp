@@ -18,7 +18,7 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "osmpbf/osmfilein.h"
+#include <osmpbf/osmfilein.h>
 
 #include "osmformat.pb.h"
 
