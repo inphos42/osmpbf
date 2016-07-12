@@ -1,5 +1,6 @@
-#include "fileio.h"
+#include <osmpbf/fileio.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
 #ifdef _WIN32
 	#include <WinSock2.h>
