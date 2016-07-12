@@ -28,7 +28,6 @@
 #include <zlib.h>
 #include <assert.h>
 
-#include <sys/stat.h>
 #include <netinet/in.h>
 
 namespace osmpbf
@@ -150,22 +149,28 @@ bool BlobFileIn::open()
 	m_FilePos = 0;
 
 	m_FileDescriptor = osmpbf::open(m_FileName.c_str(), IO_OPEN_READ_ONLY);
-	if (m_FileDescriptor < 0) return false;
-	
-
-	struct stat stFileInfo;
-	if (fstat(m_FileDescriptor, &stFileInfo) == 0)
-	{
-		if (stFileInfo.st_size > (std::numeric_limits<OffsetType>::max)())
-		{
-			std::cerr << "ERROR: input file is larger than " << ((std::numeric_limits<OffsetType>::max)() >> 30) << " GiB" << std::endl;
-			osmpbf::close(m_FileDescriptor);
-			m_FileDescriptor = -1;
-			return false;
-		}
-
-		m_FileSize = OffsetType(stFileInfo.st_size);
+	if (m_FileDescriptor < 0) {
+		std::cerr << "ERROR: Could not open file: " << m_FileName << std::endl;
+		return false;
 	}
+	
+	uint64_t fileSize = osmpbf::fileSize(m_FileDescriptor);
+	if (!fileSize) {
+		std::cerr << "ERROR: File is empty or non-existent" << std::endl;
+		osmpbf::close(m_FileDescriptor);
+		m_FileDescriptor = -1;
+		return false;
+	}
+	
+	if (fileSize > (std::numeric_limits<SizeType>::max)())
+	{
+		std::cerr << "ERROR: input file is larger than " << ((std::numeric_limits<SizeType>::max)() >> 30) << " GiB" << std::endl;
+		osmpbf::close(m_FileDescriptor);
+		m_FileDescriptor = -1;
+		return false;
+	}
+
+	m_FileSize = SizeType(fileSize);
 
 	m_FileData = (char *) mmap(0, m_FileSize, MM_PROT_READ, MM_MAP_SHARED, m_FileDescriptor, 0);
 

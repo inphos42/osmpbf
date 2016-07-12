@@ -29,6 +29,7 @@ bool validMmapAddress(void * addr);
 
 int munmap(void * addr, SizeType len);
 
+uint64_t fileSize(int fd);
 
 }//end namespace osmpbf
 

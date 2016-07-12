@@ -1,5 +1,6 @@
 #include <osmpbf/fileio.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
 #ifdef _WIN32
 	#include <WinSock2.h>
@@ -67,6 +68,14 @@ bool validMmapAddress(void* addr) {
 	return addr != MAP_FAILED;
 }
 
+uint64_t fileSize(int fd) {
+	struct stat stFileInfo;
+	if (fstat(fd, &stFileInfo) == 0) {
+		return stFileInfo.st_size;
+	}
+	return 0;
+}
+
 } //end namespace common
 
 #ifndef _WIN32
@@ -96,6 +105,7 @@ SignedSizeType write(int fd, const void * buffer, SizeType count) {
 using common::mmap;
 using common::munmap;
 using common::validMmapAddress;
+using common::fileSize;
 
 }//end namespace lx
 
@@ -127,6 +137,7 @@ SignedSizeType write(int fd, const void * buffer, SizeType count) {
 using common::mmap;
 using common::munmap;
 using common::validMmapAddress;
+using common::fileSize;
 
 } //end namespace windows
 #endif
@@ -167,6 +178,11 @@ bool validMmapAddress(void* addr) {
 
 int munmap(void * addr, SizeType len) {
 	return MY_NAME_SPACE::munmap(addr, len);
+}
+
+
+uint64_t fileSize(int fd) {
+	return MY_NAME_SPACE::fileSize(fd);
 }
 
 #undef MY_NAME_SPACE
