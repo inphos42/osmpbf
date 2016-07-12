@@ -8,16 +8,15 @@
 namespace osmpbf {
 namespace interface {
 
-///for thread-safety gua
 class PbiStream {
 public:
 	PbiStream();
 	virtual ~PbiStream() = 0;
 
 	virtual void reset() = 0;
-	virtual void seek(OffsetType position) = 0;
-	virtual OffsetType position() const = 0;
-	virtual OffsetType size() const = 0;
+	virtual void seek(SizeType position) = 0;
+	virtual SizeType position() const = 0;
+	virtual SizeType size() const = 0;
 
 	virtual bool hasNext() const = 0;
 	virtual bool getNext(BlobDataBuffer & buffer) = 0;
@@ -36,9 +35,9 @@ public:
 	virtual ~SingleFilePbiStream() override;
 
 	virtual void reset() override;
-	virtual void seek(OffsetType position) override;
-	virtual OffsetType position() const override;
-	virtual OffsetType size() const override;
+	virtual void seek(SizeType position) override;
+	virtual SizeType position() const override;
+	virtual SizeType size() const override;
 
 	virtual bool hasNext() const override;
 	virtual bool getNext(BlobDataBuffer & buffer) override;
@@ -56,9 +55,9 @@ public:
 	virtual ~MultiFilePbiStream() override;
 
 	virtual void reset() override;
-	virtual void seek(OffsetType position) override;
-	virtual OffsetType position() const override;
-	virtual OffsetType size() const override;
+	virtual void seek(SizeType position) override;
+	virtual SizeType position() const override;
+	virtual SizeType size() const override;
 
 	virtual bool hasNext() const override;
 	virtual bool getNext(BlobDataBuffer & buffer) override;
@@ -69,9 +68,9 @@ protected:
 	const OSMFileIn & currentFile() const;
 private:
 	std::vector<OSMFileIn> m_files;
-	std::vector<OffsetType> m_clDataSize; //cumulative data size
-	OffsetType m_dataSize;
-	OffsetType m_position;
+	std::vector<SizeType> m_clDataSize; //cumulative data size
+	SizeType m_dataSize;
+	SizeType m_position;
 	std::size_t m_currentFile;
 };
 
@@ -91,11 +90,11 @@ public:
 	virtual ~PbiStream();
 	
 	void reset();
-	void seek(OffsetType position);
+	void seek(SizeType position);
 	
-	OffsetType position() const;
+	SizeType position() const;
 
-	OffsetType size() const;
+	SizeType size() const;
 
 	bool hasNext() const;
 
@@ -123,8 +122,8 @@ public:
 	// the following are the same as above,
 	// but have the same name as the functions in OsmFileIn for easier migration
 	void dataSeek(OffsetType position);
-	OffsetType dataPosition() const;
-	OffsetType dataSize() const;
+	SizeType dataPosition() const;
+	SizeType dataSize() const;
 	bool getNextBlock(BlobDataBuffer & buffer);
 
 	bool getNextBlocks(BlobDataMultiBuffer & buffers, int num);

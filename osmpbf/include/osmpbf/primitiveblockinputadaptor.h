@@ -45,10 +45,10 @@ class PrimitiveBlockInputAdaptor
  */
 public:
 	PrimitiveBlockInputAdaptor();
-	PrimitiveBlockInputAdaptor(char * rawData, OffsetType length, bool unpackDense = false);
+	PrimitiveBlockInputAdaptor(char * rawData, SizeType length, bool unpackDense = false);
 	virtual ~PrimitiveBlockInputAdaptor();
 
-	void parseData(char * rawData, OffsetType length, bool unpackDense = false);
+	void parseData(char * rawData, SizeType length, bool unpackDense = false);
 
 	const std::string & queryStringTable(int id) const;
 	int stringTableSize() const;

@@ -41,9 +41,9 @@ public:
 	virtual void close() = 0;
 
 	virtual void seek(OffsetType position) = 0;
-	virtual OffsetType position() const = 0;
+	virtual SizeType position() const = 0;
 
-	virtual OffsetType size() const = 0;
+	virtual SizeType size() const = 0;
 
 	inline void setVerboseOutput(bool value)
 	{
@@ -68,9 +68,9 @@ public:
 	virtual void close() override;
 
 	virtual void seek(OffsetType position) override;
-	virtual OffsetType position() const override;
+	virtual SizeType position() const override;
 
-	virtual OffsetType size() const override;
+	virtual SizeType size() const override;
 
 	void readBlob(BlobDataBuffer & buffer);
 	BlobDataType readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize);
@@ -79,8 +79,8 @@ public:
 
 protected:
 	char * m_FileData;
-	OffsetType m_FilePos;
-	OffsetType m_FileSize;
+	SizeType m_FilePos;
+	SizeType m_FileSize;
 
 	void readBlobHeader(uint32_t & blobLength, BlobDataType & blobDataType);
 
@@ -103,15 +103,15 @@ public:
 	virtual void close() override;
 
 	virtual void seek(OffsetType position) override;
-	virtual OffsetType position() const override;
+	virtual SizeType position() const override;
 
-	virtual OffsetType size() const override;
+	virtual SizeType size() const override;
 
 	bool writeBlob(const BlobDataBuffer & buffer, bool compress = true);
 	bool writeBlob(BlobDataType type, const char * buffer, uint32_t bufferSize, bool compress = true);
 
 protected:
-	OffsetType m_CurrentSize;
+	SizeType m_CurrentSize;
 
 private:
 	BlobFileOut() = delete;

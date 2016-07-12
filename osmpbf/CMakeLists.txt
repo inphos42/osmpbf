@@ -74,6 +74,7 @@ set(SOURCES_CPP
 	filter.cpp
 	xmlconverter.cpp
 	dataindex.cpp
+	fileio.cpp
 )
 
 # fetch all include headers

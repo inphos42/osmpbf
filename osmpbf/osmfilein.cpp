@@ -107,15 +107,15 @@ namespace osmpbf {
 		m_FileIn->seek(m_DataOffset + position);
 	}
 
-	OffsetType OSMFileIn::dataPosition() const {
+	SizeType OSMFileIn::dataPosition() const {
 		return m_FileIn->position() - m_DataOffset;
 	}
 
-	OffsetType OSMFileIn::dataSize() const {
+	SizeType OSMFileIn::dataSize() const {
 		return m_FileIn->size() - m_DataOffset;
 	}
 
-	OffsetType OSMFileIn::totalSize() const {
+	SizeType OSMFileIn::totalSize() const {
 		return m_FileIn->size();
 	}
 	

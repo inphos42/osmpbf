@@ -19,30 +19,16 @@
  */
 
 #include "osmpbf/blobfile.h"
+#include "osmpbf/fileio.h"
 
 #include "osmblob.pb.h"
 
 #include <iostream>
 #include <limits>
+#include <zlib.h>
+#include <assert.h>
 
 #include <sys/stat.h>
-#include <fcntl.h>
-
-
-#ifndef _WIN32
-#include <netinet/in.h>
-#include <sys/mman.h>
-#include <zlib.h>
-#else
-#include <WinSock2.h>
-#include <mman.h>
-#include <zlib.h>
-#include <fstream> 
-#include <cstddef>
-#include <stdint.h>
-#include <io.h>
-
-#endif
 
 namespace osmpbf
 {
@@ -162,50 +148,30 @@ bool BlobFileIn::open()
 	m_FileSize = 0;
 	m_FilePos = 0;
 
-	
-	#ifndef _WIN32
-	m_FileDescriptor = ::open(m_FileName.c_str(), O_RDONLY);
+	m_FileDescriptor = osmpbf::open(m_FileName.c_str(), IO_OPEN_READ_ONLY);
 	if (m_FileDescriptor < 0) return false;
-	#else
-	m_FileDescriptor = _open(m_FileName.c_str(), O_RDONLY);
-	if (m_FileDescriptor < 0) return false;
-	#endif
 	
 
 	struct stat stFileInfo;
 	if (fstat(m_FileDescriptor, &stFileInfo) == 0)
 	{
-		#ifndef _WIN32
-		if (stFileInfo.st_size > std::numeric_limits<SignedOffsetType>::max())
+		if (stFileInfo.st_size > (std::numeric_limits<OffsetType>::max)())
 		{
-			std::cerr << "ERROR: input file is larger than " << (std::numeric_limits<SignedOffsetType>::max() >> 30) << " GiB" << std::endl;
-			::close(m_FileDescriptor);
+			std::cerr << "ERROR: input file is larger than " << ((std::numeric_limits<OffsetType>::max)() >> 30) << " GiB" << std::endl;
+			osmpbf::close(m_FileDescriptor);
 			m_FileDescriptor = -1;
 			return false;
 		}
-		#else
-		if (stFileInfo.st_size > (std::numeric_limits<SignedOffsetType>::max)())
-		{
-			std::cerr << "ERROR: input file is larger than " << ((std::numeric_limits<SignedOffsetType>::max)() >> 30) << " GiB" << std::endl;
-			_close(m_FileDescriptor);
-			m_FileDescriptor = -1;
-			return false;
-		}
-		#endif
 
 		m_FileSize = OffsetType(stFileInfo.st_size);
 	}
 
-	m_FileData = (char *) mmap(0, m_FileSize, PROT_READ, MAP_SHARED, m_FileDescriptor, 0);
+	m_FileData = (char *) mmap(0, m_FileSize, MM_PROT_READ, MM_MAP_SHARED, m_FileDescriptor, 0);
 
-	if ((void *) m_FileData == MAP_FAILED)
+	if (!osmpbf::validMmapAddress(m_FileData))
 	{
 		std::cerr << "ERROR: could not mmap file" << std::endl;
-		#ifndef _WIN32
-		::close(m_FileDescriptor);
-		#else
-		_close(m_FileDescriptor);
-		#endif
+		osmpbf::close(m_FileDescriptor);
 		m_FileDescriptor = -1;
 		m_FileData = NULL;
 		return false;
@@ -220,12 +186,8 @@ void BlobFileIn::close()
 	if (m_FileData)
 	{
 		if (m_VerboseOutput) std::cout << "closing file ...";
-		munmap(m_FileData, m_FileSize);
-		#ifndef _WIN32
-		::close(m_FileDescriptor);
-		#else
-		_close(m_FileDescriptor);
-		#endif
+		osmpbf::munmap(m_FileData, m_FileSize);
+		osmpbf::close(m_FileDescriptor);
 		if (m_VerboseOutput) std::cout << "done" << std::endl;
 
 		m_FileData = NULL;
@@ -237,12 +199,12 @@ void BlobFileIn::seek(OffsetType position)
 	m_FilePos = position;
 }
 
-OffsetType BlobFileIn::position() const
+SizeType BlobFileIn::position() const
 {
 	return m_FilePos;
 }
 
-OffsetType BlobFileIn::size() const
+SizeType BlobFileIn::size() const
 {
 	return m_FileSize;
 }
@@ -441,11 +403,7 @@ bool BlobFileOut::open()
 {
 	if (m_VerboseOutput) std::cout << "opening/creating File " << m_FileName << " ...";
 
-	#ifndef _WIN32
-	m_FileDescriptor = ::open(m_FileName.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
-	#else
-	m_FileDescriptor = _open(m_FileName.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
-	#endif
+	m_FileDescriptor = osmpbf::open(m_FileName.c_str(), IO_OPEN_WRITE_ONLY | IO_OPEN_CREATE | IO_OPEN_TRUNCATE, 0666);
 
 	if (m_VerboseOutput) std::cout << "done" << std::endl;
 
@@ -457,34 +415,22 @@ void BlobFileOut::close()
 	if (m_FileDescriptor > -1)
 	{
 		if (m_VerboseOutput) std::cout << "closing File " << m_FileName << " ...";
-		#ifndef _WIN32
-		::close(m_FileDescriptor);
-		#else
-		_close(m_FileDescriptor);
-		#endif
+		osmpbf::close(m_FileDescriptor);
 		if (m_VerboseOutput) std::cout << "done" << std::endl;
 	}
 }
 
 void BlobFileOut::seek(OffsetType position)
 {
-	#ifndef _WIN32
-	::lseek(m_FileDescriptor, position, SEEK_SET);
-	#else
-	_lseek(m_FileDescriptor, position, SEEK_SET);
-	#endif
+	osmpbf::lseek(m_FileDescriptor, position, IO_SEEK_SET);
 }
 
-OffsetType BlobFileOut::position() const
+SizeType BlobFileOut::position() const
 {
-	#ifndef _WIN32
-	return ::lseek(m_FileDescriptor, 0, SEEK_CUR);
-	#else
-	return _lseek(m_FileDescriptor, 0, SEEK_CUR);
-	#endif
+	return osmpbf::lseek(m_FileDescriptor, 0, IO_SEEK_CUR);
 }
 
-OffsetType BlobFileOut::size() const
+SizeType BlobFileOut::size() const
 {
 	return m_CurrentSize;
 }
@@ -561,13 +507,8 @@ bool BlobFileOut::writeBlob(osmpbf::BlobDataType type, const char * buffer, uint
 	if (m_VerboseOutput) std::cout << "writing blob...";
 
 	// save position and skip header size
-	#ifndef _WIN32
-	off_t headerSizePosition = ::lseek(m_FileDescriptor, 0, SEEK_CUR);
-	::lseek(m_FileDescriptor, sizeof(uint32_t), SEEK_CUR);
-	#else
-	off_t headerSizePosition = _lseek(m_FileDescriptor, 0, SEEK_CUR);
-	_lseek(m_FileDescriptor, sizeof(uint32_t), SEEK_CUR);
-	#endif
+	off_t headerSizePosition = osmpbf::lseek(m_FileDescriptor, 0, IO_SEEK_CUR);
+	osmpbf::lseek(m_FileDescriptor, sizeof(uint32_t), IO_SEEK_CUR);
 
 	// serialize header blob
 	if (!blobHeader->SerializeToFileDescriptor(m_FileDescriptor))
@@ -576,36 +517,23 @@ bool BlobFileOut::writeBlob(osmpbf::BlobDataType type, const char * buffer, uint
 		delete blobHeader;
 		return false;
 	}
-	#ifndef _WIN32
-	off_t blobPosition = ::lseek(m_FileDescriptor, 0, SEEK_CUR);
-	#else
-	off_t blobPosition = _lseek(m_FileDescriptor, 0, SEEK_CUR);
-	#endif
+
+	off_t blobPosition = osmpbf::lseek(m_FileDescriptor, 0, IO_SEEK_CUR);
 
 	// write header size
 	uint32_t headerSize = blobHeader->ByteSize();
 	headerSize = htonl(headerSize);
-	#ifndef _WIN32
-	::lseek(m_FileDescriptor, headerSizePosition, SEEK_SET);
-	::write(m_FileDescriptor, &headerSize, sizeof(uint32_t));
-	::lseek(m_FileDescriptor, blobPosition, SEEK_SET);
-	#else
-	_lseek(m_FileDescriptor, headerSizePosition, SEEK_SET);
-	_write(m_FileDescriptor, &headerSize, sizeof(uint32_t));
-	_lseek(m_FileDescriptor, blobPosition, SEEK_SET);
-	#endif
+	osmpbf::lseek(m_FileDescriptor, headerSizePosition, IO_SEEK_SET);
+	osmpbf::write(m_FileDescriptor, &headerSize, sizeof(uint32_t));
+	osmpbf::lseek(m_FileDescriptor, blobPosition, IO_SEEK_SET);
 
 	delete blobHeader;
 
 	// write blob
-	#ifndef _WIN32
-	::write(m_FileDescriptor, (void *) serializedBlobBuffer.data(), serializedBlobBuffer.length());
-	#else
-	_write(m_FileDescriptor, (void *)serializedBlobBuffer.data(), serializedBlobBuffer.length());
-	#endif
+	osmpbf::write(m_FileDescriptor, (void *) serializedBlobBuffer.data(), serializedBlobBuffer.length());
 	if (m_VerboseOutput) std::cout << "done" << std::endl;
 
-	OffsetType pos = position();
+	SizeType pos = position();
 	if (m_CurrentSize < pos)
 		m_CurrentSize = pos;
 

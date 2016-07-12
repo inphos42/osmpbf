@@ -129,11 +129,11 @@ void parseFileOmp(T_IN_DATA & inFile, TPBI_Processor processor, uint32_t readBlo
 	{
 		pbiBuffers.clear();
 		inFile.getNextBlocks(pbiBuffers, readBlobCount);
-		uint32_t pbiCount = pbiBuffers.size();
+		std::size_t pbiCount = pbiBuffers.size();
 		processedFile = (pbiCount < readBlobCount);
 
 		#pragma omp parallel for schedule(dynamic)
-		for(int32_t i = 0; i < pbiCount; ++i)
+		for(std::size_t i = 0; i < pbiCount; ++i)
 		{
 			osmpbf::PrimitiveBlockInputAdaptor pbi(pbiBuffers[i].data, pbiBuffers[i].availableBytes);
 			pbiBuffers[i].clear();
