@@ -169,7 +169,7 @@ bool BlobFileIn::open()
 
 	m_FileData = (char *) mmap(0, m_FileSize, MM_PROT_READ, MM_MAP_SHARED, m_FileDescriptor, 0);
 
-	if (osmpbf::validMmapAddress(m_FileData))
+	if (!osmpbf::validMmapAddress(m_FileData))
 	{
 		std::cerr << "ERROR: could not mmap file" << std::endl;
 		osmpbf::close(m_FileDescriptor);

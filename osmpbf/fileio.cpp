@@ -1,4 +1,4 @@
-#include "fileio.h"
+#include <osmpbf/fileio.h>
 #include <fcntl.h>
 
 #ifdef _WIN32
