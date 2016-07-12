@@ -75,6 +75,7 @@ set(SOURCES_CPP
 	xmlconverter.cpp
 	dataindex.cpp
 	fileio.cpp
+	net.cpp
 )
 
 # fetch all include headers

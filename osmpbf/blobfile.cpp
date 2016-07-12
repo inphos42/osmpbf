@@ -20,6 +20,7 @@
 
 #include <osmpbf/blobfile.h>
 #include <osmpbf/fileio.h>
+#include <osmpbf/net.h>
 
 #include "osmblob.pb.h"
 
@@ -27,8 +28,6 @@
 #include <limits>
 #include <zlib.h>
 #include <assert.h>
-
-#include <netinet/in.h>
 
 namespace osmpbf
 {
@@ -229,7 +228,7 @@ void BlobFileIn::readBlobHeader(uint32_t & blobLength, osmpbf::BlobDataType & bl
 
 	if (m_VerboseOutput) std::cout << "checking blob header ..." << std::endl;
 
-	uint32_t headerLength = ntohl(* (uint32_t *) fileData());
+	uint32_t headerLength = osmpbf::ntohl(* (uint32_t *) fileData());
 
 	if (m_VerboseOutput) std::cout << "header length : " << headerLength << " B" << std::endl;
 
@@ -528,7 +527,7 @@ bool BlobFileOut::writeBlob(osmpbf::BlobDataType type, const char * buffer, uint
 
 	// write header size
 	uint32_t headerSize = blobHeader->ByteSize();
-	headerSize = htonl(headerSize);
+	headerSize = osmpbf::htonl(headerSize);
 	osmpbf::lseek(m_FileDescriptor, headerSizePosition, IO_SEEK_SET);
 	osmpbf::write(m_FileDescriptor, &headerSize, sizeof(uint32_t));
 	osmpbf::lseek(m_FileDescriptor, blobPosition, IO_SEEK_SET);
