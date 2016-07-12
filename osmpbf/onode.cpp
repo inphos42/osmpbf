@@ -18,7 +18,7 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "osmpbf/onode.h"
+#include <osmpbf/onode.h>
 
 #include "osmformat.pb.h"
 

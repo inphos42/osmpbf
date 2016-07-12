@@ -18,7 +18,7 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "osmpbf/filter.h"
+#include <osmpbf/filter.h>
 
 #include <osmpbf/primitiveblockinputadaptor.h>
 #include <osmpbf/iprimitive.h>

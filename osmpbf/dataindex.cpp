@@ -18,7 +18,7 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "osmpbf/dataindex.h"
+#include <osmpbf/dataindex.h>
 
 #include "osmformat.pb.h"
 

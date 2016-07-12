@@ -18,8 +18,8 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "osmpbf/blobfile.h"
-#include "fileio.h"
+#include <osmpbf/blobfile.h>
+#include <osmpbf/fileio.h>
 
 #include "osmblob.pb.h"
 
