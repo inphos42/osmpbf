@@ -2,6 +2,9 @@
 #define OSMPBF_FILE_IO_H
 #include <osmpbf/typelimits.h>
 
+
+//implementations of functions declared in this file are OS specific
+
 namespace osmpbf {
 
 typedef enum { IO_OPEN_READ_ONLY=00, IO_OPEN_WRITE_ONLY=01, IO_OPEN_CREATE=0100, IO_OPEN_TRUNCATE=01000} IoOpenFlags;
