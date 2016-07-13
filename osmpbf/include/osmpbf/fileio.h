@@ -2,19 +2,8 @@
 #define OSMPBF_FILE_IO_H
 #include <osmpbf/typelimits.h>
 
-#ifdef _WIN32
-#include <WinSock2.h>
-#include <mman.h>
-#include <fstream> 
-#include <cstddef>
-#include <stdint.h>
-#include <io.h>
-#endif
 
-#ifndef _WIN32
-#include <unistd.h>
-#include <sys/mman.h>
-#endif
+//implementations of functions declared in this file are OS specific
 
 namespace osmpbf {
 
@@ -43,6 +32,7 @@ bool validMmapAddress(void * addr);
 
 int munmap(void * addr, SizeType len);
 
+uint64_t fileSize(int fd);
 
 }//end namespace osmpbf
 

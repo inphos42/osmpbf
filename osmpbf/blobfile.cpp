@@ -18,8 +18,9 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "osmpbf/blobfile.h"
-#include "osmpbf/fileio.h"
+#include <osmpbf/blobfile.h>
+#include <osmpbf/fileio.h>
+#include <osmpbf/net.h>
 
 #include "osmblob.pb.h"
 
@@ -27,8 +28,6 @@
 #include <limits>
 #include <zlib.h>
 #include <assert.h>
-
-#include <sys/stat.h>
 
 namespace osmpbf
 {
@@ -149,22 +148,28 @@ bool BlobFileIn::open()
 	m_FilePos = 0;
 
 	m_FileDescriptor = osmpbf::open(m_FileName.c_str(), IO_OPEN_READ_ONLY);
-	if (m_FileDescriptor < 0) return false;
-	
-
-	struct stat stFileInfo;
-	if (fstat(m_FileDescriptor, &stFileInfo) == 0)
-	{
-		if (stFileInfo.st_size > (std::numeric_limits<OffsetType>::max)())
-		{
-			std::cerr << "ERROR: input file is larger than " << ((std::numeric_limits<OffsetType>::max)() >> 30) << " GiB" << std::endl;
-			osmpbf::close(m_FileDescriptor);
-			m_FileDescriptor = -1;
-			return false;
-		}
-
-		m_FileSize = OffsetType(stFileInfo.st_size);
+	if (m_FileDescriptor < 0) {
+		std::cerr << "ERROR: Could not open file: " << m_FileName << std::endl;
+		return false;
 	}
+	
+	uint64_t fileSize = osmpbf::fileSize(m_FileDescriptor);
+	if (!fileSize) {
+		std::cerr << "ERROR: File is empty or non-existent" << std::endl;
+		osmpbf::close(m_FileDescriptor);
+		m_FileDescriptor = -1;
+		return false;
+	}
+	
+	if (fileSize > (std::numeric_limits<SizeType>::max)())
+	{
+		std::cerr << "ERROR: input file is larger than " << ((std::numeric_limits<SizeType>::max)() >> 30) << " GiB" << std::endl;
+		osmpbf::close(m_FileDescriptor);
+		m_FileDescriptor = -1;
+		return false;
+	}
+
+	m_FileSize = SizeType(fileSize);
 
 	m_FileData = (char *) mmap(0, m_FileSize, MM_PROT_READ, MM_MAP_SHARED, m_FileDescriptor, 0);
 
@@ -223,7 +228,7 @@ void BlobFileIn::readBlobHeader(uint32_t & blobLength, osmpbf::BlobDataType & bl
 
 	if (m_VerboseOutput) std::cout << "checking blob header ..." << std::endl;
 
-	uint32_t headerLength = ntohl(* (uint32_t *) fileData());
+	uint32_t headerLength = osmpbf::ntohl(* (uint32_t *) fileData());
 
 	if (m_VerboseOutput) std::cout << "header length : " << headerLength << " B" << std::endl;
 
@@ -522,7 +527,7 @@ bool BlobFileOut::writeBlob(osmpbf::BlobDataType type, const char * buffer, uint
 
 	// write header size
 	uint32_t headerSize = blobHeader->ByteSize();
-	headerSize = htonl(headerSize);
+	headerSize = osmpbf::htonl(headerSize);
 	osmpbf::lseek(m_FileDescriptor, headerSizePosition, IO_SEEK_SET);
 	osmpbf::write(m_FileDescriptor, &headerSize, sizeof(uint32_t));
 	osmpbf::lseek(m_FileDescriptor, blobPosition, IO_SEEK_SET);

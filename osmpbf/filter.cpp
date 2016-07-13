@@ -18,7 +18,7 @@
     <http://www.gnu.org/licenses/>.
  */
 
-#include "osmpbf/filter.h"
+#include <osmpbf/filter.h>
 
 #include <osmpbf/primitiveblockinputadaptor.h>
 #include <osmpbf/iprimitive.h>
@@ -27,10 +27,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <initializer_list>
-
-#ifdef _WIN32
 #include <array>
-#endif
 
 namespace osmpbf
 {
