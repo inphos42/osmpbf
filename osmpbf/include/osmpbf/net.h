@@ -2,7 +2,7 @@
 #define OSMPBF_NET_H
 #include <cstdint>
 
-//implementations of functions declared in this file are OS specificc
+//implementations of functions declared in this file are OS specific
 
 namespace osmpbf {
 
