@@ -14,7 +14,7 @@ windows_setup_deps.bat
 
 * Compiling dependencies
 
-Don´t forget to set Code generation->runtime library to Multi-threaded(/Mt) for Release or Multi-threaded Debug(/Mtd) for Debug for every solution.      
+DonÂ´t forget to set Code generation->runtime library to Multi-threaded(/Mt) for Release or Multi-threaded Debug(/Mtd) for Debug for every solution.      
 Mman can be compiled without problem, just open the .vcproj file and build as usual.   
 Use CMake to compile Protobuf(build just protoc solution;CmakeFiles are located in cmake subdirectory; on error just disable the protobuf_BUILD_TESTS option) and Zlib.
 
@@ -83,7 +83,7 @@ google::protobuf::ShutdownProtobufLibrary(); //call before program exits
 
 ### Troubleshooting
 
-If you get any unresolved external symbol errors, it is because you didn´t compile all libraries the same way - check Code generation->runtime library for each library and recompile with correct runtime if necessary. Sometimes libprotobuf doesn´t recompile properly when you just hit rebuild solution. The best way is to always call clean solution and build again.  
+If you get any unresolved external symbol errors, it is because you didnÂ´t compile all libraries the same way - check Code generation->runtime library for each library and recompile with correct runtime if necessary. Sometimes libprotobuf doesnÂ´t recompile properly when you just hit rebuild solution. The best way is to always call clean solution and build again.  
 
 ### Enabling OpenMP
 
