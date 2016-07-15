@@ -228,7 +228,7 @@ void BlobFileIn::readBlobHeader(uint32_t & blobLength, osmpbf::BlobDataType & bl
 
 	if (m_VerboseOutput) std::cout << "checking blob header ..." << std::endl;
 
-	uint32_t headerLength = osmpbf::ntohl(* (uint32_t *) fileData());
+	uint32_t headerLength = osmpbf::net2hostLong(* (uint32_t *) fileData());
 
 	if (m_VerboseOutput) std::cout << "header length : " << headerLength << " B" << std::endl;
 
@@ -527,7 +527,7 @@ bool BlobFileOut::writeBlob(osmpbf::BlobDataType type, const char * buffer, uint
 
 	// write header size
 	uint32_t headerSize = blobHeader->ByteSize();
-	headerSize = osmpbf::htonl(headerSize);
+	headerSize = osmpbf::host2NetLong(headerSize);
 	osmpbf::lseek(m_FileDescriptor, headerSizePosition, IO_SEEK_SET);
 	osmpbf::write(m_FileDescriptor, &headerSize, sizeof(uint32_t));
 	osmpbf::lseek(m_FileDescriptor, blobPosition, IO_SEEK_SET);
