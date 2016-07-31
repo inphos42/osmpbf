@@ -9,6 +9,8 @@
 	#include <cstddef>
 	#include <stdint.h>
 	#include <io.h>
+	#define fstat _fstati64
+	#define stat _stati64
 #endif
 
 #ifndef _WIN32
