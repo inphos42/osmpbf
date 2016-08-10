@@ -98,6 +98,12 @@ public:
 
 	int64_t minLon() const;
 	int64_t maxLon() const;
+	
+	double minLatd() const;
+	double maxLatd() const;
+
+	double minLond() const;
+	double maxLond() const;
 
 protected:
 	OSMFileIn() = delete;

@@ -232,4 +232,21 @@ namespace osmpbf {
 	int64_t OSMFileIn::maxLon() const {
 		return m_FileHeader->has_bbox() ? m_FileHeader->bbox().right() : 0;
 	}
+
+	double OSMFileIn::minLatd() const {
+		return minLat() * COORDINATE_SCALE_FACTOR_LAT;
+	}
+	
+	double OSMFileIn::maxLatd() const {
+		return maxLat() * COORDINATE_SCALE_FACTOR_LAT;
+	}
+
+	double OSMFileIn::minLond() const {
+		return minLon() * COORDINATE_SCALE_FACTOR_LON;
+	}
+	
+	double OSMFileIn::maxLond() const {
+		return maxLon() * COORDINATE_SCALE_FACTOR_LON;
+	}
+	
 }
