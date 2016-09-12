@@ -43,7 +43,9 @@ public:
 	inline int64_t lati() const { return static_cast< AbstractNodeInputAdaptor * >(m_Private)->lati(); }
 	inline int64_t loni() const { return static_cast< AbstractNodeInputAdaptor * >(m_Private)->loni(); }
 
+	///@return in degrees
 	inline double latd() const { return static_cast< AbstractNodeInputAdaptor * >(m_Private)->latd(); }
+	///@return in degrees
 	inline double lond() const { return static_cast< AbstractNodeInputAdaptor * >(m_Private)->lond(); }
 
 	inline int64_t rawLat() const { return static_cast< AbstractNodeInputAdaptor * >(m_Private)->rawLat(); }
