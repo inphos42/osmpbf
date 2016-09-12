@@ -92,7 +92,7 @@ int compare(char * inFileName, char * matchFileName, bool verbose) {
 	if (match)
 		std::cout << "the files match on blob level" << std::endl;
 
-	inFileB.close();
+	inFileA.close();
 	inFileB.close();
 
 	return match ? 0 : -1;
