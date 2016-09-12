@@ -974,8 +974,10 @@ void InversionFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor* pbi)
 
 bool InversionFilter::rebuildCache()
 {
-	//if child matches some then this matches some as-well
+	//if child matches something (not everything) then this matches something as-well
 	//if child matches nothing, then this matches everything
+	//but we still need to rebuild the cache of child nodes so that they have the correct cache info
+	m_child->rebuildCache();
 	return true;
 }
 
