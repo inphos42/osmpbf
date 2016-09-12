@@ -974,11 +974,9 @@ void InversionFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor* pbi)
 
 bool InversionFilter::rebuildCache()
 {
-	if (m_child)
-	{
-		return m_child->rebuildCache();
-	}
-	return true; //a null-child does not match anything
+	//if child matches some then this matches some as-well
+	//if child matches nothing, then this matches everything
+	return true;
 }
 
 void InversionFilter::setChild(AbstractTagFilter* child)
