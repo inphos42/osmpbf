@@ -39,7 +39,7 @@ SingleFilePbiStream::position() const {
 
 SizeType
 SingleFilePbiStream::size() const {
-	return m_file.dataPosition();
+	return m_file.dataSize();
 }
 
 bool
