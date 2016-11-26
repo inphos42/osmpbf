@@ -24,6 +24,7 @@
 #include <osmpbf/onode.h>
 #include <osmpbf/inode.h>
 #include <generics/store.h>
+#include <limits>
 
 #include "osmformat.pb.h"
 
@@ -169,8 +170,9 @@ namespace osmpbf {
 
 			it++;
 		}
-
-		return target - from + 1;
+		auto diff = (target - from + 1);
+		assert(diff >= 0 && diff < std::numeric_limits<int>::max());
+		return (int) diff;
 	}
 
 	template<typename Element>
@@ -209,8 +211,9 @@ namespace osmpbf {
 
 			it++;
 		}
-
-		return target - from + 1;
+		auto diff = target - from + 1;
+		assert(diff >= 0 && diff < std::numeric_limits<int>::max());
+		return (int) diff;
 	}
 
 	template<typename PrimitiveType>

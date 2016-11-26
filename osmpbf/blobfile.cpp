@@ -87,7 +87,8 @@ uint32_t deflateData(const char * source, uint32_t sourceSize, char *& dest, uin
 	ret = deflateInit(&stream, Z_BEST_COMPRESSION);
 	assert(ret != Z_STREAM_ERROR);
 
-	destSize = deflateBound(&stream, sourceSize);
+	//overvlow will result in error during stream decoding
+	destSize = (uint32_t) deflateBound(&stream, sourceSize);
 	dest = new char[destSize];
 
 	stream.avail_in = sourceSize;
@@ -112,7 +113,8 @@ uint32_t deflateData(const char * source, uint32_t sourceSize, char *& dest, uin
 		std::cerr << "ERROR: zlib - Z_MEM_ERROR" << std::endl;
 		return 0;
 	case Z_STREAM_END:
-		return stream.total_out;
+		//has to smaller than destSize (which is uint32_t)
+		return (uint32_t) stream.total_out;
 	default:
 		std::cerr << "ERROR: zlib - input not compressable" << std::endl;
 		return 0;
@@ -329,8 +331,9 @@ BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32
 			}
 
 			if (m_VerboseOutput) std::cout << "decompressing data ... ";
-
-			inflateData(compressedData->data(), compressedData->length(), buffer, availableDataSize);
+			
+			assert(compressedData->length() < std::numeric_limits<uint32_t>::max());
+			inflateData(compressedData->data(), (uint32_t) compressedData->length(), buffer, availableDataSize);
 
 			if (m_VerboseOutput) std::cout << "done" << std::endl;
 
@@ -341,7 +344,8 @@ BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32
 			if (m_VerboseOutput) std::cout << "found uncompressed blob data" << std::endl;
 
 			std::string * uncompressedData = blob->release_raw();
-			availableDataSize = uncompressedData->length();
+			assert(uncompressedData->length() < std::numeric_limits<uint32_t>::max());
+			availableDataSize = (uint32_t) uncompressedData->length();
 
 			delete blob;
 
@@ -489,7 +493,8 @@ bool BlobFileOut::writeBlob(osmpbf::BlobDataType type, const char * buffer, uint
 	}
 
 	BlobHeader * blobHeader = new BlobHeader();
-	blobHeader->set_datasize(serializedBlobBuffer.length());
+	assert(serializedBlobBuffer.length() < std::numeric_limits<::google::protobuf::int32>::max());
+	blobHeader->set_datasize((::google::protobuf::int32) serializedBlobBuffer.length());
 	switch (type)
 	{
 	case BLOB_OSMData:

@@ -96,7 +96,7 @@ int close(int fd) {
 	return ::close(fd);
 }
 
-int lseek(int fd, OffsetType offset, int whence) {
+SignedSizeType lseek(int fd, OffsetType offset, int whence) {
 	return ::lseek(fd, offset, common::__seek_flags_from_my_seek_flags(whence));
 }
 
@@ -128,7 +128,7 @@ int close(int fd) {
 	return _close(fd);
 }
 
-int lseek(int fd, OffsetType offset, int whence) {
+SignedSizeType lseek(int fd, OffsetType offset, int whence) {
 	return _lseek(fd, offset, common::__seek_flags_from_my_seek_flags(whence));
 }
 
@@ -162,7 +162,7 @@ int close(int fd) {
 	return MY_NAME_SPACE::close(fd);
 }
 
-int lseek(int fd, OffsetType offset, int whence) {
+SignedSizeType lseek(int fd, OffsetType offset, int whence) {
 	return MY_NAME_SPACE::lseek(fd, offset, whence);
 }
 
