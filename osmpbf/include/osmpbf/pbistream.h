@@ -79,7 +79,8 @@ private:
 
 class PbiStream {
 public:
-	PbiStream();
+	PbiStream() = default;
+	PbiStream(PbiStream && other) = default;
 	PbiStream(OSMFileIn && fileIn);
 	PbiStream(std::vector<OSMFileIn> && files);
 	PbiStream(const std::vector<std::string> & fileNames);
@@ -88,6 +89,8 @@ public:
 	template<typename T_OSMFILE_IN_ITERATOR>
 	PbiStream(T_OSMFILE_IN_ITERATOR begin, T_OSMFILE_IN_ITERATOR end);
 	virtual ~PbiStream();
+	PbiStream & operator=(const PbiStream & other) = delete;
+	PbiStream & operator=(PbiStream && other) = default;
 	
 	void reset();
 	void seek(SizeType position);

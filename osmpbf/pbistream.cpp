@@ -195,13 +195,6 @@ MultiFilePbiStream::parseNext(PrimitiveBlockInputAdaptor& adaptor) {
 
 }//end namespace imp
 
-
-PbiStream::PbiStream() {}
-
-PbiStream::PbiStream(OSMFileIn && fileIn) :
-m_priv(new imp::SingleFilePbiStream(std::move(fileIn)))
-{}
-
 PbiStream::PbiStream(std::vector<OSMFileIn> && files) {
 	if (files.size()) {
 		m_priv.reset(new imp::MultiFilePbiStream(files.begin(), files.end()));
@@ -228,7 +221,6 @@ PbiStream::PbiStream(const std::vector<std::string> & fileNames) {
 		m_priv.reset(new imp::MultiFilePbiStream(files.begin(), files.end()));
 	}
 }
-
 
 PbiStream::~PbiStream() {}
 
