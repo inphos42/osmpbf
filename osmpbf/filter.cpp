@@ -273,8 +273,8 @@ bool KeyOnlyTagFilter::p_matches(const IPrimitive & primitive)
 {
 	if (m_Key.empty())
 		return false;
-
-	if (m_PBI)
+		
+	if (m_PBI == primitive.controller())
 	{
 		if (m_PBI->isNull())
 			return false;
@@ -368,7 +368,7 @@ bool KeyValueTagFilter::p_matches(const IPrimitive & primitive)
 	if (m_Key.empty())
 		return false;
 
-	if (m_PBI)
+	if (m_PBI == primitive.controller())
 	{
 		if (m_PBI->isNull())
 			return false;
@@ -452,7 +452,7 @@ bool KeyMultiValueTagFilter::p_matches(const IPrimitive & primitive)
 
 	m_LatestMatch = -1;
 
-	if (m_PBI)
+	if (m_PBI == primitive.controller())
 	{
 		if (m_PBI->isNull())
 			return false;
@@ -574,7 +574,7 @@ bool MultiKeyTagFilter::p_matches(const IPrimitive& primitive)
 		return false;
 	}
 	
-	if (m_PBI)
+	if (m_PBI == primitive.controller())
 	{
 		if (m_PBI->isNull())
 		{
@@ -753,7 +753,7 @@ AbstractTagFilter* RegexKeyTagFilter::copy(AbstractTagFilter::CopyMap& copies) c
 
 bool RegexKeyTagFilter::p_matches(const IPrimitive& primitive)
 {
-	if (m_dirty || !m_PBI)
+	if (m_dirty || m_PBI != primitive.controller())
 	{
 		for(int i(0), s(primitive.tagsSize()); i < s; ++i)
 		{
@@ -898,7 +898,7 @@ bool IntTagFilter::p_matches(const IPrimitive & primitive)
 	if (m_Key.empty())
 		return false;
 
-	if (m_PBI)
+	if (m_PBI == primitive.controller())
 	{
 		if (m_PBI->isNull())
 			return false;
