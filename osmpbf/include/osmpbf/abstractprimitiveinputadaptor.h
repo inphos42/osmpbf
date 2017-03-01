@@ -64,7 +64,8 @@ public:
 
 	/// convenience function (very slow)
 	virtual const std::string & valueByKey(const std::string & key) const;
-
+public:
+	PrimitiveBlockInputAdaptor * controller() const;
 protected:
 	///print tags, id, type with tabs in front
 	void printCommon(std::ostream & out) const;

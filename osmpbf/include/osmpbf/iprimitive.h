@@ -60,6 +60,7 @@ public:
 	
 	inline void print(std::ostream & out) const { m_Private->print(out); }
 
+	inline const PrimitiveBlockInputAdaptor * controller() const { return m_Private->controller(); }
 protected:
 	IPrimitive() : RCWrapper< AbstractPrimitiveInputAdaptor >() {}
 	IPrimitive (AbstractPrimitiveInputAdaptor * data) : RCWrapper< AbstractPrimitiveInputAdaptor >(data) {}

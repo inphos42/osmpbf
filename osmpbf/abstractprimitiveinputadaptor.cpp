@@ -56,6 +56,12 @@ const std::string & AbstractPrimitiveInputAdaptor::valueByKey(const std::string 
 	return m_Controller->queryStringTable(NULL_STRING_ID); // return "null" string
 }
 
+PrimitiveBlockInputAdaptor* AbstractPrimitiveInputAdaptor::controller() const
+{
+	return m_Controller;
+}
+
+
 void AbstractPrimitiveInputAdaptor::printCommon(std::ostream& out) const
 {
 	out << "\ttype:" << std::to_string(this->type()) << '\n';
