@@ -48,7 +48,7 @@ struct MyCounter {
 	void operator()(osmpbf::PrimitiveBlockInputAdaptor & pbi) {
 		filter->assignInputAdaptor(&pbi);
 // 		if (!filter->rebuildCache()) {
-// // 			return;
+// 			return;
 // 		}
 		nodeCount = wayCount = relationCount = 0;
 		for(osmpbf::INodeStream node(pbi.getNodeStream()); !node.isNull(); node.next()) {
