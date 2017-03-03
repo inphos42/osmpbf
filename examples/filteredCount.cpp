@@ -47,6 +47,7 @@ struct MyCounter {
 	MyCounter(const MyCounter & other) : state(other.state), filter(other.filter), nodeCount(0), wayCount(0), relationCount(0) {}
 	void operator()(osmpbf::PrimitiveBlockInputAdaptor & pbi) {
 		filter->assignInputAdaptor(&pbi);
+		//we can rebuild the cache ourselfs for early termination
 // 		if (!filter->rebuildCache()) {
 // 			return;
 // 		}
