@@ -37,6 +37,7 @@ namespace osmpbf
 
 PrimitiveBlockInputAdaptor::PrimitiveBlockInputAdaptor() :
 	m_PrimitiveBlock(nullptr),
+	m_pc(0),
 	m_PlainNodesCount(0),
 	m_DenseNodesCount(0),
 	m_WaysCount(0),
@@ -46,11 +47,7 @@ PrimitiveBlockInputAdaptor::PrimitiveBlockInputAdaptor() :
 }
 
 PrimitiveBlockInputAdaptor::PrimitiveBlockInputAdaptor(char * rawData, SizeType length, bool unpackDense) :
-	m_PrimitiveBlock(nullptr),
-	m_PlainNodesCount(0),
-	m_DenseNodesCount(0),
-	m_WaysCount(0),
-	m_RelationsCount(0)
+PrimitiveBlockInputAdaptor()
 {
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -65,6 +62,7 @@ PrimitiveBlockInputAdaptor::~PrimitiveBlockInputAdaptor()
 void PrimitiveBlockInputAdaptor::parseData(char * rawData, SizeType length, bool unpackDense)
 {
 	delete m_PrimitiveBlock;
+	++m_pc;
 
 	m_PlainNodesGroups.clear();
 	m_DenseNodesGroups.clear();
@@ -181,7 +179,7 @@ bool PrimitiveBlockInputAdaptor::operator!=(const PrimitiveBlockInputAdaptor& ot
 
 PrimitiveBlockInputAdaptor::IdType PrimitiveBlockInputAdaptor::id() const
 {
-	return m_PrimitiveBlock;
+	return IdType(this, m_pc);
 }
 
 const std::string & PrimitiveBlockInputAdaptor::queryStringTable(int id) const

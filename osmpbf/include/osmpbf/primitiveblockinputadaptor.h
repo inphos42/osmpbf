@@ -29,6 +29,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <limits>
 
 
 //TODO:add id to identify a pb within a file (with which we could automatically do the filter update)
@@ -46,14 +47,15 @@ class PrimitiveBlockInputAdaptor
 public:
 	class IdType {
 	public:
-		IdType() : m_id(0) {}
-		bool operator==(const IdType & other) const { return other.m_id == m_id; }
-		bool operator!=(const IdType & other) const { return other.m_id != m_id; }
+		IdType() : m_p(0), m_pc(std::numeric_limits<SizeType>::max()) {}
+		inline bool operator==(const IdType & other) const { return m_p == other.m_p && m_pc == other.m_pc; }
+		inline bool operator!=(const IdType & other) const { return m_p != other.m_p || m_pc != other.m_pc; }
 	private:
 		friend class PrimitiveBlockInputAdaptor;
-		IdType(const crosby::binary::PrimitiveBlock * id) : m_id(id) {}
+		IdType(const PrimitiveBlockInputAdaptor * p, SizeType pc) : m_p(p), m_pc(pc) {}
 	private:
-		const crosby::binary::PrimitiveBlock * m_id;
+		const PrimitiveBlockInputAdaptor * m_p;
+		SizeType m_pc;
 	};
 public:
 	PrimitiveBlockInputAdaptor();
@@ -128,6 +130,7 @@ private:
 	friend class RelationStreamInputAdaptor;
 	
 	crosby::binary::PrimitiveBlock * m_PrimitiveBlock;
+	SizeType m_pc;
 
 	PrimitiveGroupVector m_PlainNodesGroups;
 	DenseNodesDataVector m_DenseNodesGroups;
