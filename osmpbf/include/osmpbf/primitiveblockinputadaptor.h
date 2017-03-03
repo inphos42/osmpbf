@@ -47,6 +47,8 @@ public:
 	class IdType {
 	public:
 		IdType() : m_id(0) {}
+		bool operator==(const IdType & other) const { return other.m_id == m_id; }
+		bool operator!=(const IdType & other) const { return other.m_id != m_id; }
 	private:
 		friend class PrimitiveBlockInputAdaptor;
 		IdType(const crosby::binary::PrimitiveBlock * id) : m_id(id) {}
