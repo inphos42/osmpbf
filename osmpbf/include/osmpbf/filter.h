@@ -120,6 +120,36 @@ protected:
 
 typedef generics::RCPtr<AbstractTagFilter> RCFilterPtr;
 
+class CopyFilterPtr {
+private:
+	void safe_bool_func() {}
+	typedef void (CopyFilterPtr:: * safe_bool_type) ();
+public:
+	CopyFilterPtr() {}
+	explicit CopyFilterPtr(const RCFilterPtr & other) : m_Private(other->copy()) {}
+	CopyFilterPtr(const CopyFilterPtr & other) : m_Private(other->copy()) {}
+	CopyFilterPtr(CopyFilterPtr && other) : m_Private(std::move(other.m_Private)) {}
+	virtual ~CopyFilterPtr() {}
+	CopyFilterPtr & operator=(const CopyFilterPtr & other) { m_Private.reset( other->copy() ); return *this; }
+	inline CopyFilterPtr & operator=(CopyFilterPtr && other) { m_Private = std::move(other.m_Private); return *this; }
+	inline bool operator==(const CopyFilterPtr & other) { return m_Private == other.m_Private; }
+	inline bool operator!=(const CopyFilterPtr & other) { return m_Private != other.m_Private; }
+	inline AbstractTagFilter & operator*() { return *priv();}
+	inline const AbstractTagFilter & operator*() const { return *priv();}
+	inline AbstractTagFilter * operator->() { return priv().operator->();}
+	inline const AbstractTagFilter * operator->() const { return priv().operator->();}
+	inline AbstractTagFilter * get() { return priv().get(); }
+	inline const AbstractTagFilter * get() const { return priv().get(); }
+	inline operator safe_bool_type() const { return get() ? &CopyFilterPtr::safe_bool_func : 0; }
+	inline void reset(const RCFilterPtr & filter) { m_Private.reset( filter->copy() ); }
+	inline void reset(RCFilterPtr && filter) { m_Private = std::move(filter); }
+private:
+	inline RCFilterPtr & priv() { return m_Private; }
+	inline const RCFilterPtr priv() const { return m_Private; }
+private:
+	RCFilterPtr m_Private;
+};
+
 ///Inverts the result of another filter
 class InversionFilter: public AbstractTagFilter {
 public:
