@@ -37,14 +37,12 @@
 /**
   * TagFilters:
   *
-  *
-  *
   * You can create a DAG out of Filters.
   * It is possible to speed up filtering by assigning a PrimitiveBlockInputAdaptor to a filter.
   * Note that the assigned adaptor needs to be valid during usage of the filter.
-  * 
-  * 
-  *
+  * Filters are NOT thread-safe!
+  * You can use the CopyFilterPtr class to handle filter dags with copy-semantic
+  * Use the RCFilterPtr if you only need reference counting semantics
   */
 
 namespace osmpbf
@@ -75,19 +73,26 @@ bool hasTag(const OSMInputPrimitive & primitive, uint32_t keyId, uint32_t valueI
 template<class OSMInputPrimitive>
 bool hasKey(const OSMInputPrimitive & primitive, uint32_t keyId);
 
+///This is the base class for all filters
 class AbstractTagFilter : public generics::RefCountObject
 {
 public:
 	AbstractTagFilter();
 	virtual ~AbstractTagFilter();
+	///Create a deep copy of the filter dag. This does not copy assigned PrimitiveBlockInputAdaptors.
 	AbstractTagFilter * copy() const;
 public:
+	///assign an input adaptor to allow for faster filter due to caches
 	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi);
+	///manually initiate a cache rebuild.
+	///Returns true if there may exist a matching primitive in the currently assigned input adaptor 
 	virtual bool rebuildCache();
 public:
+	///return true if the primitive matches the filter
 	bool matches(const IPrimitive & primitive);
 protected:
 	typedef std::unordered_map<const AbstractTagFilter*, AbstractTagFilter*> CopyMap;
+	///sub classes need to implement the private matches function
 	virtual bool p_matches(const IPrimitive & primitive) = 0;
 protected:
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const = 0;
