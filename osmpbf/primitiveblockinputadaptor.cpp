@@ -179,6 +179,11 @@ bool PrimitiveBlockInputAdaptor::operator!=(const PrimitiveBlockInputAdaptor& ot
 	return m_PrimitiveBlock != other.m_PrimitiveBlock;
 }
 
+PrimitiveBlockInputAdaptor::IdType PrimitiveBlockInputAdaptor::id() const
+{
+	return m_PrimitiveBlock;
+}
+
 const std::string & PrimitiveBlockInputAdaptor::queryStringTable(int id) const
 {
 	return m_PrimitiveBlock->stringtable().s(id);

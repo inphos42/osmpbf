@@ -44,6 +44,16 @@ class PrimitiveBlockInputAdaptor
  * Use one PrimitiveBlockInputAdaptor per thread as this class is not thread-safe as well
  */
 public:
+	class IdType {
+	public:
+		IdType() : m_id(0) {}
+	private:
+		friend class PrimitiveBlockInputAdaptor;
+		IdType(const crosby::binary::PrimitiveBlock * id) : m_id(id) {}
+	private:
+		const crosby::binary::PrimitiveBlock * m_id;
+	};
+public:
 	PrimitiveBlockInputAdaptor();
 	PrimitiveBlockInputAdaptor(char * rawData, SizeType length, bool unpackDense = false);
 	virtual ~PrimitiveBlockInputAdaptor();
@@ -103,6 +113,7 @@ public:
 public:
 	bool operator==(const osmpbf::PrimitiveBlockInputAdaptor& other) const;
 	bool operator!=(const osmpbf::PrimitiveBlockInputAdaptor& other) const;
+	IdType id() const;
 private:
 	friend class PlainNodeInputAdaptor;
 	friend class DenseNodeInputAdaptor;
@@ -113,7 +124,7 @@ private:
 
 	friend class RelationInputAdaptor;
 	friend class RelationStreamInputAdaptor;
-
+	
 	crosby::binary::PrimitiveBlock * m_PrimitiveBlock;
 
 	PrimitiveGroupVector m_PlainNodesGroups;
