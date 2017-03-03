@@ -47,9 +47,9 @@ struct MyCounter {
 	MyCounter(const MyCounter & other) : state(other.state), filter(other.filter), nodeCount(0), wayCount(0), relationCount(0) {}
 	void operator()(osmpbf::PrimitiveBlockInputAdaptor & pbi) {
 		filter->assignInputAdaptor(&pbi);
-		if (!filter->rebuildCache()) {
-			return;
-		}
+// 		if (!filter->rebuildCache()) {
+// // 			return;
+// 		}
 		nodeCount = wayCount = relationCount = 0;
 		for(osmpbf::INodeStream node(pbi.getNodeStream()); !node.isNull(); node.next()) {
 			if (filter->matches(node)) {
@@ -76,7 +76,7 @@ struct MyCounter {
 
 void help() {
 	std::cout << "Count the number of primitives in a osm.pbf file matching specified tags\n";
-	std::cout << "prg [-k <key> [-k]] [-kv <key> <value> [-kv]] filename\n";
+	std::cout << "prg [-k <key> [-k]] [-kv <key> <value> [-kv]] [-t number_of_threads] [-b number_of_blocks_per_fetch] filename\n";
 	std::cout << std::flush;
 }
 
@@ -87,7 +87,10 @@ int main(int argc, char ** argv) {
 	osmpbf::RCFilterPtr filter;
 	std::string fileName;
 	SharedState state;
-		
+	uint32_t threadCount = 2; //use 2 threads, usually 4 are more than enough
+	uint32_t readBlobCount = 2; //parse 2 blocks at once
+
+	
 	for(int i(0); i < argc; ++i) {
 		std::string token(argv[i]);
 		if (token == "-k" && i+1 < argc) {
@@ -97,6 +100,14 @@ int main(int argc, char ** argv) {
 		else if (token == "-kv" && i+2 < argc) {
 			kvs.emplace_back(std::string(argv[i+1]), std::string(argv[i+2]));
 			i+=2;
+		}
+		else if (token == "-t" && i+1 < argc) {
+			threadCount = ::atoi(argv[i+1]);
+			++i;
+		}
+		else if (token == "-b" && i+1 < argc) {
+			readBlobCount = ::atoi(argv[i+1]);
+			++i;
 		}
 		else if(token == "--help" || token == "-h") {
 			help();
@@ -122,9 +133,6 @@ int main(int argc, char ** argv) {
 		filter.reset(orFilter); //takes ownership of orFilter
 	}
 	
-	
-	uint32_t threadCount = 2; //use 2 threads, usually 4 are more than enough
-	uint32_t readBlobCount = 2; //parse 2 blocks at once
 	bool threadPrivateProcessor = true; //set to true so that MyCounter is copied
 	
 	osmpbf::parseFileCPPThreads(inFile, MyCounter(&state, filter), threadCount, readBlobCount, threadPrivateProcessor);
