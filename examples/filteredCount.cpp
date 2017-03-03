@@ -39,7 +39,7 @@ struct SharedState {
 
 struct MyCounter {
 	SharedState * state;
-	osmpbf::CopyFilterPtr filter; //automatically to a deep copy of filter dag
+	osmpbf::CopyFilterPtr filter; //automatically create a deep copy of filter dag
 	uint64_t nodeCount;
 	uint64_t wayCount;
 	uint64_t relationCount;
