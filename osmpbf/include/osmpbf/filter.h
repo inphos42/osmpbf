@@ -40,7 +40,7 @@
   *
   * You can create a DAG out of Filters.
   * It is possible to speed up filtering by assigning a PrimitiveBlockInputAdaptor to a filter.
-  * Note that the assigned adaptor needs to valid during usage of the filter.
+  * Note that the assigned adaptor needs to be valid during usage of the filter.
   * 
   * 
   *
@@ -49,73 +49,65 @@
 namespace osmpbf
 {
 
-template<class OSMInputPrimitive>
-inline int findTag(const OSMInputPrimitive & primitive, uint32_t keyId, uint32_t valueId)
-{
-	if (!keyId || !valueId)
-		return -1;
-
-	for (int i = 0; i < primitive.tagsSize(); i++)
-		if (primitive.keyId(i) == keyId && primitive.valueId(i) == valueId)
-			return i;
-
-	return -1;
-}
-
-template<class OSMInputPrimitive>
-inline int findKey(const OSMInputPrimitive & primitive, uint32_t keyId)
-{
-	if (!keyId)
-		return -1;
-
-	for (int i = 0; i < primitive.tagsSize(); ++i)
-		if (primitive.keyId(i) == keyId)
-			return i;
-
-	return -1;
-}
+class AndTagFilter;
+class OrTagFilter;
+class InversionFilter;
+class ConstantReturnFilter;
+class PrimitiveTypeFilter;
+class BoolTagFilter;
+class IntTagFilter;
+class KeyOnlyTagFilter;
+class KeyValueTagFilter;
+class KeyMultiValueTagFilter;
+class MultiKeyMultiValueTagFilter;
+class RegexKeyTagFilter;
 
 template<class OSMInputPrimitive>
-inline bool hasTag(const OSMInputPrimitive & primitive, uint32_t keyId, uint32_t valueId)
-{
-	return findTag<OSMInputPrimitive>(primitive, keyId, valueId) > -1;
-}
+int findTag(const OSMInputPrimitive & primitive, uint32_t keyId, uint32_t valueId);
 
 template<class OSMInputPrimitive>
-inline bool hasKey(const OSMInputPrimitive & primitive, uint32_t keyId)
-{
-	return findKey<OSMInputPrimitive>(primitive, keyId) > -1;
-}
+int findKey(const OSMInputPrimitive & primitive, uint32_t keyId);
+
+template<class OSMInputPrimitive>
+bool hasTag(const OSMInputPrimitive & primitive, uint32_t keyId, uint32_t valueId);
+
+template<class OSMInputPrimitive>
+bool hasKey(const OSMInputPrimitive & primitive, uint32_t keyId);
 
 class AbstractTagFilter : public generics::RefCountObject
 {
 public:
-	AbstractTagFilter() : generics::RefCountObject() {}
-	virtual ~AbstractTagFilter() {}
-
-	///if you associate a pbi with a filter then you have to rebuild the cache everytime you change the contents of the pbi
-	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) = 0;
-
-	virtual bool rebuildCache() = 0;
-
-	/// this function is deprecated and will soon be removed, use rebuildCache() instead
-	inline GENERICS_MARK_FUNC_DEPRECATED bool buildIdCache() { return rebuildCache(); }
-
-	inline bool matches(const IPrimitive & primitive)
-	{
-		return p_matches(primitive);
-	}
-
+	AbstractTagFilter();
+	virtual ~AbstractTagFilter();
 	AbstractTagFilter * copy() const;
-
+public:
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) = 0;
+	virtual bool rebuildCache() = 0;
+public:
+	bool matches(const IPrimitive & primitive);
 protected:
 	typedef std::unordered_map<const AbstractTagFilter*, AbstractTagFilter*> CopyMap;
 	virtual bool p_matches(const IPrimitive & primitive) = 0;
 
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const = 0;
-	inline AbstractTagFilter * copy(AbstractTagFilter * other, AbstractTagFilter::CopyMap & copies) const {
-		return other->copy(copies);
-	}
+	AbstractTagFilter * copy(AbstractTagFilter * other, AbstractTagFilter::CopyMap & copies) const;
+};
+
+class AbstractMultiTagFilter : public AbstractTagFilter
+{
+public:
+	AbstractMultiTagFilter() : AbstractTagFilter() {}
+	virtual ~AbstractMultiTagFilter();
+public:
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
+public:
+	AbstractTagFilter * addChild(AbstractTagFilter * child);
+	template<typename T_ABSTRACT_TAG_FILTER_ITERATOR>
+	void addChildren(T_ABSTRACT_TAG_FILTER_ITERATOR begin, const T_ABSTRACT_TAG_FILTER_ITERATOR & end);
+protected:
+	typedef std::forward_list<AbstractTagFilter *> FilterList;
+	virtual AbstractTagFilter* copy(CopyMap& copies) const override = 0;
+	FilterList m_Children;
 };
 
 typedef generics::RCPtr<AbstractTagFilter> RCFilterPtr;
@@ -125,27 +117,27 @@ private:
 	void safe_bool_func() {}
 	typedef void (CopyFilterPtr:: * safe_bool_type) ();
 public:
-	CopyFilterPtr() {}
-	explicit CopyFilterPtr(const RCFilterPtr & other) : m_Private(other->copy()) {}
-	CopyFilterPtr(const CopyFilterPtr & other) : m_Private(other->copy()) {}
-	CopyFilterPtr(CopyFilterPtr && other) : m_Private(std::move(other.m_Private)) {}
-	virtual ~CopyFilterPtr() {}
-	CopyFilterPtr & operator=(const CopyFilterPtr & other) { m_Private.reset( other->copy() ); return *this; }
-	inline CopyFilterPtr & operator=(CopyFilterPtr && other) { m_Private = std::move(other.m_Private); return *this; }
-	inline bool operator==(const CopyFilterPtr & other) { return m_Private == other.m_Private; }
-	inline bool operator!=(const CopyFilterPtr & other) { return m_Private != other.m_Private; }
-	inline AbstractTagFilter & operator*() { return *priv();}
-	inline const AbstractTagFilter & operator*() const { return *priv();}
-	inline AbstractTagFilter * operator->() { return priv().operator->();}
-	inline const AbstractTagFilter * operator->() const { return priv().operator->();}
-	inline AbstractTagFilter * get() { return priv().get(); }
-	inline const AbstractTagFilter * get() const { return priv().get(); }
-	inline operator safe_bool_type() const { return get() ? &CopyFilterPtr::safe_bool_func : 0; }
-	inline void reset(const RCFilterPtr & filter) { m_Private.reset( filter->copy() ); }
-	inline void reset(RCFilterPtr && filter) { m_Private = std::move(filter); }
+	CopyFilterPtr();
+	explicit CopyFilterPtr(const RCFilterPtr & other);
+	CopyFilterPtr(const CopyFilterPtr & other);
+	CopyFilterPtr(CopyFilterPtr && other);
+	virtual ~CopyFilterPtr();
+	CopyFilterPtr & operator=(const CopyFilterPtr & other);
+	CopyFilterPtr & operator=(CopyFilterPtr && other);
+	bool operator==(const CopyFilterPtr & other);
+	bool operator!=(const CopyFilterPtr & other);
+	AbstractTagFilter & operator*();
+	const AbstractTagFilter & operator*() const;
+	AbstractTagFilter * operator->();
+	const AbstractTagFilter * operator->() const;
+	AbstractTagFilter * get();
+	const AbstractTagFilter * get() const;
+	operator safe_bool_type() const;
+	void reset(const RCFilterPtr & filter);
+	void reset(RCFilterPtr && filter);
 private:
-	inline RCFilterPtr & priv() { return m_Private; }
-	inline const RCFilterPtr priv() const { return m_Private; }
+	RCFilterPtr & priv();
+	const RCFilterPtr priv() const;
 private:
 	RCFilterPtr m_Private;
 };
@@ -155,40 +147,20 @@ class InversionFilter: public AbstractTagFilter {
 public:
 	InversionFilter();
 	InversionFilter(AbstractTagFilter * child);
-
 	InversionFilter(const InversionFilter & other) = delete;
 	InversionFilter operator=(const InversionFilter & other) = delete;
-
 	virtual ~InversionFilter();
-	
+public:
 	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
 	virtual bool rebuildCache() override;
-	
-	void setChild(AbstractTagFilter * child);
-	
-	inline AbstractTagFilter * child() { return m_child; }
-	inline const AbstractTagFilter * child() const { return m_child; }
 public:
-
-	///invert a given filter (remove InversionFilter if applicable)
-	inline static void invert(RCFilterPtr & filter)
-	{
-		InversionFilter * tmp = dynamic_cast<InversionFilter*>(filter.get());
-		if (tmp)
-		{
-			filter.reset(tmp->child());
-		}
-		else {
-			filter.reset( new InversionFilter(filter.get()) );
-		}
-	}
-	
-	inline static RCFilterPtr invert(AbstractTagFilter * filter) {
-		RCFilterPtr tmp(filter);
-		InversionFilter::invert(tmp);
-		return tmp;
-	}
-
+	void setChild(AbstractTagFilter * child);
+	AbstractTagFilter * child();
+	const AbstractTagFilter * child() const;
+public:
+	///invert a given filter (removes InversionFilter if applicable)
+	static void invert(RCFilterPtr & filter);
+	static RCFilterPtr invert(AbstractTagFilter * filter);
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
@@ -202,14 +174,12 @@ class ConstantReturnFilter: public AbstractTagFilter
 public:
 	ConstantReturnFilter(bool returnValue);
 	virtual ~ConstantReturnFilter();
-
-	inline void setValue(bool returnValue) { m_returnValue = returnValue; }
-	inline int filteredTypes() { return m_returnValue; }
-
-	
+public:
 	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
 	virtual bool rebuildCache() override;
-
+public:
+	inline void setValue(bool returnValue) { m_returnValue = returnValue; }
+	inline int filteredTypes() { return m_returnValue; }
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
@@ -222,53 +192,18 @@ class PrimitiveTypeFilter: public AbstractTagFilter
 public:
 	PrimitiveTypeFilter(PrimitiveTypeFlags primitiveTypes);
 	virtual ~PrimitiveTypeFilter();
-
-	void setFilteredTypes(PrimitiveTypeFlags primitiveTypes);
-	inline int filteredTypes() { return m_filteredPrimitives; }
-
+public:
 	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
 	virtual bool rebuildCache() override;
-
+public:
+	void setFilteredTypes(PrimitiveTypeFlags primitiveTypes);
+	int filteredTypes() const;
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
-
 private:
 	int m_filteredPrimitives;
 	const osmpbf::PrimitiveBlockInputAdaptor * m_PBI;
-};
-
-class AbstractMultiTagFilter : public AbstractTagFilter
-{
-public:
-	AbstractMultiTagFilter() : AbstractTagFilter() {}
-	virtual ~AbstractMultiTagFilter();
-
-	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
-
-	inline AbstractTagFilter * addChild(AbstractTagFilter * child)
-	{
-		if (child)
-		{
-			m_Children.push_front(child);
-			child->rcInc();
-		}
-		return child;
-	}
-
-	template<typename T_ABSTRACT_TAG_FILTER_ITERATOR>
-	inline void addChildren(T_ABSTRACT_TAG_FILTER_ITERATOR begin, const T_ABSTRACT_TAG_FILTER_ITERATOR & end)
-	{
-		for (; begin != end; ++begin)
-		{
-			addChild(*begin);
-		}
-	}
-
-protected:
-	typedef std::forward_list<AbstractTagFilter *> FilterList;
-	virtual AbstractTagFilter* copy(CopyMap& copies) const override = 0;
-	FilterList m_Children;
 };
 
 class OrTagFilter : public AbstractMultiTagFilter
@@ -276,12 +211,10 @@ class OrTagFilter : public AbstractMultiTagFilter
 public:
 	OrTagFilter() : AbstractMultiTagFilter() {}
 	OrTagFilter(std::initializer_list<AbstractTagFilter*> l);
-
+public:
 	virtual bool rebuildCache() override;
-
 protected:
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
-
 private:
 	virtual bool p_matches(const IPrimitive & primitive) override;
 };
@@ -291,12 +224,10 @@ class AndTagFilter : public AbstractMultiTagFilter
 public:
 	AndTagFilter() : AbstractMultiTagFilter() {}
 	AndTagFilter(std::initializer_list<AbstractTagFilter*> l);
-
+public:
 	virtual bool rebuildCache() override;
-
 protected:
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
-
 private:
 	virtual bool p_matches(const IPrimitive & primitive) override;
 };
@@ -305,45 +236,24 @@ class KeyOnlyTagFilter : public AbstractTagFilter
 {
 public:
 	KeyOnlyTagFilter(const std::string & key);
-
-	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override
-	{
-		if (m_PBI != pbi) m_KeyIdIsDirty = true;
-		m_PBI = pbi;
-	}
-
+public:
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
 	virtual bool rebuildCache() override;
-
-	int matchingTag() const
-	{
-		return m_LatestMatch;
-	}
-
+public:
+	int matchingTag() const;
 	void setKey(const std::string & key);
-	inline const std::string & key() const { return m_Key; }
-
+	const std::string & key() const;
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
-
+protected:
 	uint32_t findId(const std::string & str);
-
+	void checkKeyIdCache();
+protected:
 	std::string m_Key;
-
 	uint32_t m_KeyId;
 	bool m_KeyIdIsDirty;
-
-	inline void checkKeyIdCache()
-	{
-		if (m_KeyIdIsDirty)
-		{
-			m_KeyId = findId(m_Key);
-			m_KeyIdIsDirty = false;
-		}
-	}
-
 	int m_LatestMatch;
-
 	const osmpbf::PrimitiveBlockInputAdaptor * m_PBI;
 };
 
@@ -352,41 +262,21 @@ class KeyValueTagFilter : public KeyOnlyTagFilter
 {
 public:
 	KeyValueTagFilter(const std::string & key, const std::string & value);
-
-	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override
-	{
-		if (m_PBI != pbi)
-		{
-			m_KeyIdIsDirty = true;
-			m_ValueIdIsDirty = true;
-		}
-		m_PBI = pbi;
-	}
+public:
+	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
 	virtual bool rebuildCache() override;
-
+public:
 	void setValue(const std::string & value);
-	inline const std::string & value() const { return m_Value; }
-
-	/// this function is deprecated and will soon be removed, use value() instead
-	inline GENERICS_MARK_FUNC_DEPRECATED const std::string & Value() const { return value(); }
-
+	const std::string & value() const;
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
-
+protected:
+	void checkValueIdCache();
+protected:
 	std::string m_Value;
-
 	uint32_t m_ValueId;
 	bool m_ValueIdIsDirty;
-
-	inline void checkValueIdCache()
-	{
-		if (m_ValueIdIsDirty)
-		{
-			m_ValueId = findId(m_Value);
-			m_ValueIdIsDirty = false;
-		}
-	}
 };
 
 ///A single key, multiple values filter
@@ -395,43 +285,29 @@ class KeyMultiValueTagFilter : public KeyOnlyTagFilter
 public:
 	typedef std::unordered_set<uint32_t> IdSet;
 	typedef std::unordered_set<std::string> ValueSet;
-
+public:
 	KeyMultiValueTagFilter(const std::string & key);
 	KeyMultiValueTagFilter(const std::string & key, std::initializer_list<std::string> l);
 	template<typename T_STRING_ITERATOR>
 	KeyMultiValueTagFilter(const std::string & key, const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end);
-
+public:
 	virtual bool rebuildCache() override;
-
+public:
 	template<typename T_STRING_ITERATOR>
 	void setValues(const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end);
-
-	inline void setValues(const std::set<std::string> & values) { setValues(values.cbegin(), values.cend()); }
-	inline void setValues(const std::unordered_set<std::string> & values) { setValues(values.cbegin(), values.cend()); }
-	inline void setValues(std::initializer_list<std::string> l) { setValues(l.begin(), l.end()); }
-
+	void setValues(const std::set<std::string> & values);
+	void setValues(const std::unordered_set<std::string> & values);
+	void setValues(std::initializer_list<std::string> l);
 	void addValue(const std::string & value);
-
+	KeyMultiValueTagFilter & operator<<(const std::string & value);
+	KeyMultiValueTagFilter & operator<<(const char * value);
 	void clearValues();
-
-	inline KeyMultiValueTagFilter & operator<<(const std::string & value)
-	{
-		addValue(value);
-		return *this;
-	}
-
-	inline KeyMultiValueTagFilter & operator<<(const char * value)
-	{
-		addValue(value);
-		return *this;
-	}
-
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
-
+protected:
 	void updateValueIds();
-
+protected:
 	IdSet m_IdSet;
 	ValueSet m_ValueSet;
 };
@@ -442,39 +318,25 @@ class MultiKeyTagFilter : public AbstractTagFilter
 public:
 	typedef std::unordered_set<uint32_t> IdSet;
 	typedef std::unordered_set<std::string> ValueSet;
-
+public:
 	MultiKeyTagFilter(std::initializer_list<std::string> l);
 	template<typename T_STRING_ITERATOR>
 	MultiKeyTagFilter(const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end);
-
+public:
 	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
 	virtual bool rebuildCache() override;
-
+public:
 	template<typename T_STRING_ITERATOR>
 	void addValues(const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end);
-
-	inline void addValues(std::initializer_list<std::string> l) { addValues(l.begin(), l.end()); }
-
+	void addValues(std::initializer_list<std::string> l);
 	void addValue(const std::string & value);
-
+	MultiKeyTagFilter & operator<<(const std::string & value);
+	MultiKeyTagFilter & operator<<(const char * value);
 	void clearValues();
-
-	inline MultiKeyTagFilter & operator<<(const std::string & value)
-	{
-		addValue(value);
-		return *this;
-	}
-
-	inline MultiKeyTagFilter & operator<<(const char * value)
-	{
-		addValue(value);
-		return *this;
-	}
-
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
-
+protected:
 	const PrimitiveBlockInputAdaptor * m_PBI;
 	bool m_KeyIdIsDirty;
 	IdSet m_IdSet;
@@ -485,64 +347,52 @@ protected:
 class MultiKeyMultiValueTagFilter : public AbstractTagFilter
 {
 public:
-
 	MultiKeyMultiValueTagFilter();
-
+public:
 	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
 	virtual bool rebuildCache() override;
-
+public:
 	template<typename T_STRING_ITERATOR>
 	void addValues(const std::string & key, const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end);
-
 	void clearValues();
-
 protected:
 	typedef std::unordered_map<std::string, std::unordered_set<std::string> > ValueMap;
-	
+protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
-
+protected:
 	ValueMap m_ValueMap;
 };
 
 ///A regex based key filter.
 class RegexKeyTagFilter : public AbstractTagFilter
 {
-private:
-	RegexKeyTagFilter(std::regex_constants::match_flag_type flags);
 public:
 	RegexKeyTagFilter();
 	RegexKeyTagFilter(const std::string & regexString, std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
 	RegexKeyTagFilter(const std::regex & regex, std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
 	template<typename T_OCTET_ITERATOR>
-	RegexKeyTagFilter(const T_OCTET_ITERATOR & begin, const T_OCTET_ITERATOR & end, std::regex_constants::match_flag_type flags = std::regex_constants::match_default) :
-	m_PBI(0), m_regex(begin, end), m_matchFlags(flags), m_dirty(true) {}
-	virtual ~RegexKeyTagFilter() {}
-	
+	RegexKeyTagFilter(const T_OCTET_ITERATOR & begin, const T_OCTET_ITERATOR & end, std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
+	virtual ~RegexKeyTagFilter();
+public:
 	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
 	virtual bool rebuildCache() override;
-	
+public:
 	template<typename T_OCTET_ITERATOR>
-	void setRegex(const T_OCTET_ITERATOR & begin, const T_OCTET_ITERATOR & end, std::regex_constants::match_flag_type flags = std::regex_constants::match_default) {
-		m_regex.assign(begin, end);
-		m_matchFlags = flags;
-		m_dirty = true;
-	}
-	
+	void setRegex(const T_OCTET_ITERATOR & begin, const T_OCTET_ITERATOR & end, std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
 	void setRegex(const std::regex & regex, std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
-	
 	void setRegex(const std::string & regexString, std::regex_constants::match_flag_type flags = std::regex_constants::match_default);
-	
-	
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
-
+protected:
 	const PrimitiveBlockInputAdaptor * m_PBI;
 	std::regex m_regex;
 	std::regex_constants::match_flag_type m_matchFlags;
 	std::unordered_set<int> m_IdSet;
 	bool m_dirty;
+private:
+	RegexKeyTagFilter(std::regex_constants::match_flag_type flags);
 };
 
 /** Check for a @key that matches boolean value @value. Evaluates to false if key is not available */
@@ -550,29 +400,17 @@ class BoolTagFilter : public KeyMultiValueTagFilter
 {
 public:
 	BoolTagFilter(const std::string & key, bool value);
-
+public:
 	virtual bool rebuildCache() override;
-
+public:
 	void setValue(bool value);
-	inline bool value() const { return m_Value; }
-
+	bool value() const;
 private:
 	void setValues(const std::set< std::string > & values);
-	inline void addValue(const std::string & value) { KeyMultiValueTagFilter::addValue(value); }
-	inline void clearValues() { KeyMultiValueTagFilter::clearValues(); }
-
-	inline KeyMultiValueTagFilter & operator<<(const std::string & value)
-	{
-		KeyMultiValueTagFilter::operator<<(value);
-		return *this;
-	}
-
-	inline KeyMultiValueTagFilter & operator<<(const char * value)
-	{
-		KeyMultiValueTagFilter::operator<<(value);
-		return *this;
-	}
-
+	void addValue(const std::string & value);
+	void clearValues();
+	KeyMultiValueTagFilter & operator<<(const std::string & value);
+	KeyMultiValueTagFilter & operator<<(const char * value);
 protected:
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
 	bool m_Value;
@@ -582,49 +420,75 @@ class IntTagFilter : public KeyOnlyTagFilter
 {
 public:
 	IntTagFilter(const std::string & key, int value);
-
+public:
 	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
 	virtual bool rebuildCache() override;
-
+public:
 	void setValue(int value);
-	inline int value() const { return m_Value; }
-
+	int value() const;
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
-
+protected:
 	bool findValueId();
-
+	void checkValueIdCache();
+protected:
 	int m_Value;
 	uint32_t m_ValueId;
 	bool m_ValueIdIsDirty;
-
-	inline void checkValueIdCache()
-	{
-		if (m_ValueIdIsDirty)
-			findValueId();
-	}
 };
 
-/** @return needs to deleted after use, @param a,b return value will manage pointer */
-inline AndTagFilter * newAnd(AbstractTagFilter * a, AbstractTagFilter * b)
-{
-	AndTagFilter * result = new AndTagFilter();
-	result->addChild(a);
-	result->addChild(b);
-	return result;
-}
-
-/** @return needs to deleted after use, @param a,b return value will manage pointer */
-inline OrTagFilter * newOr(AbstractTagFilter * a, AbstractTagFilter * b)
-{
-	OrTagFilter * result = new OrTagFilter();
-	result->addChild(a);
-	result->addChild(b);
-	return result;
-}
+AndTagFilter * newAnd(AbstractTagFilter * a, AbstractTagFilter * b);
+OrTagFilter * newOr(AbstractTagFilter * a, AbstractTagFilter * b);
 
 //definitions
+
+template<class OSMInputPrimitive>
+int findTag(const OSMInputPrimitive & primitive, uint32_t keyId, uint32_t valueId)
+{
+	if (!keyId || !valueId)
+		return -1;
+
+	for (int i = 0; i < primitive.tagsSize(); i++)
+		if (primitive.keyId(i) == keyId && primitive.valueId(i) == valueId)
+			return i;
+
+	return -1;
+}
+
+template<class OSMInputPrimitive>
+int findKey(const OSMInputPrimitive & primitive, uint32_t keyId)
+{
+	if (!keyId)
+		return -1;
+
+	for (int i = 0; i < primitive.tagsSize(); ++i)
+		if (primitive.keyId(i) == keyId)
+			return i;
+
+	return -1;
+}
+
+template<class OSMInputPrimitive>
+bool hasTag(const OSMInputPrimitive & primitive, uint32_t keyId, uint32_t valueId)
+{
+	return findTag<OSMInputPrimitive>(primitive, keyId, valueId) > -1;
+}
+
+template<class OSMInputPrimitive>
+bool hasKey(const OSMInputPrimitive & primitive, uint32_t keyId)
+{
+	return findKey<OSMInputPrimitive>(primitive, keyId) > -1;
+}
+
+template<typename T_ABSTRACT_TAG_FILTER_ITERATOR>
+void AbstractMultiTagFilter::addChildren(T_ABSTRACT_TAG_FILTER_ITERATOR begin, const T_ABSTRACT_TAG_FILTER_ITERATOR & end)
+{
+	for (; begin != end; ++begin)
+	{
+		addChild(*begin);
+	}
+}
 
 template<typename T_STRING_ITERATOR>
 KeyMultiValueTagFilter::KeyMultiValueTagFilter(const std::string & key, const T_STRING_ITERATOR & begin, const T_STRING_ITERATOR & end) :
@@ -661,6 +525,21 @@ template<typename T_STRING_ITERATOR>
 void MultiKeyMultiValueTagFilter::addValues(const std::string& key, const T_STRING_ITERATOR& begin, const T_STRING_ITERATOR& end)
 {
 	m_ValueMap[key].insert(begin, end);
+}
+
+template<typename T_OCTET_ITERATOR>
+RegexKeyTagFilter::RegexKeyTagFilter(const T_OCTET_ITERATOR & begin, const T_OCTET_ITERATOR & end, std::regex_constants::match_flag_type flags) :
+m_PBI(0),
+m_regex(begin, end),
+m_matchFlags(flags),
+m_dirty(true)
+{}
+
+template<typename T_OCTET_ITERATOR>
+void RegexKeyTagFilter::setRegex(const T_OCTET_ITERATOR & begin, const T_OCTET_ITERATOR & end, std::regex_constants::match_flag_type flags) {
+	m_regex.assign(begin, end);
+	m_matchFlags = flags;
+	m_dirty = true;
 }
 
 } // namespace osmpbf
