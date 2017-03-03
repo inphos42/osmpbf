@@ -100,7 +100,9 @@ public:
 	{
 		return toWGS84Loni(rawValue) * COORDINATE_SCALE_FACTOR_LON;
 	}
-
+public:
+	bool operator==(const osmpbf::PrimitiveBlockInputAdaptor& other) const;
+	bool operator!=(const osmpbf::PrimitiveBlockInputAdaptor& other) const;
 private:
 	friend class PlainNodeInputAdaptor;
 	friend class DenseNodeInputAdaptor;

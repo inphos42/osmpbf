@@ -169,6 +169,16 @@ int64_t PrimitiveBlockInputAdaptor::lonOffset() const
 	return m_PrimitiveBlock->lon_offset();
 }
 
+bool PrimitiveBlockInputAdaptor::operator==(const PrimitiveBlockInputAdaptor& other) const
+{
+	return m_PrimitiveBlock == other.m_PrimitiveBlock;
+}
+
+bool PrimitiveBlockInputAdaptor::operator!=(const PrimitiveBlockInputAdaptor& other) const
+{
+	return m_PrimitiveBlock != other.m_PrimitiveBlock;
+}
+
 const std::string & PrimitiveBlockInputAdaptor::queryStringTable(int id) const
 {
 	return m_PrimitiveBlock->stringtable().s(id);
