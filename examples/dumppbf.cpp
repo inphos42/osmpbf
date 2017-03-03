@@ -48,7 +48,7 @@ void parseBlock(osmpbf::PrimitiveBlockInputAdaptor & pbi) {
 									new osmpbf::KeyOnlyTagFilter("name"),
 									new osmpbf::KeyMultiValueTagFilter("highway", {"path", "residential"})
 									});
-
+	andFilter.assignInputAdaptor(&pbi);
 
 	//build the id cache for faster queries (this is not neccessary)
 	if (!andFilter.rebuildCache()) {
