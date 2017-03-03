@@ -158,9 +158,23 @@ m_returnValue(returnValue)
 
 ConstantReturnFilter::~ConstantReturnFilter() {}
 
-void ConstantReturnFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor *) {}
+void ConstantReturnFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor *)
+{}
 
-bool ConstantReturnFilter::rebuildCache() { return m_returnValue;}
+bool ConstantReturnFilter::rebuildCache()
+{
+	return m_returnValue;
+}
+
+void ConstantReturnFilter::setValue(bool returnValue)
+{
+	m_returnValue = returnValue;
+}
+
+bool ConstantReturnFilter::value() const
+{
+	return m_returnValue;
+}
 
 bool ConstantReturnFilter::p_matches(const IPrimitive & /*primitive*/)
 {

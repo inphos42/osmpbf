@@ -88,7 +88,7 @@ public:
 protected:
 	typedef std::unordered_map<const AbstractTagFilter*, AbstractTagFilter*> CopyMap;
 	virtual bool p_matches(const IPrimitive & primitive) = 0;
-
+protected:
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const = 0;
 	AbstractTagFilter * copy(AbstractTagFilter * other, AbstractTagFilter::CopyMap & copies) const;
 };
@@ -107,6 +107,7 @@ public:
 protected:
 	typedef std::forward_list<AbstractTagFilter *> FilterList;
 	virtual AbstractTagFilter* copy(CopyMap& copies) const override = 0;
+protected:
 	FilterList m_Children;
 };
 
@@ -178,8 +179,8 @@ public:
 	virtual void assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi) override;
 	virtual bool rebuildCache() override;
 public:
-	inline void setValue(bool returnValue) { m_returnValue = returnValue; }
-	inline int filteredTypes() { return m_returnValue; }
+	void setValue(bool returnValue);
+	bool value() const;
 protected:
 	virtual bool p_matches(const IPrimitive & primitive) override;
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const override;
