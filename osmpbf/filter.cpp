@@ -39,6 +39,15 @@ generics::RefCountObject()
 AbstractTagFilter::~AbstractTagFilter()
 {}
 
+
+void AbstractTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor *)
+{}
+
+bool AbstractTagFilter::rebuildCache()
+{
+	return true;
+}
+
 bool AbstractTagFilter::matches(const IPrimitive & primitive)
 {
 	return p_matches(primitive);
@@ -158,9 +167,6 @@ m_returnValue(returnValue)
 
 ConstantReturnFilter::~ConstantReturnFilter() {}
 
-void ConstantReturnFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor *)
-{}
-
 bool ConstantReturnFilter::rebuildCache()
 {
 	return m_returnValue;
@@ -208,11 +214,6 @@ int PrimitiveTypeFilter::filteredTypes() const
 	return m_filteredPrimitives;
 }
 
-void PrimitiveTypeFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi)
-{
-	m_PBI = pbi;
-}
-
 AbstractTagFilter* PrimitiveTypeFilter::copy(AbstractTagFilter::CopyMap& copies) const
 {
 	if (copies.count(this))
@@ -225,7 +226,7 @@ AbstractTagFilter* PrimitiveTypeFilter::copy(AbstractTagFilter::CopyMap& copies)
 	return myCopy;
 }
 
-bool PrimitiveTypeFilter::rebuildCache()
+bool PrimitiveTypeFilter::p_rebuildCache()
 {
 	if (m_PBI)
 	{
@@ -241,7 +242,7 @@ bool PrimitiveTypeFilter::rebuildCache()
 	return true;
 }
 
-bool PrimitiveTypeFilter::p_matches(const IPrimitive & primitive)
+bool PrimitiveTypeFilter::p_uncached_match(const IPrimitive & primitive)
 {
 	return primitive.type() & m_filteredPrimitives;
 }
@@ -274,6 +275,71 @@ AbstractTagFilter * AbstractMultiTagFilter::addChild(AbstractTagFilter * child)
 	return child;
 }
 
+//AbstractTagFilterWithCache
+
+AbstractTagFilterWithCache::AbstractTagFilterWithCache() :
+m_PBI(0)
+{}
+
+AbstractTagFilterWithCache::AbstractTagFilterWithCache(const AbstractTagFilterWithCache& other) :
+//leave in dirty state
+m_PBI(other.m_PBI)
+{}
+
+AbstractTagFilterWithCache::~AbstractTagFilterWithCache()
+{}
+
+void AbstractTagFilterWithCache::assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi)
+{
+	if (m_PBI != pbi)
+	{
+		m_PBI = pbi;
+		markDirty();
+	}
+}
+
+bool AbstractTagFilterWithCache::rebuildCache()
+{
+	markClean();
+	return p_rebuildCache();
+}
+
+bool AbstractTagFilterWithCache::p_matches(const IPrimitive & primitive)
+{
+	if (*m_PBI == *primitive.controller()) {
+		if (dirty())
+		{
+			rebuildCache();
+		}
+		return p_cached_match(primitive);
+	}
+	else {
+		return p_uncached_match(primitive);
+	}
+}
+
+bool AbstractTagFilterWithCache::dirty() const
+{
+	return m_PBI && m_PBI->id() != m_pbiId;
+}
+
+void AbstractTagFilterWithCache::markDirty()
+{
+	m_pbiId = PrimitiveBlockInputAdaptor::IdType();
+}
+
+void AbstractTagFilterWithCache::markClean()
+{
+	if (m_PBI)
+	{
+		m_pbiId = m_PBI->id();
+	}
+}
+
+bool AbstractTagFilterWithCache::p_cached_match(const IPrimitive& primitive)
+{
+	return p_uncached_match(primitive);
+}
 
 // OrTagFilter
 
@@ -393,23 +459,20 @@ AbstractTagFilter* AndTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
 // KeyOnlyTagFilter
 
 KeyOnlyTagFilter::KeyOnlyTagFilter(const std::string & key) :
-	AbstractTagFilter(), m_Key(key), m_KeyId(0), m_KeyIdIsDirty(false), m_PBI(NULL) {}
+m_Key(key),
+m_KeyId(0)
+{}
 
-void KeyOnlyTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi)
-{
-	if (m_PBI != pbi) m_KeyIdIsDirty = true;
-	m_PBI = pbi;
-}
-
-bool KeyOnlyTagFilter::rebuildCache()
+bool KeyOnlyTagFilter::p_rebuildCache()
 {
 	m_KeyId = findId(m_Key);
-	m_KeyIdIsDirty = false;
 
-	if (!m_PBI) return true;
-	if (m_PBI->isNull()) return false;
+	if (!m_PBI)
+		return true;
+	if (m_PBI->isNull())
+		return false;
 
-	return  m_KeyId;
+	return m_KeyId;
 }
 
 int KeyOnlyTagFilter::matchingTag() const
@@ -419,8 +482,8 @@ int KeyOnlyTagFilter::matchingTag() const
 
 void KeyOnlyTagFilter::setKey(const std::string & key)
 {
+	markDirty();
 	m_Key = key;
-	m_KeyIdIsDirty = true;
 }
 
 const std::string & KeyOnlyTagFilter::key() const
@@ -428,36 +491,38 @@ const std::string & KeyOnlyTagFilter::key() const
 	return m_Key;
 }
 
-bool KeyOnlyTagFilter::p_matches(const IPrimitive & primitive)
+bool KeyOnlyTagFilter::p_cached_match(const IPrimitive & primitive)
 {
 	if (m_Key.empty())
+	{
 		return false;
-		
-	if (m_PBI == primitive.controller())
-	{
-		if (m_PBI->isNull())
-			return false;
-
-		checkKeyIdCache();
-
-		m_LatestMatch = findKey< IPrimitive >(primitive, m_KeyId);
-		return m_LatestMatch > -1;
 	}
-	else
+	if (m_PBI->isNull())
 	{
-		m_LatestMatch = -1;
+		return false;
+	}
+	m_LatestMatch = findKey< IPrimitive >(primitive, m_KeyId);
+	return m_LatestMatch > -1;
+}
 
-		for (int i = 0; i < primitive.tagsSize(); ++i)
+bool KeyOnlyTagFilter::p_uncached_match(const IPrimitive & primitive)
+{
+	if (m_Key.empty())
+	{
+		return false;
+	}
+	
+	m_LatestMatch = -1;
+
+	for (int i = 0; i < primitive.tagsSize(); ++i)
+	{
+		if ((primitive.key(i) == m_Key))
 		{
-			if ((primitive.key(i) == m_Key))
-			{
-				m_LatestMatch = i;
-				return true;
-			}
+			m_LatestMatch = i;
+			return true;
 		}
-
-		return false;
 	}
+	return false;
 }
 
 uint32_t KeyOnlyTagFilter::findId(const std::string & str)
@@ -481,15 +546,6 @@ uint32_t KeyOnlyTagFilter::findId(const std::string & str)
 	return id;
 }
 
-void KeyOnlyTagFilter::checkKeyIdCache()
-{
-	if (m_KeyIdIsDirty)
-	{
-		m_KeyId = findId(m_Key);
-		m_KeyIdIsDirty = false;
-	}
-}
-
 AbstractTagFilter* KeyOnlyTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
 {
 	if (copies.count(this))
@@ -501,33 +557,19 @@ AbstractTagFilter* KeyOnlyTagFilter::copy(AbstractTagFilter::CopyMap& copies) co
 	return myCopy;
 }
 
-
 // StringTagFilter
 
 KeyValueTagFilter::KeyValueTagFilter(const std::string & key, const std::string & value) :
 KeyOnlyTagFilter(key),
 m_Value(value),
-m_ValueId(0),
-m_ValueIdIsDirty(false)
+m_ValueId(0)
 {}
 
-void KeyValueTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi)
-{
-	if (m_PBI != pbi)
-	{
-		m_KeyIdIsDirty = true;
-		m_ValueIdIsDirty = true;
-	}
-	m_PBI = pbi;
-}
-
-bool KeyValueTagFilter::rebuildCache()
+bool KeyValueTagFilter::p_rebuildCache()
 {
 	m_KeyId = findId(m_Key);
-	m_KeyIdIsDirty = false;
 
 	m_ValueId = findId(m_Value);
-	m_ValueIdIsDirty = false;
 
 	if (!m_PBI) return true;
 	if (m_PBI->isNull()) return false;
@@ -538,7 +580,7 @@ bool KeyValueTagFilter::rebuildCache()
 void KeyValueTagFilter::setValue(const std::string & value)
 {
 	m_Value = value;
-	m_ValueIdIsDirty = true;
+	markDirty();
 }
 
 const std::string & KeyValueTagFilter::value() const
@@ -546,22 +588,22 @@ const std::string & KeyValueTagFilter::value() const
 	return m_Value;
 }
 
-bool KeyValueTagFilter::p_matches(const IPrimitive & primitive)
+bool KeyValueTagFilter::p_cached_match(const IPrimitive & primitive)
 {
 	if (m_Key.empty())
 		return false;
 
-	if (m_PBI == primitive.controller())
-	{
-		if (m_PBI->isNull())
-			return false;
+	if (m_PBI->isNull())
+		return false;
 
-		checkKeyIdCache();
-		checkValueIdCache();
+	m_LatestMatch = findTag<IPrimitive>(primitive, m_KeyId, m_ValueId);
+	return m_LatestMatch > -1;
+}
 
-		m_LatestMatch = findTag<IPrimitive>(primitive, m_KeyId, m_ValueId);
-		return m_LatestMatch > -1;
-	}
+bool KeyValueTagFilter::p_uncached_match(const IPrimitive & primitive)
+{
+	if (m_Key.empty())
+		return false;
 
 	m_LatestMatch = -1;
 
@@ -588,15 +630,6 @@ AbstractTagFilter* KeyValueTagFilter::copy(AbstractTagFilter::CopyMap& copies) c
 	return myCopy;
 }
 
-void KeyValueTagFilter::checkValueIdCache()
-{
-	if (m_ValueIdIsDirty)
-	{
-		m_ValueId = findId(m_Value);
-		m_ValueIdIsDirty = false;
-	}
-}
-
 // MultiStringTagFilter
 
 KeyMultiValueTagFilter::KeyMultiValueTagFilter(const std::string & key) : KeyOnlyTagFilter(key) {}
@@ -608,10 +641,9 @@ m_ValueSet(l)
 	updateValueIds();
 }
 
-bool KeyMultiValueTagFilter::rebuildCache()
+bool KeyMultiValueTagFilter::p_rebuildCache()
 {
 	m_KeyId = findId(m_Key);
-	m_KeyIdIsDirty = false;
 
 	updateValueIds();
 
@@ -665,47 +697,48 @@ KeyMultiValueTagFilter & KeyMultiValueTagFilter::operator<<(const char * value)
 	return *this;
 }
 
-bool KeyMultiValueTagFilter::p_matches(const IPrimitive & primitive)
+bool KeyMultiValueTagFilter::p_cached_match(const IPrimitive & primitive)
 {
 	if (m_Key.empty())
 		return false;
 
 	m_LatestMatch = -1;
 
-	if (m_PBI == primitive.controller())
-	{
-		if (m_PBI->isNull())
-			return false;
-
-		checkKeyIdCache();
-
-		if (!m_KeyId || m_IdSet.empty())
-			return false;
-
-		for (int i = 0; i < primitive.tagsSize(); i++)
-		{
-			if (primitive.keyId(i) == m_KeyId && m_IdSet.count(primitive.valueId(i)))
-			{
-				m_LatestMatch = -1;
-				return true;
-			}
-		}
-
+	if (m_PBI->isNull())
 		return false;
-	}
-	else
-	{
-		for (int i = 0; i < primitive.tagsSize(); i++)
-		{
-			if (primitive.key(i) == m_Key && m_ValueSet.count(primitive.value(i)))
-			{
-				m_LatestMatch = -1;
-				return true;
-			}
-		}
 
+	if (!m_KeyId || m_IdSet.empty())
 		return false;
+
+	for (int i = 0; i < primitive.tagsSize(); i++)
+	{
+		if (primitive.keyId(i) == m_KeyId && m_IdSet.count(primitive.valueId(i)))
+		{
+			m_LatestMatch = -1;
+			return true;
+		}
 	}
+
+	return false;
+}
+
+bool KeyMultiValueTagFilter::p_uncached_match(const IPrimitive & primitive)
+{
+	if (m_Key.empty())
+		return false;
+
+	m_LatestMatch = -1;
+
+	for (int i = 0; i < primitive.tagsSize(); i++)
+	{
+		if (primitive.key(i) == m_Key && m_ValueSet.count(primitive.value(i)))
+		{
+			m_LatestMatch = -1;
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void KeyMultiValueTagFilter::updateValueIds()
@@ -735,15 +768,12 @@ AbstractTagFilter* KeyMultiValueTagFilter::copy(AbstractTagFilter::CopyMap& copi
 
 //MultiKeyTagFilter
 MultiKeyTagFilter::MultiKeyTagFilter(std::initializer_list< std::string > l) :
-m_PBI(0),
-m_KeyIdIsDirty(true),
 m_KeySet(l.begin(), l.end())
 {}
 
-bool MultiKeyTagFilter::rebuildCache()
+bool MultiKeyTagFilter::p_rebuildCache()
 {
 	m_IdSet.clear();
-	m_KeyIdIsDirty = false;
 	
 	if(!m_PBI)
 	{
@@ -773,7 +803,7 @@ void MultiKeyTagFilter::addValues(std::initializer_list<std::string> l)
 void MultiKeyTagFilter::addValue(const std::string& value)
 {
 	m_KeySet.insert(value);
-	m_KeyIdIsDirty = true;
+	markDirty();
 }
 
 MultiKeyTagFilter & MultiKeyTagFilter::operator<<(const std::string & value)
@@ -792,62 +822,51 @@ void MultiKeyTagFilter::clearValues()
 {
 	m_IdSet.clear();
 	m_KeySet.clear();
-	m_KeyIdIsDirty = false;
+	markDirty();
 }
 
-void MultiKeyTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor* pbi)
-{
-	if (m_PBI != pbi)
-	{
-		m_KeyIdIsDirty = true;
-		m_PBI = pbi;
-	}
-}
-
-bool MultiKeyTagFilter::p_matches(const IPrimitive& primitive)
+bool MultiKeyTagFilter::p_cached_match(const IPrimitive& primitive)
 {
 	if (m_KeySet.empty())
 	{
 		return false;
 	}
-	
-	if (m_PBI == primitive.controller())
+
+	if (m_PBI->isNull())
 	{
-		if (m_PBI->isNull())
-		{
-			return false;
-		}
-		
-		if (m_KeyIdIsDirty)
-		{
-			rebuildCache();
-		}
-	
-		if (!m_IdSet.size())
-		{
-			return false;
-		}
-		
-		for(int i(0), s(primitive.tagsSize()); i < s; ++i)
-		{
-			if (m_IdSet.count( primitive.keyId(i) ))
-			{
-				return true;
-			}
-		}
 		return false;
 	}
-	else
+	
+	if (!m_IdSet.size())
 	{
-		for(int i(0), s(primitive.tagsSize()); i < s; ++i)
-		{
-			if (m_KeySet.count( primitive.key(i) ))
-			{
-				return true;
-			}
-		}
 		return false;
 	}
+	
+	for(int i(0), s(primitive.tagsSize()); i < s; ++i)
+	{
+		if (m_IdSet.count( primitive.keyId(i) ))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool MultiKeyTagFilter::p_uncached_match(const IPrimitive& primitive)
+{
+	if (m_KeySet.empty())
+	{
+		return false;
+	}
+
+	for(int i(0), s(primitive.tagsSize()); i < s; ++i)
+	{
+		if (m_KeySet.count( primitive.key(i) ))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 AbstractTagFilter* MultiKeyTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
@@ -884,10 +903,6 @@ bool MultiKeyMultiValueTagFilter::p_matches(const IPrimitive& primitive)
 	return false;
 }
 
-void MultiKeyMultiValueTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor* ) {}
-
-bool MultiKeyMultiValueTagFilter::rebuildCache() {return true;}
-
 AbstractTagFilter* MultiKeyMultiValueTagFilter::copy(AbstractTagFilter::CopyMap & copies) const
 {
 	if (copies.count(this))
@@ -904,9 +919,7 @@ AbstractTagFilter* MultiKeyMultiValueTagFilter::copy(AbstractTagFilter::CopyMap 
 }
 
 RegexKeyTagFilter::RegexKeyTagFilter(std::regex_constants::match_flag_type flags) :
-m_PBI(0),
-m_matchFlags(flags),
-m_dirty(true)
+m_matchFlags(flags)
 {}
 
 RegexKeyTagFilter::RegexKeyTagFilter() :
@@ -914,17 +927,13 @@ RegexKeyTagFilter(std::regex_constants::match_default)
 {}
 
 RegexKeyTagFilter::RegexKeyTagFilter(const std::string & regexString, std::regex_constants::match_flag_type flags) :
-m_PBI(0),
 m_regex(regexString),
-m_matchFlags(flags),
-m_dirty(true)
+m_matchFlags(flags)
 {}
 
 RegexKeyTagFilter::RegexKeyTagFilter(const std::regex & regex, std::regex_constants::match_flag_type flags) :
-m_PBI(0),
 m_regex(regex),
-m_matchFlags(flags),
-m_dirty(true)
+m_matchFlags(flags)
 {}
 
 RegexKeyTagFilter::~RegexKeyTagFilter()
@@ -934,21 +943,20 @@ void RegexKeyTagFilter::setRegex(const std::regex & regex, std::regex_constants:
 {
 	m_regex = regex;
 	m_matchFlags = flags;
-	m_dirty = true;
+	markDirty();
 }
 
 void RegexKeyTagFilter::setRegex(const std::string & regexString, std::regex_constants::match_flag_type flags)
 {
 	m_regex.assign(regexString);
 	m_matchFlags = flags;
-	m_dirty = true;
+	markDirty();
 }
 
 // RegexKeyTagFilter
-bool RegexKeyTagFilter::rebuildCache()
+bool RegexKeyTagFilter::p_rebuildCache()
 {
 	m_IdSet.clear();
-	m_dirty = false;
 
 	if (!m_PBI)
 	{
@@ -971,15 +979,6 @@ bool RegexKeyTagFilter::rebuildCache()
 	return m_IdSet.size();
 }
 
-void RegexKeyTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor* pbi)
-{
-	if (m_PBI != pbi)
-	{
-		m_PBI = pbi;
-		m_dirty = true;
-	}
-}
-
 AbstractTagFilter* RegexKeyTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
 {
 	if (copies.count(this))
@@ -991,37 +990,35 @@ AbstractTagFilter* RegexKeyTagFilter::copy(AbstractTagFilter::CopyMap& copies) c
 	return myCopy;
 }
 
-bool RegexKeyTagFilter::p_matches(const IPrimitive& primitive)
+bool RegexKeyTagFilter::p_cached_match(const IPrimitive& primitive)
 {
-	if (m_dirty || m_PBI != primitive.controller())
+	for(int i(0), s(primitive.tagsSize()); i < s; ++i)
 	{
-		for(int i(0), s(primitive.tagsSize()); i < s; ++i)
+		if (std::regex_match(primitive.key(i), m_regex, m_matchFlags))
 		{
-			if (std::regex_match(primitive.key(i), m_regex, m_matchFlags))
-			{
-				return true;
-			}
+			return true;
 		}
-		return false;
 	}
-	else
+	return false;
+}
+
+bool RegexKeyTagFilter::p_uncached_match(const IPrimitive& primitive)
+{
+	for(int i(0), s(primitive.tagsSize()); i < s; ++i)
 	{
-		for(int i(0), s(primitive.tagsSize()); i < s; ++i)
+		if (m_IdSet.count(primitive.keyId(i)))
 		{
-			if (m_IdSet.count(primitive.keyId(i)))
-			{
-				return true;
-			}
+			return true;
 		}
-		return false;
 	}
+	return false;
 }
 
 // BoolTagFilter
 
 BoolTagFilter::BoolTagFilter(const std::string & key, bool value) :
-	KeyMultiValueTagFilter(key),
-	m_Value(value)
+KeyMultiValueTagFilter(key),
+m_Value(value)
 {
 	if (m_Value)
 	{
@@ -1033,11 +1030,6 @@ BoolTagFilter::BoolTagFilter(const std::string & key, bool value) :
 		const std::array<std::string, 5> s{ { "False", "false", "No", "no", "0" } };
 		KeyMultiValueTagFilter::setValues(s.begin(), s.end());
 	}
-}
-
-bool BoolTagFilter::rebuildCache()
-{
-	return KeyMultiValueTagFilter::rebuildCache();
 }
 
 void BoolTagFilter::setValue(bool value)
@@ -1105,20 +1097,9 @@ AbstractTagFilter* BoolTagFilter::copy(AbstractTagFilter::CopyMap& copies) const
 IntTagFilter::IntTagFilter(const std::string & key, int value) :
 KeyOnlyTagFilter(key), m_Value(value) {}
 
-void IntTagFilter::assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi)
-{
-	if (m_PBI != pbi)
-	{
-		m_KeyIdIsDirty = true;
-		m_ValueIdIsDirty = true;
-	}
-	m_PBI = pbi;
-}
-
-bool IntTagFilter::rebuildCache()
+bool IntTagFilter::p_rebuildCache()
 {
 	m_KeyId = findId(m_Key);
-	m_KeyIdIsDirty = false;
 
 	findValueId();
 
@@ -1142,7 +1123,6 @@ int IntTagFilter::value() const
 bool IntTagFilter::findValueId()
 {
 	m_ValueId = 0;
-	m_ValueIdIsDirty = 0;
 
 	if (!m_PBI)
 		return true;
@@ -1165,28 +1145,25 @@ bool IntTagFilter::findValueId()
 	return m_ValueId;
 }
 
-void IntTagFilter::checkValueIdCache()
+bool IntTagFilter::p_cached_match(const IPrimitive & primitive)
 {
-	if (m_ValueIdIsDirty)
-		findValueId();
+	if (m_Key.empty())
+	{
+		return false;
+	}
+	if (m_PBI->isNull())
+	{
+		return false;
+	}
+	
+	m_LatestMatch = findTag<IPrimitive>(primitive, m_KeyId, m_ValueId);
+	return m_LatestMatch > -1;
 }
 
-bool IntTagFilter::p_matches(const IPrimitive & primitive)
+bool IntTagFilter::p_uncached_match(const IPrimitive & primitive)
 {
 	if (m_Key.empty())
 		return false;
-
-	if (m_PBI == primitive.controller())
-	{
-		if (m_PBI->isNull())
-			return false;
-
-		checkKeyIdCache();
-		checkValueIdCache();
-
-		m_LatestMatch = findTag<IPrimitive>(primitive, m_KeyId, m_ValueId);
-		return m_LatestMatch > -1;
-	}
 
 	m_LatestMatch = -1;
 
@@ -1204,7 +1181,6 @@ bool IntTagFilter::p_matches(const IPrimitive & primitive)
 			}
 		}
 	}
-
 	return false;
 }
 
