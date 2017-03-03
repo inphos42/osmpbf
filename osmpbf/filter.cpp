@@ -306,7 +306,7 @@ bool AbstractTagFilterWithCache::rebuildCache()
 
 bool AbstractTagFilterWithCache::p_matches(const IPrimitive & primitive)
 {
-	if (*m_PBI == *primitive.controller()) {
+	if (m_PBI && *m_PBI == *primitive.controller()) {
 		if (dirty())
 		{
 			rebuildCache();
