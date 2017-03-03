@@ -39,12 +39,12 @@ struct SharedState {
 
 struct MyCounter {
 	SharedState * state;
-	osmpbf::RCFilterPtr filter;
+	osmpbf::CopyFilterPtr filter; //automatically to a deep copy of filter dag
 	uint64_t nodeCount;
 	uint64_t wayCount;
 	uint64_t relationCount;
-	MyCounter(SharedState * state, osmpbf::RCFilterPtr filter) : state(state), filter(filter->copy()), nodeCount(0), wayCount(0), relationCount(0) {}
-	MyCounter(const MyCounter & other) : state(other.state), filter(other.filter->copy()), nodeCount(0), wayCount(0), relationCount(0) {}
+	MyCounter(SharedState * state, const osmpbf::RCFilterPtr & filter) : state(state), filter(filter), nodeCount(0), wayCount(0), relationCount(0) {}
+	MyCounter(const MyCounter & other) : state(other.state), filter(other.filter), nodeCount(0), wayCount(0), relationCount(0) {}
 	void operator()(osmpbf::PrimitiveBlockInputAdaptor & pbi) {
 		filter->assignInputAdaptor(&pbi);
 		if (!filter->rebuildCache()) {
