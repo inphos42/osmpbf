@@ -39,6 +39,10 @@
   *
   *
   * You can create a DAG out of Filters.
+  * It is possible to speed up filtering by assigning a PrimitiveBlockInputAdaptor to a filter.
+  * Note that the assigned adaptor needs to valid during usage of the filter.
+  * 
+  * 
   *
   */
 
