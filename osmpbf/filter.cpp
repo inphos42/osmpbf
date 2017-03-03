@@ -291,11 +291,10 @@ AbstractTagFilterWithCache::~AbstractTagFilterWithCache()
 
 void AbstractTagFilterWithCache::assignInputAdaptor(const PrimitiveBlockInputAdaptor * pbi)
 {
-	if (m_PBI != pbi)
-	{
-		m_PBI = pbi;
-		markDirty();
-	}
+	m_PBI = pbi;
+	//we have to mark our cache dirty even if the pbi have the same pointer
+	//since we cannot guarantee that they are the same even if they have the same pointer
+	markDirty();
 }
 
 bool AbstractTagFilterWithCache::rebuildCache()

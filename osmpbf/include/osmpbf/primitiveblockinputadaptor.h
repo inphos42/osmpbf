@@ -45,6 +45,7 @@ class PrimitiveBlockInputAdaptor
  * Use one PrimitiveBlockInputAdaptor per thread as this class is not thread-safe as well
  */
 public:
+	///This IdType is only valid if their source PrimitiveBlockInputAdaptors are alive
 	class IdType {
 	public:
 		IdType() : m_p(0), m_pc(std::numeric_limits<SizeType>::max()) {}
