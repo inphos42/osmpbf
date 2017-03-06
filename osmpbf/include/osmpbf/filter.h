@@ -35,14 +35,23 @@
 #include <regex>
 
 /**
-  * TagFilters:
+  * Filters do what their name suggests.
+  * They take as input a primitive and return if the primitive matches the filter specification
+  * Essentially a filter is a DAG out of other filters.
+  * Inner nodes are boolean operations on sub-nodes (and, or, not).
+  * Leaf nodes can be anything from a simple ConstantReturnFilter to RegexKeyTagFilter.
+  * See below for a list of filters.
   *
-  * You can create a DAG out of Filters.
-  * It is possible to speed up filtering by assigning a PrimitiveBlockInputAdaptor to a filter.
-  * Note that the assigned adaptor needs to be valid during usage of the filter.
   * Filters are NOT thread-safe!
-  * You can use the CopyFilterPtr class to handle filter dags with copy-semantic
-  * Use the RCFilterPtr if you only need reference counting semantics
+  * 
+  * It is possible to speed up filtering by assigning a PrimitiveBlockInputAdaptor (PBI) to a filter.
+  * Note that the assigned PBI needs to be valid during usage of the filter.
+  * It is possible to rebuild filter caches after changing the content of a PBI.
+  * The return value of the rebuilFilter() function indicates if there may be elements in the block matching the filter
+  * You can use the CopyFilterPtr class to handle filter dags with copy-semantic (useful when dealing with multi-threading)
+  * Use the RCFilterPtr if reference counting semantics is good enough
+  * 
+  * 
   */
 
 namespace osmpbf
@@ -95,6 +104,9 @@ protected:
 	///sub classes need to implement the private matches function
 	virtual bool p_matches(const IPrimitive & primitive) = 0;
 protected:
+	///create a copy of this instance.
+	///@param copies contains copied instances. This has to contain this instance after copying.
+	///Usually this can be achieved using copies[this] = MyFilter();
 	virtual AbstractTagFilter * copy(AbstractTagFilter::CopyMap & copies) const = 0;
 	AbstractTagFilter * copy(AbstractTagFilter * other, AbstractTagFilter::CopyMap & copies) const;
 };
@@ -117,6 +129,7 @@ protected:
 	FilterList m_Children;
 };
 
+///This class handles cache consistency for filters with caches
 class AbstractTagFilterWithCache : public AbstractTagFilter
 {
 public:
@@ -130,19 +143,25 @@ protected:
 protected:
 	AbstractTagFilterWithCache(const AbstractTagFilterWithCache & other);
 	bool dirty() const;
+	///sub classes have to call this function if their cache is in-validated
 	void markDirty();
 	void markClean();
 protected:
+	///rebuild cache of sub class
 	virtual bool p_rebuildCache() = 0;
+	///use cache to match primitive
 	virtual bool p_cached_match(const IPrimitive & primitive);
+	///don't use cache to match primitive
 	virtual bool p_uncached_match(const IPrimitive & primitive) = 0;
 protected:
 	PrimitiveBlockInputAdaptor::IdType m_pbiId;
 	const PrimitiveBlockInputAdaptor * m_PBI;
 };
 
+///A simple wrapper for filters providing reference counting semantics
 typedef generics::RCPtr<AbstractTagFilter> RCFilterPtr;
 
+///A simple wrapper for filter providing copy semantics
 class CopyFilterPtr {
 private:
 	void safe_bool_func() {}
