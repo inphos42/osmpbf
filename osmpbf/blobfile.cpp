@@ -224,6 +224,15 @@ void BlobFileIn::readBlob(BlobDataBuffer & buffer)
 constexpr uint32_t MAX_HEADER_SIZE = 64 << 10;
 constexpr uint32_t MAX_BODY_SIZE = 32 << 20;
 
+void * BlobFileIn::fileData()
+{
+	return fileData(m_FilePos);
+}
+
+void * BlobFileIn::fileData(SizeType _position)
+{
+	return static_cast<void *>(&(m_FileData[_position]));
+}
 void BlobFileIn::readBlobHeader(uint32_t & blobLength, osmpbf::BlobDataType & blobDataType)
 {
 	blobDataType = BLOB_Invalid;

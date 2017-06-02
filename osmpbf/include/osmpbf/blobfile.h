@@ -84,10 +84,8 @@ protected:
 
 	void readBlobHeader(uint32_t & blobLength, BlobDataType & blobDataType);
 
-	inline void * fileData()
-	{
-		return static_cast<void *>(&(m_FileData[m_FilePos]));
-	}
+	void * fileData();
+	void * fileData(SizeType _position);
 
 private:
 	BlobFileIn() = delete;
