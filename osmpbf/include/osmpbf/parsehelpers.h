@@ -181,9 +181,11 @@ parseFileCPPThreads(T_IN_DATA & inFile, TPBI_Processor processor, uint32_t threa
 		{
 			dbufs.clear();
 			while(dbufs.size() < readBlobCount) {
+				//pretend that we have read another blob
 				auto prevBlobsRead = blobsRead.fetch_add(1);
 				
 				if (prevBlobsRead >= maxBlobsToRead) {
+					blobsRead -= 1;
 					break;
 				}
 				//read our blob
@@ -192,6 +194,7 @@ parseFileCPPThreads(T_IN_DATA & inFile, TPBI_Processor processor, uint32_t threa
 					dbufs.emplace_back( std::move(bdb) );
 				}
 				else {
+					blobsRead -= 1;
 					break;
 				}
 			}
