@@ -131,6 +131,7 @@ MultiFilePbiStream::hasNext() const {
 
 bool
 MultiFilePbiStream::getNext(BlobDataBuffer & buffer) {
+	std::unique_lock<std::mutex> lck(m_lock);
 	if (!hasNext()) {
 		return false;
 	}
@@ -147,6 +148,7 @@ MultiFilePbiStream::getNext(BlobDataBuffer & buffer) {
 
 bool
 MultiFilePbiStream::getNext(osmpbf::BlobDataMultiBuffer & buffers, int num) {
+	std::unique_lock<std::mutex> lck(m_lock);
 	osmpbf::BlobDataMultiBuffer tmpBuffer;
 	if (num < 0) {
 		num = std::numeric_limits<int>::max();
@@ -178,6 +180,7 @@ MultiFilePbiStream::getNext(osmpbf::BlobDataMultiBuffer & buffers, int num) {
 
 bool
 MultiFilePbiStream::parseNext(PrimitiveBlockInputAdaptor& adaptor) {
+	std::unique_lock<std::mutex> lck(m_lock);
 	if (!hasNext()) {
 		return false;
 	}

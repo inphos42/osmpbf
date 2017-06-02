@@ -4,6 +4,7 @@
 #include <osmpbf/osmfilein.h>
 #include <memory>
 #include <vector>
+#include <mutex>
 
 namespace osmpbf {
 namespace interface {
@@ -67,6 +68,7 @@ protected:
 	OSMFileIn & currentFile();
 	const OSMFileIn & currentFile() const;
 private:
+	std::mutex m_lock;
 	std::vector<OSMFileIn> m_files;
 	std::vector<SizeType> m_clDataSize; //cumulative data size
 	SizeType m_dataSize;
