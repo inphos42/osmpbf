@@ -24,6 +24,8 @@
 #include <osmpbf/blobdata.h>
 #include <osmpbf/typelimits.h>
 
+#include <mutex>
+
 #include <cstdint>
 #include <string>
 
@@ -67,18 +69,24 @@ public:
 	virtual bool open() override;
 	virtual void close() override;
 
+	///Only makes sense in single-thread usage
 	virtual void seek(OffsetType position) override;
+	///Only makes sense in single-thread usage
 	virtual SizeType position() const override;
 
 	virtual SizeType size() const override;
-
+	
+	///thread-safe
 	void readBlob(BlobDataBuffer & buffer);
+	///thread-safe
 	BlobDataType readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize);
 
+	///Only makes sense in single-thread usage
 	bool skipBlob();
 
 protected:
 	char * m_FileData;
+	std::mutex m_fileLock;
 	SizeType m_FilePos;
 	SizeType m_FileSize;
 

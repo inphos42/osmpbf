@@ -28,6 +28,7 @@
 #include <limits>
 #include <zlib.h>
 #include <assert.h>
+#include <memory>
 
 namespace osmpbf
 {
@@ -224,6 +225,8 @@ void BlobFileIn::readBlob(BlobDataBuffer & buffer)
 constexpr uint32_t MAX_HEADER_SIZE = 64 << 10;
 constexpr uint32_t MAX_BODY_SIZE = 32 << 20;
 
+///NOT thread-safe! Has to be guarded by m_fileLock
+///Accesses m_filePos
 void * BlobFileIn::fileData()
 {
 	return fileData(m_FilePos);
@@ -233,6 +236,9 @@ void * BlobFileIn::fileData(SizeType _position)
 {
 	return static_cast<void *>(&(m_FileData[_position]));
 }
+
+///NOT thread-safe! Has to be guarded by m_fileLock
+///Changes m_filePos
 void BlobFileIn::readBlobHeader(uint32_t & blobLength, osmpbf::BlobDataType & blobDataType)
 {
 	blobDataType = BLOB_Invalid;
@@ -289,6 +295,10 @@ void BlobFileIn::readBlobHeader(uint32_t & blobLength, osmpbf::BlobDataType & bl
 
 BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32_t & availableDataSize)
 {
+	//we do some "speculative" pre-allocation here to reduce the time spend in the lock
+	std::unique_ptr<Blob> blob(new Blob());
+	
+	std::unique_lock<std::mutex> lck(m_fileLock);
 	if (m_FilePos >= m_FileSize)
 		return BLOB_Invalid;
 
@@ -304,22 +314,20 @@ BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32
 		std::cerr << "ERROR: invalid blob size found:" << blobLength << " (max: " << MAX_BODY_SIZE << ')' << std::endl;
 		return BLOB_Invalid;
 	}
-
+	
 	if (blobDataType && blobLength)
 	{
+		SizeType myFilePos = m_FilePos;
+		m_FilePos += blobLength;
+		lck.unlock();
+		
 		if (m_VerboseOutput) std::cout << "parsing blob ..." << std::endl;
 
-		Blob * blob = new Blob();
-
-		if (!blob->ParseFromArray(fileData(), blobLength))
+		if (!blob->ParseFromArray(fileData(myFilePos), blobLength))
 		{
 			std::cerr << "ERROR: invalid blob structure" << std::endl;
-
-			delete blob;
 			return BLOB_Invalid;
 		}
-
-		m_FilePos += blobLength;
 
 		if (blob->has_raw_size())
 		{
@@ -329,7 +337,7 @@ BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32
 			std::string * compressedData = blob->release_zlib_data();
 			availableDataSize = blob->raw_size();
 
-			delete blob;
+			blob.reset(0);
 
 			if (bufferSize < availableDataSize)
 			{
@@ -356,7 +364,7 @@ BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32
 			assert(uncompressedData->length() < std::numeric_limits<uint32_t>::max());
 			availableDataSize = (uint32_t) uncompressedData->length();
 
-			delete blob;
+			blob.reset(0);
 
 			if (bufferSize < availableDataSize)
 			{
@@ -372,6 +380,7 @@ BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32
 
 		return blobDataType;
 	}
+	lck.unlock();
 
 	if (!blobDataType)
 		std::cerr << "ERROR: invalid blob type" << std::endl;
@@ -390,7 +399,8 @@ bool BlobFileIn::skipBlob()
 
 	uint32_t blobLength;
 	BlobDataType blobDataType;
-
+	
+	std::unique_lock<std::mutex> lck(m_fileLock);
 	readBlobHeader(blobLength, blobDataType);
 	if (blobLength)
 	{
