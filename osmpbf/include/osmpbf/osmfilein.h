@@ -62,15 +62,14 @@ public:
 
 	/**
 	 * copy next block into data buffer
-	 * not thread safe
 	 *
 	 * @param buffer target buffer
 	 */
 	bool getNextBlock(BlobDataBuffer & buffer);
 
 	/**
-	 * copy next blocks into data buffers
-	 * not thread-safe
+	 * copy num blocks into data buffers
+	 * Thread-safety: blocks may not be in order
 	 *
 	 * @param buffers target container of buffers
 	 * @param num number of blocks to copy, set to -1 to copy all remaining blocks
