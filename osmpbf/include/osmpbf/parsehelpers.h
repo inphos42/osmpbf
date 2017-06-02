@@ -163,12 +163,11 @@ parseFileCPPThreads(T_IN_DATA & inFile, TPBI_Processor processor, uint32_t threa
 	}
 
 	readBlobCount = std::max<uint32_t>(readBlobCount, 1);
-	std::mutex mtx;
-	uint32_t blobsRead = 0; //guarded by mtx
+	std::atomic<uint32_t> blobsRead(0);
 	std::atomic<bool> doProcessing(true);
 	
 
-	auto workFunc = [&inFile, &processor, &mtx, & blobsRead, &doProcessing, readBlobCount, threadPrivateProcessor, maxBlobsToRead]()
+	auto workFunc = [&inFile, &processor, &blobsRead, &doProcessing, readBlobCount, threadPrivateProcessor, maxBlobsToRead]()
 	{
 		MyPbiProcessor * myP = ProcessorPtrCreator::ptr(processor);
 		if (threadPrivateProcessor) {
@@ -176,23 +175,34 @@ parseFileCPPThreads(T_IN_DATA & inFile, TPBI_Processor processor, uint32_t threa
 		}
 		osmpbf::PrimitiveBlockInputAdaptor pbi;
 		std::vector<osmpbf::BlobDataBuffer> dbufs;
+		dbufs.reserve(readBlobCount);
 
 		while (doProcessing && blobsRead < maxBlobsToRead)
 		{
 			dbufs.clear();
-			mtx.lock();
-			if (blobsRead < maxBlobsToRead) {
-				inFile.getNextBlocks(dbufs, std::min<uint32_t>(readBlobCount, maxBlobsToRead-blobsRead));
-				blobsRead += dbufs.size();
+			while(dbufs.size() < readBlobCount) {
+				auto prevBlobsRead = blobsRead.fetch_add(1);
+				
+				if (prevBlobsRead >= maxBlobsToRead) {
+					break;
+				}
+				//read our blob
+				osmpbf::BlobDataBuffer bdb;
+				if (inFile.getNextBlock(bdb)) {
+					dbufs.emplace_back( std::move(bdb) );
+				}
+				else {
+					break;
+				}
 			}
-			mtx.unlock();
+			
 			for(osmpbf::BlobDataBuffer & dbuf : dbufs) {
 				pbi.parseData(dbuf.data, dbuf.availableBytes);
 				//make sure this does not get optimized away
 				bool tmp = detail::PbiProcessor<MyPbiProcessor, PBIProcessorReturnType>::process(*myP, pbi);
 				doProcessing = tmp && doProcessing;
 			}
-			//nothing to fetch
+			//nothing to fetch anymore
 			if (dbufs.size() < readBlobCount) {
 				break;
 			}
