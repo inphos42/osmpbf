@@ -245,7 +245,9 @@ void BlobFileIn::readBlobHeader(uint32_t & blobLength, osmpbf::BlobDataType & bl
 
 	if (m_VerboseOutput) std::cout << "checking blob header ..." << std::endl;
 
-	uint32_t headerLength = osmpbf::net2hostLong(* (uint32_t *) fileData());
+	uint32_t headerLength;
+	::memmove(&headerLength, fileData(), sizeof(uint32_t));
+	headerLength = osmpbf::net2hostLong(headerLength);
 
 	if (m_VerboseOutput) std::cout << "header length : " << headerLength << " B" << std::endl;
 
