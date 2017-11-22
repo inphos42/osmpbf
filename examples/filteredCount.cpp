@@ -68,7 +68,7 @@ struct MyCounter {
 			}
 		}
 		//now flush everything to shared state
-		std::unique_lock<std::mutex> lck(state->lock);
+		std::lock_guard<std::mutex> lck(state->lock);
 		state->nodeCount += nodeCount;
 		state->wayCount += wayCount;
 		state->relationCount += relationCount;

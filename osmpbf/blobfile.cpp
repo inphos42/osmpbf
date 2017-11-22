@@ -402,7 +402,7 @@ bool BlobFileIn::skipBlob()
 	uint32_t blobLength;
 	BlobDataType blobDataType;
 	
-	std::unique_lock<std::mutex> lck(m_fileLock);
+	std::lock_guard<std::mutex> lck(m_fileLock);
 	readBlobHeader(blobLength, blobDataType);
 	if (blobLength)
 	{
