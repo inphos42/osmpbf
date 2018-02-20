@@ -42,40 +42,35 @@ set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${DEBUG_FLAGS}
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${DEBUG_FLAGS}")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${DEBUG_FLAGS}")
 
-find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)
-find_package(ZLIB REQUIRED)
 
-include_directories(
-	${PROTOBUF_INCLUDE_DIRS}
-	${ZLIB_INCLUDE_DIRS}
-	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_SOURCE_DIR}
+include_directories(${OSMPBF_INCLUDE_DIRS})
+
+set(MY_LINK_LIBRARIES
+	${OSMPBF_LINK_LIBRARIES}
+	${CMAKE_THREAD_LIBS_INIT}
 )
-
-set(OSMPBF_LIBRARIES ${osmpbf_BINARY_DIR}/libosmpbf.a)
 
 add_executable(dumppbf dumppbf.cpp)
 add_dependencies(dumppbf osmpbf)
-target_link_libraries(dumppbf ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(dumppbf )
 
 add_executable(dumppbf_openmp dumppbf.cpp)
 add_dependencies(dumppbf_openmp osmpbf)
-target_link_libraries(dumppbf_openmp ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(dumppbf_openmp ${MY_LINK_LIBRARIES})
 add_target_properties(dumppbf_openmp COMPILE_FLAGS "-fopenmp")
 add_target_properties(dumppbf_openmp LINK_FLAGS "-fopenmp")
 
 add_executable(dumppbf_parsehelpers dumppbf_parsehelpers.cpp)
 add_dependencies(dumppbf_parsehelpers osmpbf)
-target_link_libraries(dumppbf_parsehelpers ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(dumppbf_parsehelpers ${MY_LINK_LIBRARIES})
 add_target_properties(dumppbf_parsehelpers COMPILE_FLAGS "-fopenmp")
 add_target_properties(dumppbf_parsehelpers LINK_FLAGS "-fopenmp")
 
 add_executable(filteredCount filteredCount.cpp)
 add_dependencies(filteredCount osmpbf)
-target_link_libraries(filteredCount ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(filteredCount ${MY_LINK_LIBRARIES})
 
 add_executable(osmpbf_dump osmpbf_dump.cpp)
 add_dependencies(osmpbf_dump osmpbf)
-target_link_libraries(osmpbf_dump ${OSMPBF_LIBRARIES} ${ZLIB_LIBRARIES} ${PROTOBUF_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(osmpbf_dump ${MY_LINK_LIBRARIES})
