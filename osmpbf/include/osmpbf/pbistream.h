@@ -81,8 +81,8 @@ private:
 
 class PbiStream {
 public:
-	PbiStream() = default;
-	PbiStream(PbiStream && other) = default;
+	PbiStream();
+	PbiStream(PbiStream && other);
 	PbiStream(OSMFileIn && fileIn);
 	PbiStream(std::vector<OSMFileIn> && files);
 	PbiStream(const std::vector<std::string> & fileNames);
