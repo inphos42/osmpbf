@@ -210,10 +210,14 @@ m_priv(std::make_unique<imp::SingleFilePbiStream>(std::move(fileIn)))
 {}
 
 PbiStream::PbiStream(std::vector<OSMFileIn> && files) {
-	if (files.size()) {
+	if (files.size() > 1) {
 		m_priv = std::make_unique<imp::MultiFilePbiStream>(files.begin(), files.end());
-		files.clear();
+		
 	}
+	else if (files.size()) {
+		m_priv = std::make_unique<imp::SingleFilePbiStream>(std::move(files.front()));
+	}
+	files.clear();
 }
 
 PbiStream::PbiStream(const std::vector<std::string> & fileNames) {
@@ -229,7 +233,7 @@ PbiStream::PbiStream(const std::vector<std::string> & fileNames) {
 		}
 	}
 	if (files.size() == 1) {
-		m_priv.reset(new imp::SingleFilePbiStream(std::move(files[0])));
+		m_priv.reset(new imp::SingleFilePbiStream(std::move(files.front())));
 	}
 	else if (files.size() > 1) {
 		m_priv.reset(new imp::MultiFilePbiStream(files.begin(), files.end()));
