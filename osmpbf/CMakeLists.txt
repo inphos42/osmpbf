@@ -16,7 +16,7 @@
 #   License along with this library; if not, see
 #   <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.9)
 
 project(osmpbf)
 
@@ -61,10 +61,6 @@ mark_as_advanced(
 	OSMPBF_LINK_LIBRARIES
 )
 
-include_directories(
-	${OSMPBF_INCLUDE_DIRS}
-)
-
 set(SOURCES_CPP
 	blobfile.cpp
 	osmfilein.cpp
@@ -98,4 +94,5 @@ add_library(${PROJECT_NAME} STATIC
 	${SOURCES_CPP} ${INCLUDE_HEADERS}
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC ${MY_LINK_LIBRARIES})
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
+target_include_directories(${PROJECT_NAME} PUBLIC ${OSMPBF_INCLUDE_DIRS})
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
