@@ -20,6 +20,7 @@
 
 #include <osmpbf/abstractprimitiveinputadaptor.h>
 #include <osmpbf/primitiveblockinputadaptor.h>
+#include <iostream>
 
 namespace osmpbf
 {

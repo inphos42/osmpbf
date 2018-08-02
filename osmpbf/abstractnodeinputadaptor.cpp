@@ -1,4 +1,5 @@
 #include <osmpbf/abstractnodeinputadaptor.h>
+#include <iostream>
 
 namespace osmpbf {
 
