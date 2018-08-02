@@ -11,11 +11,11 @@
 namespace osmpbf {
 
 uint32_t net2hostLong(uint32_t v) {
-	return ::ntohl(v);
+	return ntohl(v);
 }
 
 uint32_t host2NetLong(uint32_t v) {
-	return ::htonl(v);
+	return htonl(v);
 }
 
 }//end namespace osmpbf
