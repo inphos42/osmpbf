@@ -514,7 +514,7 @@ bool BlobFileOut::writeBlob(osmpbf::BlobDataType type, const char * buffer, uint
 	}
 
 	BlobHeader * blobHeader = new BlobHeader();
-	assert(serializedBlobBuffer.length() < std::numeric_limits<::google::protobuf::int32>::max());
+	assert(serializedBlobBuffer.length() < std::size_t{std::numeric_limits<::google::protobuf::int32>::max()});
 	blobHeader->set_datasize((::google::protobuf::int32) serializedBlobBuffer.length());
 	switch (type)
 	{
@@ -552,7 +552,7 @@ bool BlobFileOut::writeBlob(osmpbf::BlobDataType type, const char * buffer, uint
 	off_t blobPosition = osmpbf::lseek(m_FileDescriptor, 0, IO_SEEK_CUR);
 
 	// write header size
-	uint32_t headerSize = blobHeader->ByteSize();
+	std::size_t headerSize = blobHeader->ByteSizeLong();
 	headerSize = osmpbf::host2NetLong(headerSize);
 	osmpbf::lseek(m_FileDescriptor, headerSizePosition, IO_SEEK_SET);
 	osmpbf::write(m_FileDescriptor, &headerSize, sizeof(uint32_t));
