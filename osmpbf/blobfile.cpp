@@ -306,7 +306,7 @@ BlobDataType BlobFileIn::readBlob(char * & buffer, uint32_t & bufferSize, uint32
 
 	if (m_VerboseOutput) std::cout << "== blob ==" << std::endl;
 
-	uint32_t blobLength;
+	uint32_t blobLength = 0;
 	BlobDataType blobDataType;
 
 	readBlobHeader(blobLength, blobDataType);
