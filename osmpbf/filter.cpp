@@ -993,7 +993,7 @@ bool RegexKeyTagFilter::p_cached_match(const IPrimitive& primitive)
 {
 	for(int i(0), s(primitive.tagsSize()); i < s; ++i)
 	{
-		if (std::regex_match(primitive.key(i), m_regex, m_matchFlags))
+		if (m_IdSet.count(primitive.keyId(i)))
 		{
 			return true;
 		}
@@ -1005,7 +1005,7 @@ bool RegexKeyTagFilter::p_uncached_match(const IPrimitive& primitive)
 {
 	for(int i(0), s(primitive.tagsSize()); i < s; ++i)
 	{
-		if (m_IdSet.count(primitive.keyId(i)))
+		if (std::regex_match(primitive.key(i), m_regex, m_matchFlags))
 		{
 			return true;
 		}
