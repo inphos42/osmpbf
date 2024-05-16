@@ -24,16 +24,18 @@ if(CMAKE_CROSSCOMPILING)
 	# find build host protoc and include generator function(s)
 	set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM BOTH)
 	set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
-	find_package(Protobuf)
+	find_package(Protobuf REQUIRED CONFIG)
+	find_package(Protobuf REQUIRED)
 	set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM ONLY)
 	set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 	set(PROTOBUF_INCLUDE_DIRS ${ANDROID_EXT_PATH_ROOT}/include)
 else(CMAKE_CROSSCOMPILING)
-	find_package(Protobuf)
+	find_package(Protobuf REQUIRED CONFIG)
+	find_package(Protobuf REQUIRED)
 endif(CMAKE_CROSSCOMPILING)
 
-PROTOBUF_GENERATE_CPP(PROTO_SOURCES PROTO_HEADERS osmblob.proto osmformat.proto)
+protobuf_generate_cpp(PROTO_SOURCES PROTO_HEADERS osmblob.proto osmformat.proto)
 
 find_package(ZLIB REQUIRED)
 
@@ -44,9 +46,17 @@ set(OSMPBF_LIBRARIES
 )
 
 set(MY_LINK_LIBRARIES
-	${PROTOBUF_LIBRARIES}
-	${ZLIB_LIBRARIES}
+	protobuf::libprotobuf
+	ZLIB::ZLIB
 )
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" AND Protobuf_VERSION VERSION_GREATER_EQUAL 4.22)
+	set(MY_LINK_LIBRARIES
+		${MY_LINK_LIBRARIES}
+		absl::absl_log
+		absl::log_internal_check_op
+	)
+endif()
 
 set(OSMPBF_LINK_LIBRARIES
 	${PROJECT_NAME}
