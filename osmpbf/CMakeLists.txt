@@ -106,3 +106,5 @@ add_library(${PROJECT_NAME} STATIC
 target_link_libraries(${PROJECT_NAME} PUBLIC ${MY_LINK_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${OSMPBF_INCLUDE_DIRS})
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
+add_library(osmpbf::osmpbf ALIAS ${PROJECT_NAME})
+
