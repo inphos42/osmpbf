@@ -17,7 +17,7 @@
     License along with this library; if not, see
     <http://www.gnu.org/licenses/>.
  */
-
+syntax = "proto2";
 package crosby.binary;
 option optimize_for = LITE_RUNTIME;
 
