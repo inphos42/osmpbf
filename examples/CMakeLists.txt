@@ -36,33 +36,26 @@ ENDMACRO(ADD_TARGET_PROPERTIES)
 
 find_package(Threads REQUIRED)
 
-include_directories(${OSMPBF_INCLUDE_DIRS})
-
 set(MY_LINK_LIBRARIES
-	osmpbf
+	osmpbf::osmpbf
 	${CMAKE_THREAD_LIBS_INIT}
 )
 
 add_executable(dumppbf dumppbf.cpp)
-add_dependencies(dumppbf osmpbf)
-target_link_libraries(dumppbf )
+target_link_libraries(dumppbf ${MY_LINK_LIBRARIES})
 
 add_executable(dumppbf_openmp dumppbf.cpp)
-add_dependencies(dumppbf_openmp osmpbf)
 target_link_libraries(dumppbf_openmp ${MY_LINK_LIBRARIES})
 add_target_properties(dumppbf_openmp COMPILE_FLAGS "-fopenmp")
 add_target_properties(dumppbf_openmp LINK_FLAGS "-fopenmp")
 
 add_executable(dumppbf_parsehelpers dumppbf_parsehelpers.cpp)
-add_dependencies(dumppbf_parsehelpers osmpbf)
 target_link_libraries(dumppbf_parsehelpers ${MY_LINK_LIBRARIES})
 add_target_properties(dumppbf_parsehelpers COMPILE_FLAGS "-fopenmp")
 add_target_properties(dumppbf_parsehelpers LINK_FLAGS "-fopenmp")
 
 add_executable(filteredCount filteredCount.cpp)
-add_dependencies(filteredCount osmpbf)
 target_link_libraries(filteredCount ${MY_LINK_LIBRARIES})
 
 add_executable(osmpbf_dump osmpbf_dump.cpp)
-add_dependencies(osmpbf_dump osmpbf)
 target_link_libraries(osmpbf_dump ${MY_LINK_LIBRARIES})
