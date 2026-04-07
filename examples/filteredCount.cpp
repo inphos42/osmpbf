@@ -31,10 +31,10 @@
 
 struct SharedState {
 	std::mutex lock;
-	uint64_t nodeCount;
-	uint64_t wayCount;
-	uint64_t relationCount;
-	SharedState() : nodeCount(0), wayCount(0), relationCount(0) {}
+	uint64_t nodeCount{0};
+	uint64_t wayCount{0};
+	uint64_t relationCount{0};
+	bool verbose{false};
 };
 
 struct MyCounter {
@@ -54,16 +54,25 @@ struct MyCounter {
 		nodeCount = wayCount = relationCount = 0;
 		for(osmpbf::INodeStream node(pbi.getNodeStream()); !node.isNull(); node.next()) {
 			if (filter->matches(node)) {
+				if (state->verbose) {
+					std::cout << "Matching node: " << node.id() << std::endl;
+				}
 				++nodeCount;
 			}
 		}
 		for(osmpbf::IWayStream way(pbi.getWayStream()); !way.isNull(); way.next()) {
 			if (filter->matches(way)) {
+				if (state->verbose) {
+					std::cout << "Matching way: " << way.id() << std::endl;
+				}
 				++wayCount;
 			}
 		}
 		for(osmpbf::IRelationStream rel(pbi.getRelationStream()); !rel.isNull(); rel.next()) {
 			if (filter->matches(rel)) {
+				if (state->verbose) {
+					std::cout << "Matching relation: " << rel.id() << std::endl;
+				}
 				++relationCount;
 			}
 		}
@@ -77,7 +86,7 @@ struct MyCounter {
 
 void help() {
 	std::cout << "Count the number of primitives in a osm.pbf file matching specified tags\n";
-	std::cout << "prg [-k <key> [-k]] [-kv <key> <value> [-kv]] [-t number_of_threads] [-b number_of_blocks_per_fetch] filename\n";
+	std::cout << "prg -v [-k <key> [-k]] [-kv <key> <value> [-kv]] [-t number_of_threads] [-b number_of_blocks_per_fetch] filename\n";
 	std::cout << std::flush;
 }
 
@@ -109,6 +118,9 @@ int main(int argc, char ** argv) {
 		else if (token == "-b" && i+1 < argc) {
 			readBlobCount = ::atoi(argv[i+1]);
 			++i;
+		}
+		else if (token == "--verbose" || token == "-v") {
+			state.verbose = true;
 		}
 		else if(token == "--help" || token == "-h") {
 			help();
