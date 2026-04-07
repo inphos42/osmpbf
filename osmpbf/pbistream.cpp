@@ -1,6 +1,6 @@
 #include <osmpbf/pbistream.h>
 #include <osmpbf/osmfilein.h>
-#include <assert.h>
+#include <cassert>
 #include <limits>
 #include <algorithm>
 #include <stdexcept>
